@@ -31,4 +31,11 @@
 *.out
 *.app
 
+# IDE files
 .idea
+
+# build files
+build
+
+# tools
+tools

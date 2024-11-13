@@ -1,15 +1,16 @@
 #!/bin/bash
 
-SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-SCRIPT_PATH="${SCRIPT_DIR}/$(basename "$0")"
-DEFAULT_SYS_INSTALL_DIR="${SCRIPT_DIR}/../sys_root"
-DEFAULT_TOOL_INSTALL_DIR="${SCRIPT_DIR}/../tools"
-DEFAULT_BUILD_DIR="${SCRIPT_DIR}/../build"
+INSTALL_SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+INSTALL_SCRIPT_PATH="${INSTALL_SCRIPT_DIR}/$(basename "$0")"
+DEFAULT_SYS_INSTALL_DIR="${INSTALL_SCRIPT_DIR}/../sys_root"
+DEFAULT_TOOL_INSTALL_DIR="${INSTALL_SCRIPT_DIR}/../tools"
+DEFAULT_BUILD_DIR="${INSTALL_SCRIPT_DIR}/../build"
 
-source "${SCRIPT_DIR}/pretty_print.bash"
+source "${INSTALL_SCRIPT_DIR}/pretty_print.bash"c
+source "${INSTALL_SCRIPT_DIR}/helpers.bash"
 
 help() {
-  echo "${SCRIPT_PATH} --install [--build_dir <dir>] [--tool_dir <dir>] [--sys_root <dir>]"
+  echo "${INSTALL_SCRIPT_PATH} --install [--build_dir <dir>] [--tool_dir <dir>] [--sys_root <dir>]"
   echo "Where:"
   echo "--install         - required flag to start installation"
   echo "--build_dir <dir> - provides directory <dir> to save all build files"
@@ -19,15 +20,8 @@ help() {
   echo "Note: directory in which script is stored will be used as base for default paths"
 }
 
-dump_error() {
-  help
-
-  pretty_error $1
-  exit 1
-}
-
 run_build() {
-  "${SCRIPT_DIR}/build_cross_compile.bash" --install --build_dir BUILD_DIR --tool_dir TOOL_DIR
+  "${INSTALL_SCRIPT_DIR}/build_cross_compile.bash" --install --build_dir "${BUILD_DIR}" --tool_dir "${TOOL_DIR}"
 }
 
 parse_args() {
@@ -91,9 +85,9 @@ process_args() {
 }
 
 main() {
-  parse_args $@
+  parse_args "$@"
   process_args
   run_build
 }
 
-main $@
+main "$@"
