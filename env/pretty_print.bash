@@ -1,38 +1,36 @@
 #!/bin/bash
 
-# ANSI color codes
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
-BOLD='\033[1m'
-
-# Pretty echo function
 pretty_echo() {
     local type=$1
     shift
     local message="$@"
 
-    case "${type,,}" in # Convert to lowercase for comparison
+    local red='\033[0;31m'
+    local yellow='\033[1;33m'
+    local green='\033[0;32m'
+    local blue='\033[0;34m'
+    local cyan='\033[0;36m'
+    local nc='\033[0m'
+    local bold='\033[1m'
+
+    case "${type,,}" in
         "error")
-            echo -e "${RED}${BOLD}[ERROR]${NC} ${message}"
+            echo -e "${red}${bold}[ERROR]${nc} ${message}"
             ;;
         "warning")
-            echo -e "${YELLOW}${BOLD}[WARNING]${NC} ${message}"
+            echo -e "${yellow}${bold}[WARNING]${nc} ${message}"
             ;;
         "info")
-            echo -e "${BLUE}${BOLD}[INFO]${NC} ${message}"
+            echo -e "${blue}${bold}[INFO]${nc} ${message}"
             ;;
         "success")
-            echo -e "${GREEN}${BOLD}[SUCCESS]${NC} ${message}"
+            echo -e "${green}${bold}[SUCCESS]${nc} ${message}"
             ;;
         "debug")
-            echo -e "${CYAN}${BOLD}[DEBUG]${NC} ${message}"
+            echo -e "${cyan}${bold}[DEBUG]${nc} ${message}"
             ;;
         *)
-            echo -e "${RED}${BOLD}[ERROR]${NC} Unknown message type in pretty print: ${type}!"
+            echo -e "${red}${bold}[ERROR]${nc} Unknown message type in pretty print: ${type}!"
             exit 1
             ;;
     esac
