@@ -2,9 +2,14 @@
 
 INSTALL_SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 INSTALL_SCRIPT_PATH="${INSTALL_SCRIPT_DIR}/$(basename "$0")"
-DEFAULT_SYS_INSTALL_DIR="${INSTALL_SCRIPT_DIR}/../sys_root"
-DEFAULT_TOOL_INSTALL_DIR="${INSTALL_SCRIPT_DIR}/../tools"
-DEFAULT_BUILD_DIR="${INSTALL_SCRIPT_DIR}/../build"
+
+INSTALL_DEFAULT_SYS_INSTALL_DIR="${INSTALL_SCRIPT_DIR}/../sys_root"
+INSTALL_DEFAULT_TOOL_INSTALL_DIR="${INSTALL_SCRIPT_DIR}/../tools"
+INSTALL_DEFAULT_BUILD_DIR="${INSTALL_SCRIPT_DIR}/../build"
+
+INSTALL_POSITIONAL_ARGS=()
+INSTALL_FOUND=false
+INSTALL_VERBOSE=""
 
 source "${INSTALL_SCRIPT_DIR}/pretty_print.bash"
 source "${INSTALL_SCRIPT_DIR}/helpers.bash"
@@ -22,28 +27,24 @@ help() {
 }
 
 run_build() {
-  "${INSTALL_SCRIPT_DIR}/build_cross_compile.bash" --install --build_dir "${BUILD_DIR}" --tool_dir "${TOOL_DIR}" "${VERBOSE}"
+  "${INSTALL_SCRIPT_DIR}/build_cross_compile.bash" --install --build_dir "${INSTALL_BUILD_DIR}" --tool_dir "${INSTALL_TOOL_DIR}" "${INSTALL_VERBOSE}"
 }
 
 parse_args() {
-  POSITIONAL_ARGS=()
-  INSTALL_FOUND=false
-  VERBOSE=""
-
   while [[ $# -gt 0 ]]; do
     case $1 in
       -t|--tool_dir)
-        TOOL_DIR="$2"
+        INSTALL_TOOL_DIR="$2"
         shift
         shift
         ;;
       -s|--sys_root)
-        SYS_DIR="$2"
+        INSTALL_SYS_DIR="$2"
         shift
         shift
         ;;
       -b|--build_dir)
-        BUILD_DIR="$2"
+        INSTALL_BUILD_DIR="$2"
         shift
         shift
         ;;
@@ -56,20 +57,20 @@ parse_args() {
         shift
         ;;
       -v|--verbose)
-        VERBOSE="--verbose"
+        INSTALL_VERBOSE="--verbose"
         shift
         ;;
       -*|--*)
         dump_error "Unknown option $i"
         ;;
       *)
-        POSITIONAL_ARGS+=("$1")
+        INSTALL_POSITIONAL_ARGS+=("$1")
         shift
         ;;
     esac
   done
 
-  set -- "${POSITIONAL_ARGS[@]}"
+  set -- "${INSTALL_POSITIONAL_ARGS[@]}"
 }
 
 process_args() {
@@ -77,16 +78,16 @@ process_args() {
     dump_error "--install flag was not provided!"
   fi
 
-  if [ -z "${TOOL_DIR}" ] ; then
-    TOOL_DIR="$DEFAULT_TOOL_INSTALL_DIR"
+  if [ -z "${INSTALL_TOOL_DIR}" ] ; then
+    INSTALL_TOOL_DIR="$INSTALL_DEFAULT_TOOL_INSTALL_DIR"
   fi
 
-  if [ -z "${BUILD_DIR}" ] ; then
-    BUILD_DIR="$DEFAULT_BUILD_DIR"
+  if [ -z "${INSTALL_BUILD_DIR}" ] ; then
+    INSTALL_BUILD_DIR="$INSTALL_DEFAULT_BUILD_DIR"
   fi
 
-  if [ -z "${SYS_DIR}" ] ; then
-    SYS_DIR="$DEFAULT_SYS_INSTALL_DIR"
+  if [ -z "${INSTALL_SYS_DIR}" ] ; then
+    INSTALL_SYS_DIR="$INSTALL_DEFAULT_SYS_INSTALL_DIR"
   fi
 }
 
