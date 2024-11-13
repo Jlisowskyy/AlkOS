@@ -4,6 +4,8 @@ CROSS_COMPILE_BUILD_SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd
 CROSS_COMPILE_BUILD_SCRIPT_PATH="${CROSS_COMPILE_BUILD_SCRIPT_DIR}/$(basename "$0")"
 
 CROSS_COMPILE_BUILD_BIN_UTILS_VER="2.43.1"
+CROSS_COMPILE_BUILD_GDB_VER="15.2"
+CROSS_COMPILE_BUILD_GCC_VER="14.2.0"
 CROSS_COMPILE_BUILD_TARGET=i686-elf
 
 CROSS_COMPILE_BUILD_POSITIONAL_ARGS=()
@@ -57,7 +59,7 @@ download_source() {
     runner "Failed to download ${name}" wget "${link}"
     pretty_success "${name} downloaded correctly"
   else
-    pretty_info "${name} already downloaded"
+    pretty_info "Skipping... ${name} already downloaded"
   fi
 }
 
@@ -101,12 +103,42 @@ build_binutils() {
 }
 
 build_gcc() {
-  echo ELO
+    local gcc_dir="${CROSS_COMPILE_BUILD_BUILD_DIR}/build_gcc"
+    local gcc_name="gcc-${CROSS_COMPILE_BUILD_GCC_VER}"
+
+    pretty_info "Building GCC"
+
+    prepare_directory "${gcc_dir}"
+    cd "${gcc_dir}"
+
+    download_extract_gnu_source "${gcc_name}.tar.gz" "https://ftp.gnu.org/gnu/gcc/${gcc_name}"
+
+    pretty_info "Configuring GCC"
+    runner "Failed to configure GCC" ${gcc_name}/configure --target="${CROSS_COMPILE_BUILD_TARGET}" --prefix="${CROSS_COMPILE_BUILD_TOOL_DIR}" --disable-nls --enable-languages=c,c++ --without-headers
+    pretty_success "GCC configured correctly"
+
+    pretty_info "Building GCC with ${PROC_COUNT} threads"
+    runner "Failed to build GCC" make -j "${PROC_COUNT}" all-gcc
+    pretty_success "GCC built correctly"
+
+    pretty_info "Building libgcc"
+    runner "Failed to build libgcc" make -j "${PROC_COUNT}" all-target-libgcc
+    pretty_success "libgcc built correctly"
+
+    pretty_info "Installing GCC"
+    runner "Failed to install GCC" make install-gcc
+    pretty_success "GCC installed correctly"
+
+    pretty_info "Installing libgcc"
+    runner "Failed to install libgcc" make install-target-libgcc
+    pretty_success "libgcc installed correctly"
+
+    pretty_success "GCC build completed"
 }
 
 build_gdb() {
   local gdb_dir="${CROSS_COMPILE_BUILD_BUILD_DIR}/build_gdb"
-  local gdb_name="gdb-15.2"
+  local gdb_name="gdb-${CROSS_COMPILE_BUILD_GDB_VER}"
 
   pretty_info "Building GDB"
 
@@ -131,7 +163,7 @@ build_gdb() {
 }
 
 run_build() {
-  #    export PATH="$CROSS_COMPILE_BUILD_TOOL_DIR/bin:$PATH"
+  export PATH="$CROSS_COMPILE_BUILD_TOOL_DIR/bin:$PATH"
 
   pretty_info "Starting GCC cross-compiler build with build directory: ${CROSS_COMPILE_BUILD_BUILD_DIR} and target directory: ${CROSS_COMPILE_BUILD_TOOL_DIR}"
 

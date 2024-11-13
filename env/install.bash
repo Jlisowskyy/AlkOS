@@ -6,7 +6,7 @@ DEFAULT_SYS_INSTALL_DIR="${INSTALL_SCRIPT_DIR}/../sys_root"
 DEFAULT_TOOL_INSTALL_DIR="${INSTALL_SCRIPT_DIR}/../tools"
 DEFAULT_BUILD_DIR="${INSTALL_SCRIPT_DIR}/../build"
 
-source "${INSTALL_SCRIPT_DIR}/pretty_print.bash"c
+source "${INSTALL_SCRIPT_DIR}/pretty_print.bash"
 source "${INSTALL_SCRIPT_DIR}/helpers.bash"
 
 help() {
