@@ -10,37 +10,39 @@ source "${INSTALL_SCRIPT_DIR}/pretty_print.bash"c
 source "${INSTALL_SCRIPT_DIR}/helpers.bash"
 
 help() {
-  echo "${INSTALL_SCRIPT_PATH} --install [--build_dir <dir>] [--tool_dir <dir>] [--sys_root <dir>]"
+  echo "${INSTALL_SCRIPT_PATH} --install [--build_dir <dir>] [--tool_dir <dir>] [--sys_root <dir>] [-v | --verbose]"
   echo "Where:"
-  echo "--install         - required flag to start installation"
-  echo "--build_dir <dir> - provides directory <dir> to save all build files"
-  echo "--tool_dir  <dir> - directory where tooling should be saved"
-  echo "--sys_root  <dir> - directory serving as a base dir for the system"
+  echo "--install         | -i       - required flag to start installation"
+  echo "--build_dir <dir> | -b <dir> - provides directory <dir> to save all build files"
+  echo "--tool_dir  <dir> | -t <dir> - directory where tooling should be saved"
+  echo "--sys_root  <dir> | -s <dir> - directory serving as a base dir for the system"
+  echo "--verbose         | -v       - flag to enable verbose output"
   echo
   echo "Note: directory in which script is stored will be used as base for default paths"
 }
 
 run_build() {
-  "${INSTALL_SCRIPT_DIR}/build_cross_compile.bash" --install --build_dir "${BUILD_DIR}" --tool_dir "${TOOL_DIR}"
+  "${INSTALL_SCRIPT_DIR}/build_cross_compile.bash" --install --build_dir "${BUILD_DIR}" --tool_dir "${TOOL_DIR}" "${VERBOSE}"
 }
 
 parse_args() {
   POSITIONAL_ARGS=()
   INSTALL_FOUND=false
+  VERBOSE=""
 
   while [[ $# -gt 0 ]]; do
     case $1 in
-      --tool_dir)
+      -t|--tool_dir)
         TOOL_DIR="$2"
         shift
         shift
         ;;
-      --sys_root)
+      -s|--sys_root)
         SYS_DIR="$2"
         shift
         shift
         ;;
-      --build_dir)
+      -b|--build_dir)
         BUILD_DIR="$2"
         shift
         shift
@@ -49,8 +51,12 @@ parse_args() {
         help
         exit 0
         ;;
-      --install)
+      -i|--install)
         INSTALL_FOUND=true
+        shift
+        ;;
+      -v|--verbose)
+        VERBOSE="--verbose"
         shift
         ;;
       -*|--*)

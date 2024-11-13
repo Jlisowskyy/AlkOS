@@ -1,19 +1,36 @@
 #!/bin/bash
 
-SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-BIN_UTILS_VER="2.43.1"
-PROC_COUNT=$(nproc --all)
-TARGET=i686-elf
+CROSS_COMPILE_BUILD_SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+CROSS_COMPILE_BUILD_SCRIPT_PATH="${CROSS_COMPILE_BUILD_SCRIPT_DIR}/$(basename "$0")"
 
-source "${SCRIPT_DIR}/pretty_print.bash"
-source "${SCRIPT_DIR}/helpers.bash"
+CROSS_COMPILE_BUILD_BIN_UTILS_VER="2.43.1"
+CROSS_COMPILE_BUILD_TARGET=i686-elf
+
+CROSS_COMPILE_BUILD_POSITIONAL_ARGS=()
+CROSS_COMPILE_BUILD_INSTALL_FOUND=false
+CROSS_COMPILE_BUILD_QUIET_COMMANDS=true
+
+PROC_COUNT=$(nproc --all)
+
+source "${CROSS_COMPILE_BUILD_SCRIPT_DIR}/pretty_print.bash"
+source "${CROSS_COMPILE_BUILD_SCRIPT_DIR}/helpers.bash"
 
 help() {
-  echo "${SCRIPT_PATH} --install [--build_dir <dir>] [--tool_dir <dir>]"
+  echo "${CROSS_COMPILE_BUILD_SCRIPT_PATH} --install [--build_dir | -b <dir>] [--tool_dir | -t <dir>] [--verbose | -v]"
   echo "Where:"
-  echo "--install         - required flag to start installation"
-  echo "--build_dir <dir> - provides directory <dir> to save all build files"
-  echo "--tool_dir  <dir> - directory where tooling should be saved"
+  echo "--install         | -i - required flag to start installation"
+  echo "--build_dir <dir> | -b <dir> - provides directory <dir> to save all build files"
+  echo "--tool_dir  <dir> | -t <dir> - directory where tooling should be saved"
+  echo "--verbose         | -v - flag to enable verbose output"
+}
+
+runner() {
+  assert_no_argument "$1"
+
+  local dump_info="$1"
+  shift
+
+  base_runner "${dump_info}" "${CROSS_COMPILE_BUILD_QUIET_COMMANDS}" "$@"
 }
 
 prepare_directory() {
@@ -37,41 +54,50 @@ download_source() {
 
   if ! [ -f "${name}" ]; then
     pretty_info "Downloading ${name}"
-    wget "${link}" || dump_error "Failed to download ${name}"
+    runner "Failed to download ${name}" wget "${link}"
+    pretty_success "${name} downloaded correctly"
   else
     pretty_info "${name} already downloaded"
   fi
 }
 
-download_extract_binutils_source() {
+download_extract_gnu_source() {
   assert_no_argument "$1"
+  assert_no_argument "$2"
   local name="$1"
+  local link="$2"
 
-  download_source "${name}" "https://ftp.gnu.org/gnu/binutils/${name}"
+  download_source "${name}" "${link}/${name}"
 
   pretty_info "Extracting ${name}"
-  tar -xf "${name}" || dump_error "Failed to extract ${name}"
+  runner "Failed to extract ${name}" tar -xf "${name}"
+  pretty_success "${name} extracted correctly"
 }
 
 build_binutils() {
-    local binutils_dir="${BUILD_DIR}/build_binutils"
-    local binutils_name="binutils-${BIN_UTILS_VER}"
+    local binutils_dir="${CROSS_COMPILE_BUILD_BUILD_DIR}/build_binutils"
+    local binutils_name="binutils-${CROSS_COMPILE_BUILD_BIN_UTILS_VER}"
 
     pretty_info "Building binutils"
 
     prepare_directory "${binutils_dir}"
     cd "${binutils_dir}"
 
-    download_extract_binutils_source "${binutils_name}.tar.gz"
+    download_extract_gnu_source "${binutils_name}.tar.gz" "https://ftp.gnu.org/gnu/binutils"
 
     pretty_info "Configuring binutils"
-    ${binutils_name}/configure --target="${TARGET}" --prefix="${TOOL_DIR}" --with-sysroot --disable-nls --disable-werror || dump_error "Failed to configure binutils"
+    runner "Failed to configure binutils" ${binutils_name}/configure --target="${CROSS_COMPILE_BUILD_TARGET}" --prefix="${CROSS_COMPILE_BUILD_TOOL_DIR}" --with-sysroot --disable-nls --disable-werror
+    pretty_success "Binutils configured correctly"
 
     pretty_info "Building binutils with ${PROC_COUNT} threads"
-    make -j "${PROC_COUNT}" || dump_error "Failed to build binutils"
+    runner "Failed to build binutils" make -j "${PROC_COUNT}"
+    pretty_success "Binutils built correctly"
 
     pretty_info "Installing binutils"
-    make install || dump_error "Failed to install binutils"
+    runner "Failed to install binutils" make install
+    pretty_success "Binutils installed correctly"
+
+    pretty_success "Binutils build completed"
 }
 
 build_gcc() {
@@ -79,7 +105,7 @@ build_gcc() {
 }
 
 build_gdb() {
-  local gdb_dir="${BUILD_DIR}/build_gdb"
+  local gdb_dir="${CROSS_COMPILE_BUILD_BUILD_DIR}/build_gdb"
   local gdb_name="gdb-15.2"
 
   pretty_info "Building GDB"
@@ -87,41 +113,45 @@ build_gdb() {
   prepare_directory "${gdb_dir}"
   cd "${gdb_dir}"
 
-  download_extract_binutils_source "${gdb_name}.tar.gz"
+  download_extract_gnu_source "${gdb_name}.tar.gz" "https://ftp.gnu.org/gnu/gdb/"
 
   pretty_info "Configuring GDB"
-  ../${gdb_name}/configure --target=${TARGET} --prefix="${TOOL_DIR}" --disable-werror
+  runner "Failed to configure GDB" ${gdb_name}/configure --target=${CROSS_COMPILE_BUILD_TARGET} --prefix="${CROSS_COMPILE_BUILD_TOOL_DIR}" --disable-werror
+  pretty_success "GDB configured correctly"
 
   pretty_info "Building GDB with ${PROC_COUNT} threads"
-  make -j "${PROC_COUNT}" all-gdb
+  runner "Failed to build GDB" make -j "${PROC_COUNT}" all-gdb
+  pretty_success "GDB built correctly"
 
   pretty_info "Installing GDB"
-  make install-gdb
+  runner "Failed to install GDB" make install-gdb
+  pretty_success "GDB installed correctly"
+
+  pretty_success "GDB build completed"
 }
 
 run_build() {
-  #    export PATH="$TOOL_DIR/bin:$PATH"
+  #    export PATH="$CROSS_COMPILE_BUILD_TOOL_DIR/bin:$PATH"
 
-  pretty_info "Starting GCC cross-compiler build with build directory: ${BUILD_DIR} and target directory: ${TOOL_DIR}"
+  pretty_info "Starting GCC cross-compiler build with build directory: ${CROSS_COMPILE_BUILD_BUILD_DIR} and target directory: ${CROSS_COMPILE_BUILD_TOOL_DIR}"
 
   build_binutils
   build_gdb
   build_gcc
+
+  pretty_success "Build: ${CROSS_COMPILE_BUILD_SCRIPT_PATH} completed successfully"
 }
 
 parse_args() {
-  POSITIONAL_ARGS=()
-  INSTALL_FOUND=false
-
   while [[ $# -gt 0 ]]; do
     case $1 in
-      --tool_dir)
-        TOOL_DIR="$2"
+      -t|--tool_dir)
+        CROSS_COMPILE_BUILD_TOOL_DIR="$2"
         shift
         shift
         ;;
-      --build_dir)
-        BUILD_DIR="$2"
+      -b|--build_dir)
+        CROSS_COMPILE_BUILD_BUILD_DIR="$2"
         shift
         shift
         ;;
@@ -129,34 +159,38 @@ parse_args() {
         help
         exit 0
         ;;
-      --install)
-        INSTALL_FOUND=true
+      -i|--install)
+        CROSS_COMPILE_BUILD_INSTALL_FOUND=true
+        shift
+        ;;
+      -v|--verbose)
+        CROSS_COMPILE_BUILD_QUIET_COMMANDS=false
         shift
         ;;
       -*|--*)
         dump_error "Unknown option $1"
         ;;
       *)
-        POSITIONAL_ARGS+=("$1")
+        CROSS_COMPILE_BUILD_POSITIONAL_ARGS+=("$1")
         shift
         ;;
     esac
   done
 
-  set -- "${POSITIONAL_ARGS[@]}"
+  set -- "${CROSS_COMPILE_BUILD_POSITIONAL_ARGS[@]}"
 }
 
 process_args() {
-  if [ $INSTALL_FOUND = false ] ; then
+  if [ $CROSS_COMPILE_BUILD_INSTALL_FOUND = false ] ; then
     dump_error "--install flag was not provided!"
   fi
 
-  if [ -z "${TOOL_DIR}" ] ; then
-    dump_error "--tool_dir flag with directory where save tooling was not provided!"
+  if [ -z "${CROSS_COMPILE_BUILD_TOOL_DIR}" ] ; then
+    dump_error "--tool_dir | -t flag with directory where save tooling was not provided!"
   fi
 
-  if [ -z "${BUILD_DIR}" ] ; then
-    dump_error "--build_dir flag with directory where save build files was not provided!"
+  if [ -z "${CROSS_COMPILE_BUILD_BUILD_DIR}" ] ; then
+    dump_error "--build_dir | -t flag with directory where save build files was not provided!"
   fi
 }
 
