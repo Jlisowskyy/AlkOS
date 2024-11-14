@@ -7,7 +7,6 @@ INSTALL_DEFAULT_SYS_INSTALL_DIR="${INSTALL_SCRIPT_DIR}/../sys_root"
 INSTALL_DEFAULT_TOOL_INSTALL_DIR="${INSTALL_SCRIPT_DIR}/../tools"
 INSTALL_DEFAULT_BUILD_DIR="${INSTALL_SCRIPT_DIR}/../build"
 
-INSTALL_POSITIONAL_ARGS=()
 INSTALL_FOUND=false
 INSTALL_VERBOSE=""
 
@@ -60,17 +59,14 @@ parse_args() {
         INSTALL_VERBOSE="--verbose"
         shift
         ;;
-      -*|--*)
+      -*)
         dump_error "Unknown option $i"
         ;;
       *)
-        INSTALL_POSITIONAL_ARGS+=("$1")
-        shift
+        dump_error "Expected only flags ( -- | - ), got $1"
         ;;
     esac
   done
-
-  set -- "${INSTALL_POSITIONAL_ARGS[@]}"
 }
 
 process_args() {

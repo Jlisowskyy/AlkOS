@@ -8,7 +8,6 @@ CROSS_COMPILE_BUILD_GDB_VER="15.2"
 CROSS_COMPILE_BUILD_GCC_VER="14.2.0"
 CROSS_COMPILE_BUILD_TARGET=i686-elf
 
-CROSS_COMPILE_BUILD_POSITIONAL_ARGS=()
 CROSS_COMPILE_BUILD_INSTALL_FOUND=false
 CROSS_COMPILE_BUILD_QUIET_COMMANDS=true
 
@@ -199,17 +198,14 @@ parse_args() {
         CROSS_COMPILE_BUILD_QUIET_COMMANDS=false
         shift
         ;;
-      -*|--*)
+      -*)
         dump_error "Unknown option $1"
         ;;
       *)
-        CROSS_COMPILE_BUILD_POSITIONAL_ARGS+=("$1")
-        shift
+        dump_error "Expected only flags ( -- | - ), got $1"
         ;;
     esac
   done
-
-  set -- "${CROSS_COMPILE_BUILD_POSITIONAL_ARGS[@]}"
 }
 
 process_args() {
