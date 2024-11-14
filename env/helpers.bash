@@ -6,20 +6,20 @@ HELPERS_LOG_FILE="/tmp/alkOS_build.log"
 source "${HELPERS_SCRIPT_DIR}/pretty_print.bash"
 
 dump_error() {
-  help
+    help
 
-  pretty_error "$1"
-  exit 1
+    pretty_error "$1"
+    exit 1
 }
 
 assert_always() {
-  dump_error "ASSERT failed in ${BASH_SOURCE[1]} at line ${BASH_LINENO[0]}"
+    dump_error "ASSERT failed in ${BASH_SOURCE[1]} at line ${BASH_LINENO[0]}"
 }
 
 assert_argument_provided() {
-  if [ -z "$1" ]; then
-    dump_error "ASSERT: argument was not provided, failed in ${BASH_SOURCE[1]} at line ${BASH_LINENO[0]}"
-  fi
+    if [ -z "$1" ]; then
+        dump_error "ASSERT: argument was not provided, failed in ${BASH_SOURCE[1]} at line ${BASH_LINENO[0]}"
+    fi
 }
 
 base_runner() {
@@ -61,18 +61,18 @@ check_is_in_env_path() {
 }
 
 add_to_user_env_path() {
-  assert_argument_provided "$1"
-  assert_argument_provided "$2"
+    assert_argument_provided "$1"
+    assert_argument_provided "$2"
 
-  local new_path="$1"
-  local is_added="$2"
-  pretty_info "Adding ${new_path} to PATH"
+    local new_path="$1"
+    local is_added="$2"
+    pretty_info "Adding ${new_path} to PATH"
 
-  if [ "${is_added}" = false ]; then
-    echo "export PATH=\"${new_path}:\$PATH\"" >> ~/.bashrc
-    echo "export PATH=\"${new_path}:\$PATH\"" >> ~/.profile
-    pretty_success "Path: ${new_path} added to PATH"
-  else
-    pretty_info "Path: ${new_path} already exists in PATH"
-  fi
+    if [ "${is_added}" = false ]; then
+        echo "export PATH=\"${new_path}:\$PATH\"" >> ~/.bashrc
+        echo "export PATH=\"${new_path}:\$PATH\"" >> ~/.profile
+        pretty_success "Path: ${new_path} added to PATH"
+    else
+        pretty_info "Path: ${new_path} already exists in PATH"
+    fi
 }
