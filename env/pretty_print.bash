@@ -13,24 +13,26 @@ pretty_echo() {
     local nc='\033[0m'
     local bold='\033[1m'
 
+    local label_width=12
+
     case "${type,,}" in
         "error")
-            echo -e "${red}${bold}[ERROR]${nc} ${message}"
+            printf "${red}${bold}[ERROR]${nc}%-$((label_width-7))s%s\n" " " "${message}"
             ;;
         "warning")
-            echo -e "${yellow}${bold}[WARNING]${nc} ${message}"
+            printf "${yellow}${bold}[WARNING]${nc}%-$((label_width-9))s%s\n" " " "${message}"
             ;;
         "info")
-            echo -e "${blue}${bold}[INFO]${nc} ${message}"
+            printf "${blue}${bold}[INFO]${nc}%-$((label_width-6))s%s\n" " " "${message}"
             ;;
         "success")
-            echo -e "${green}${bold}[SUCCESS]${nc} ${message}"
+            printf "${green}${bold}[SUCCESS]${nc}%-$((label_width-9))s%s\n" " " "${message}"
             ;;
         "debug")
-            echo -e "${cyan}${bold}[DEBUG]${nc} ${message}"
+            printf "${cyan}${bold}[DEBUG]${nc}%-$((label_width-7))s%s\n" " " "${message}"
             ;;
         *)
-            echo -e "${red}${bold}[ERROR]${nc} Unknown message type in pretty print: ${type}!"
+            printf "${red}${bold}[ERROR]${nc}%-$((label_width-7))s%s\n" " " "Unknown message type in pretty print: ${type}!"
             exit 1
             ;;
     esac

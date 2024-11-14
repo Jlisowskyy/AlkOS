@@ -10,8 +10,7 @@ CROSS_COMPILE_BUILD_TARGET=i686-elf
 
 CROSS_COMPILE_BUILD_POSITIONAL_ARGS=()
 CROSS_COMPILE_BUILD_INSTALL_FOUND=false
-CROSS_COMPILE_BUILD_QUIET_COMMANDS=true
-CROSS_COMPILE_BUILD_IS_ADDED_TO_PATH=false
+CROSS_COMPILE_BUILD_VERBOSE=false
 
 PROC_COUNT=$(nproc --all)
 
@@ -28,16 +27,16 @@ help() {
 }
 
 runner() {
-  assert_no_argument "$1"
+  assert_argument_provided "$1"
 
   local dump_info="$1"
   shift
 
-  base_runner "${dump_info}" "${CROSS_COMPILE_BUILD_QUIET_COMMANDS}" "$@"
+  base_runner "${dump_info}" "${CROSS_COMPILE_BUILD_VERBOSE}" "$@"
 }
 
 prepare_directory() {
-  assert_no_argument "$1"
+  assert_argument_provided "$1"
   local dir="$1"
 
   if ! [ -d "${dir}" ]; then
@@ -49,8 +48,8 @@ prepare_directory() {
 }
 
 download_source() {
-  assert_no_argument "$1"
-  assert_no_argument "$2"
+  assert_argument_provided "$1"
+  assert_argument_provided "$2"
 
   local name="$1"
   local link="$2"
@@ -65,8 +64,8 @@ download_source() {
 }
 
 download_extract_gnu_source() {
-  assert_no_argument "$1"
-  assert_no_argument "$2"
+  assert_argument_provided "$1"
+  assert_argument_provided "$2"
   local name="$1"
   local link="$2"
 
@@ -163,49 +162,20 @@ build_gdb() {
   pretty_success "GDB build completed"
 }
 
-check_path() {
-    local new_path="${CROSS_COMPILE_BUILD_TOOL_DIR}/bin"
-
-    pretty_info "Checking if ${new_path} is in PATH"
-
-    IFS=':' read -ra path_array <<< "$PATH"
-
-    local existing_path
-    for existing_path in "${path_array[@]}"; do
-        if [ "$existing_path" = "$new_path" ]; then
-            pretty_info "Path: ${new_path} already exists in PATH"
-            CROSS_COMPILE_BUILD_IS_ADDED_TO_PATH=true
-            return 0
-        fi
-    done
-
-    pretty_info "Path: ${new_path} does not exist in PATH"
-}
-
-add_to_user_path() {
-  local new_path="${CROSS_COMPILE_BUILD_TOOL_DIR}/bin"
-  pretty_info "Adding ${new_path} to PATH"
-
-  if [ "$CROSS_COMPILE_BUILD_IS_ADDED_TO_PATH" = false ]; then
-    echo "export PATH=\"${new_path}:\$PATH\"" >> ~/.bashrc
-    echo "export PATH=\"${new_path}:\$PATH\"" >> ~/.profile
-    pretty_success "Path: ${new_path} added to PATH"
-  else
-    pretty_info "Path: ${new_path} already exists in PATH"
-  fi
-}
-
 run_build() {
   pretty_info "Starting GCC cross-compiler build with build directory: ${CROSS_COMPILE_BUILD_BUILD_DIR} and target directory: ${CROSS_COMPILE_BUILD_TOOL_DIR}"
 
-  check_path
-  export PATH="$CROSS_COMPILE_BUILD_TOOL_DIR/bin:$PATH"
+  check_is_in_env_path "${CROSS_COMPILE_BUILD_TOOL_DIR}/bin"
+  local is_in_path=$?
+
+  export PATH="${CROSS_COMPILE_BUILD_TOOL_DIR}/bin:${PATH}"
+  export PREFIX="${CROSS_COMPILE_BUILD_TOOL_DIR}"
 
   build_binutils
   build_gdb
   build_gcc
 
-  add_to_user_path
+  add_to_user_env_path "${CROSS_COMPILE_BUILD_TOOL_DIR}/bin" "${is_in_path}"
 
   pretty_success "Build: ${CROSS_COMPILE_BUILD_SCRIPT_PATH} completed successfully"
 }
@@ -232,7 +202,7 @@ parse_args() {
         shift
         ;;
       -v|--verbose)
-        CROSS_COMPILE_BUILD_QUIET_COMMANDS=false
+        CROSS_COMPILE_BUILD_VERBOSE=true
         shift
         ;;
       -*)
