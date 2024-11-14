@@ -8,8 +8,10 @@ CROSS_COMPILE_BUILD_GDB_VER="15.2"
 CROSS_COMPILE_BUILD_GCC_VER="14.2.0"
 CROSS_COMPILE_BUILD_TARGET=i686-elf
 
+CROSS_COMPILE_BUILD_POSITIONAL_ARGS=()
 CROSS_COMPILE_BUILD_INSTALL_FOUND=false
 CROSS_COMPILE_BUILD_QUIET_COMMANDS=true
+CROSS_COMPILE_BUILD_IS_ADDED_TO_PATH=false
 
 PROC_COUNT=$(nproc --all)
 
@@ -161,14 +163,49 @@ build_gdb() {
   pretty_success "GDB build completed"
 }
 
-run_build() {
-  export PATH="$CROSS_COMPILE_BUILD_TOOL_DIR/bin:$PATH"
+check_path() {
+    local new_path="${CROSS_COMPILE_BUILD_TOOL_DIR}/bin"
 
+    pretty_info "Checking if ${new_path} is in PATH"
+
+    IFS=':' read -ra path_array <<< "$PATH"
+
+    local existing_path
+    for existing_path in "${path_array[@]}"; do
+        if [ "$existing_path" = "$new_path" ]; then
+            pretty_info "Path: ${new_path} already exists in PATH"
+            CROSS_COMPILE_BUILD_IS_ADDED_TO_PATH=true
+            return 0
+        fi
+    done
+
+    pretty_info "Path: ${new_path} does not exist in PATH"
+}
+
+add_to_user_path() {
+  local new_path="${CROSS_COMPILE_BUILD_TOOL_DIR}/bin"
+  pretty_info "Adding ${new_path} to PATH"
+
+  if [ "$CROSS_COMPILE_BUILD_IS_ADDED_TO_PATH" = false ]; then
+    echo "export PATH=\"${new_path}:\$PATH\"" >> ~/.bashrc
+    echo "export PATH=\"${new_path}:\$PATH\"" >> ~/.profile
+    pretty_success "Path: ${new_path} added to PATH"
+  else
+    pretty_info "Path: ${new_path} already exists in PATH"
+  fi
+}
+
+run_build() {
   pretty_info "Starting GCC cross-compiler build with build directory: ${CROSS_COMPILE_BUILD_BUILD_DIR} and target directory: ${CROSS_COMPILE_BUILD_TOOL_DIR}"
+
+  check_path
+  export PATH="$CROSS_COMPILE_BUILD_TOOL_DIR/bin:$PATH"
 
   build_binutils
   build_gdb
   build_gcc
+
+  add_to_user_path
 
   pretty_success "Build: ${CROSS_COMPILE_BUILD_SCRIPT_PATH} completed successfully"
 }
@@ -202,10 +239,13 @@ parse_args() {
         dump_error "Unknown option $1"
         ;;
       *)
-        dump_error "Expected only flags ( -- | - ), got $1"
+        CROSS_COMPILE_BUILD_POSITIONAL_ARGS+=("$1")
+        shift
         ;;
     esac
   done
+
+  set -- "${CROSS_COMPILE_BUILD_POSITIONAL_ARGS[@]}"
 }
 
 process_args() {
