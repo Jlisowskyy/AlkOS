@@ -1,6 +1,6 @@
 #!/bin/bash
 
-HELPERS_SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+HELPERS_SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 HELPERS_LOG_FILE="/tmp/alkOS_build.log"
 
 source "${HELPERS_SCRIPT_DIR}/pretty_print.bash"
@@ -75,4 +75,11 @@ add_to_user_env_path() {
     else
         pretty_info "Path: ${new_path} already exists in PATH"
     fi
+}
+
+check_runs_on_arch() {
+    if ! grep "Arch" /etc/os-release 2>/dev/null 1>/dev/null; then
+      return 1
+    fi
+    return 0
 }

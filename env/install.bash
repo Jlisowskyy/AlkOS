@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INSTALL_SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+INSTALL_SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 INSTALL_SCRIPT_PATH="${INSTALL_SCRIPT_DIR}/$(basename "$0")"
 
 INSTALL_DEFAULT_SYS_INSTALL_DIR="${INSTALL_SCRIPT_DIR}/../sys_root"
