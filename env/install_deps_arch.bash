@@ -2,7 +2,7 @@
 
 INSTALL_DEPS_ARCH_SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 INSTALL_DEPS_ARCH_SCRIPT_PATH="${INSTALL_DEPS_ARCH_SCRIPT_DIR}/$(basename "$0")"
-PACKAGES_TXT_FILE="${INSTALL_DEPS_ARCH_SCRIPT_DIR}/arch_packages.txt"
+INSTALL_DEPS_ARCH_SCRIPT_PACKAGES_TXT_FILE="${INSTALL_DEPS_ARCH_SCRIPT_DIR}/arch_packages.txt"
 
 source "${INSTALL_DEPS_ARCH_SCRIPT_DIR}/pretty_print.bash"
 source "${INSTALL_DEPS_ARCH_SCRIPT_DIR}/helpers.bash"
@@ -19,10 +19,13 @@ help() {
 run_install() {
   pretty_info "Using AUR helper: ${AUR_HELPER}"
   pretty_info "Installing dependencies"
+
   while IFS= read -r package || [ -n "$package" ]; do
     pretty_info "Installing ${package}"
     base_runner "Failed to install ${package}" "${VERBOSE}" "${AUR_HELPER}" -S --noconfirm "${package}"
-  done < "${PACKAGES_TXT_FILE}"
+    pretty_success "Correctly installed: ${package}"
+  done < "${INSTALL_DEPS_ARCH_SCRIPT_PACKAGES_TXT_FILE}"
+
   pretty_success "Dependencies installed"
 }
 
