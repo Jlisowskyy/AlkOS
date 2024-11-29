@@ -30,6 +30,7 @@ set(ARCH i686)
 file(MAKE_DIRECTORY ${SYSROOT}/usr/include)
 file(MAKE_DIRECTORY ${SYSROOT}/usr/lib)
 file(MAKE_DIRECTORY ${SYSROOT}/boot)
+file(MAKE_DIRECTORY ${SYSROOT}/boot/grub)
 
 # Add the subdirectories
 add_subdirectory(libc)
@@ -37,17 +38,16 @@ add_subdirectory(kernel)
 
 # Custom target to create ISO image
 add_custom_target(iso
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/isodir/boot/grub
-        COMMAND ${CMAKE_COMMAND} -E copy ${SYSROOT}/boot/alkos.kernel ${CMAKE_BINARY_DIR}/isodir/boot/alkos.kernel
-        COMMAND ${CMAKE_COMMAND} -E echo "set timeout=0" > ${CMAKE_BINARY_DIR}/isodir/boot/grub/grub.cfg
-        COMMAND ${CMAKE_COMMAND} -E echo "set default=0" >> ${CMAKE_BINARY_DIR}/isodir/boot/grub/grub.cfg
-        COMMAND ${CMAKE_COMMAND} -E echo "menuentry \"AlkOS\" {" >> ${CMAKE_BINARY_DIR}/isodir/boot/grub/grub.cfg
-        COMMAND ${CMAKE_COMMAND} -E echo "    multiboot /boot/alkos.kernel" >> ${CMAKE_BINARY_DIR}/isodir/boot/grub/grub.cfg
-        COMMAND ${CMAKE_COMMAND} -E echo "}" >> ${CMAKE_BINARY_DIR}/isodir/boot/grub/grub.cfg
-        COMMAND grub-mkrescue -o ${CMAKE_BINARY_DIR}/alkos.iso ${CMAKE_BINARY_DIR}/isodir
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${SYSROOT}/boot/grub
+        COMMAND ${CMAKE_COMMAND} -E echo "set timeout=0" > ${SYSROOT}/boot/grub/grub.cfg
+        COMMAND ${CMAKE_COMMAND} -E echo "set default=0" >> ${SYSROOT}/boot/grub/grub.cfg
+        COMMAND ${CMAKE_COMMAND} -E echo "menuentry \"AlkOS\" {" >> ${SYSROOT}/boot/grub/grub.cfg
+        COMMAND ${CMAKE_COMMAND} -E echo "    multiboot /boot/alkos.kernel" >> ${SYSROOT}/boot/grub/grub.cfg
+        COMMAND ${CMAKE_COMMAND} -E echo "}" >> ${SYSROOT}/boot/grub/grub.cfg
+        COMMAND grub-mkrescue -o ${CMAKE_BINARY_DIR}/alkos.iso ${SYSROOT}
         DEPENDS alkos.kernel
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
+
 
 # Custom target to run QEMU
 add_custom_target(run
