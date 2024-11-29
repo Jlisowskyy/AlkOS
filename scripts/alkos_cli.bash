@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ALK_OS_CLI_SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+ALK_OS_CLI_SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 ALK_OS_CLI_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/$(basename "$0")"
 
 ALK_OS_CLI_DEFAULT_TOOL_INSTALL_DIR="${ALK_OS_CLI_SCRIPT_DIR}/../tools"
