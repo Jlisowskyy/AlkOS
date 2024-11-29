@@ -1,5 +1,6 @@
           ; Entry point for the kernel
           extern kernel_main
+          extern kernel_write_message_quit
 
           ; Constants for Multiboot header
 MBALIGN   equ  1 << 0              ; align loaded modules on page boundaries
@@ -25,6 +26,9 @@ section   .bss
 stack_bottom:
           resb 16384 ; 16 KiB
 stack_top:
+
+section   .rodata
+ERROR_NO_CPUID  db  "ERROR: CPUID not supported on the processor", 0
 
 ; The linker script specifies _start as the entry point to the kernel and the
 ; bootloader will jump to this position once the kernel has been loaded. It
@@ -55,6 +59,42 @@ _start:
           ; 1. Enable paging
           ; 2. Enable interrupts
           ; 3. Enable long mode
+
+          ; Check if CPUID is supported by flipping the ID bit (bit 21) in
+          ; the FLAGS register. If we can flip it, CPUID is avaliable.
+
+          ; Copy FLAGS in to EAX via stack
+          pushfd
+          pop eax
+
+          ; Copy to ECX for comparing later
+          mov ecx, eax
+
+          ; Flip the ID bit
+          xor eax, 1 << 21
+          
+          ; Copy EAX to flags via stak
+          push eax
+          popfd
+
+          ; Copy flags back to EAX (with the flipped bit if CPUID is supported)
+          pushfd
+          pop eax
+
+          ; Restore FLAGS
+          push ecx
+          popfd
+
+          ; If the bit was flipped, CPUID is supported
+          xor eax, ecx
+          jnz .cpuId
+
+          ; If the bit was not flipped. Display the message via kernel
+          push ERROR_NO_CPUID
+          call kernel_write_message_quit
+          jmp .hang_begin
+.cpuId:
+
           ; 4. Enable Floating Point Unit (FPU)
           ; 5. Enable Instruction Set Extensions (SSE, AVX, etc.)
           ; 7. GDT, IDT, TSS, etc.
@@ -67,10 +107,11 @@ _start:
           call kernel_main
 
 
+.hang_begin:
           ; Disable interrupts. For future use.
           cli
 
           ; Halt the CPU in an infinite loop.
-.hang:	hlt
-          jmp .hang
+.hang_loop:	hlt
+          jmp .hang_loop
 .end:

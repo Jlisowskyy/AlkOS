@@ -108,4 +108,10 @@ extern "C"
         /* Newline support is left as an exercise. */
         terminal_writestring("Hello, AlkOS!");
     }
+
+    void kernel_write_message_quit(const char* message_str)
+    {
+        terminal_initialize();
+        terminal_writestring(message_str);
+    }
 }
