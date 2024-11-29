@@ -2,12 +2,13 @@
 
 RUN_ALKOS_SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 RUN_ALKOS_SCRIPT_PATH="${RUN_ALKOS_SCRIPT_DIR}/$(basename "$0")"
+RUN_ALKOS_SOURCE_DIR="${BUILD_SCRIPT_DIR}/../.."
 
-source "${RUN_ALKOS_SCRIPT_DIR}/../env/pretty_print.bash"
-source "${RUN_ALKOS_SCRIPT_DIR}/../env/helpers.bash"
+source "${RUN_ALKOS_SOURCE_DIR}/scripts/utils/helpers.bash"
+source "${RUN_ALKOS_SOURCE_DIR}/scripts/utils/pretty_print.bash"
 
 QEMU_COMMAND="qemu-system-i386"
-QEMU_ARGS="-kernel ${RUN_ALKOS_SCRIPT_DIR}/../build/bin/alkos.bin"
+QEMU_ARGS="-kernel ${RUN_ALKOS_SOURCE_DIR}/build/bin/alkos.bin"
 
 help() {
   echo "${RUN_ALKOS_SCRIPT_PATH} [--run | -r] [--install | -i] [--verbose | -v]"

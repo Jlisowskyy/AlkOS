@@ -14,8 +14,8 @@ CROSS_COMPILE_BUILD_VERBOSE=false
 
 PROC_COUNT=$(nproc --all)
 
-source "${CROSS_COMPILE_BUILD_SCRIPT_DIR}/pretty_print.bash"
-source "${CROSS_COMPILE_BUILD_SCRIPT_DIR}/helpers.bash"
+source "${CROSS_COMPILE_BUILD_SCRIPT_DIR}/../utils/pretty_print.bash"
+source "${CROSS_COMPILE_BUILD_SCRIPT_DIR}/../utils/helpers.bash"
 
 help() {
     echo "${CROSS_COMPILE_BUILD_SCRIPT_PATH} --install [--build_dir | -b <dir>] [--tool_dir | -t <dir>] [--verbose | -v]"

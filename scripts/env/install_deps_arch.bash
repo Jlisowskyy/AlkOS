@@ -4,8 +4,8 @@ INSTALL_DEPS_ARCH_SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -
 INSTALL_DEPS_ARCH_SCRIPT_PATH="${INSTALL_DEPS_ARCH_SCRIPT_DIR}/$(basename "$0")"
 INSTALL_DEPS_ARCH_SCRIPT_PACKAGES_TXT_FILE="${INSTALL_DEPS_ARCH_SCRIPT_DIR}/arch_packages.txt"
 
-source "${INSTALL_DEPS_ARCH_SCRIPT_DIR}/pretty_print.bash"
-source "${INSTALL_DEPS_ARCH_SCRIPT_DIR}/helpers.bash"
+source "${INSTALL_DEPS_ARCH_SCRIPT_DIR}/../utils/pretty_print.bash"
+source "${INSTALL_DEPS_ARCH_SCRIPT_DIR}/../utils/helpers.bash"
 
 help() {
   echo "${INSTALL_DEPS_ARCH_SCRIPT_PATH} --install [--verbose | -v] [--aur-helper [yay | paru | ...] | -a]"

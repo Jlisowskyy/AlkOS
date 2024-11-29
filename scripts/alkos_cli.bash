@@ -3,13 +3,16 @@
 ALK_OS_CLI_SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 ALK_OS_CLI_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/$(basename "$0")"
 
-ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH="${ALK_OS_CLI_SCRIPT_DIR}/env/install.bash"
-ALK_OS_CLI_BUILD_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/scripts/build_alkos.bash"
-ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/env/install_deps_arch.bash"
-ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/scripts/run_alkos.bash"
+ALK_OS_CLI_DEFAULT_TOOL_INSTALL_DIR="${ALK_OS_CLI_SCRIPT_DIR}/../tools"
+ALK_OS_CLI_DEFAULT_BUILD_DIR="${ALK_OS_CLI_SCRIPT_DIR}/../build"
 
-source "${ALK_OS_CLI_SCRIPT_DIR}/env/pretty_print.bash"
-source "${ALK_OS_CLI_SCRIPT_DIR}/env/helpers.bash"
+ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH="${ALK_OS_CLI_SCRIPT_DIR}/env/build_cross_compile.bash"
+ALK_OS_CLI_BUILD_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/install/build_alkos.bash"
+ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/env/install_deps_arch.bash"
+ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/install/run_alkos.bash"
+
+source "${ALK_OS_CLI_SCRIPT_DIR}/utils/pretty_print.bash"
+source "${ALK_OS_CLI_SCRIPT_DIR}/utils/helpers.bash"
 
 help() {
   echo "${ALK_OS_CLI_SCRIPT_PATH} [--run | -r] [--install | -i] [--verbose | -v]"
@@ -81,11 +84,6 @@ main() {
   parse_args "$@"
   process_args
 
-  if [ $ALK_OS_CLI_INSTALL_TOOLCHAIN = true ] ; then
-    pretty_info "Installing cross-compile toolchain"
-    base_runner "Failed to install cross-compile toolchain" true "${ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH}" --install toolchain ${ALK_OS_CLI_VERBOSE_FLAG}
-  fi
-
   if [ $ALK_OS_CLI_INSTALL_DEPS = true ] ; then
     pretty_info "Installing dependencies"
     check_runs_on_arch
@@ -95,6 +93,12 @@ main() {
     fi
     ALK_OS_CLI_VERBOSE=true
     base_runner "Failed to install dependencies" true "${ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH}" --install ${ALK_OS_CLI_VERBOSE_FLAG}
+  fi
+
+  if [ $ALK_OS_CLI_INSTALL_TOOLCHAIN = true ] ; then
+    pretty_info "Installing cross-compile toolchain"
+    base_runner "Failed to install cross-compile toolchain" true "${ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH}" --install \
+      toolchain ${ALK_OS_CLI_VERBOSE_FLAG} -t "${ALK_OS_CLI_DEFAULT_TOOL_INSTALL_DIR}" -b "${ALK_OS_CLI_DEFAULT_BUILD_DIR}"
   fi
 
   if [ $ALK_OS_CLI_RUN = true ] ; then
