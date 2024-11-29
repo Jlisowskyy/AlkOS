@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Get the number of logical CPU cores
 num_cores=$(getconf _NPROCESSORS_ONLN)
