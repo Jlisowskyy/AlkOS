@@ -47,7 +47,7 @@ add_custom_target(iso
         COMMAND grub-mkrescue -o ${CMAKE_BINARY_DIR}/alkos.iso ${SYSROOT}
         DEPENDS alkos.kernel
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-
+)
 
 # Custom target to run QEMU
 add_custom_target(run
