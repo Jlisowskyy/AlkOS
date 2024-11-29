@@ -28,8 +28,8 @@ help() {
 }
 
 parse_args() {
-  RUN=false
-  VERBOSE=false
+  MAKE_ISO_SCRIPT_RUN=false
+  MAKE_ISO_SCRIPT_VERBOSE=false
   while [[ $# -gt 0 ]]; do
     case $1 in
       -h|--help)
@@ -37,18 +37,18 @@ parse_args() {
         exit 0
         ;;
       -r|--run)
-        RUN=true
+        MAKE_ISO_SCRIPT_RUN=true
         shift
         ;;
       -v|--verbose)
-        VERBOSE=true
+        MAKE_ISO_SCRIPT_VERBOSE=true
         shift
         ;;
       *)
         if [ -z "$TARGET" ]; then
-          TARGET="$1"
+          MAKE_ISO_SCRIPT_TARGET="$1"
         elif [ -z "$SOURCE" ]; then
-          SOURCE="$1"
+          MAKE_ISO_SCRIPT_SOURCE="$1"
         else
           echo "Unknown argument: $1"
           exit 1
@@ -60,12 +60,12 @@ parse_args() {
 }
 
 process_args() {
-  if [ -z "$TARGET" ] || [ -z "$SOURCE" ]; then
+  if [ -z "$MAKE_ISO_SCRIPT_TARGET" ] || [ -z "$MAKE_ISO_SCRIPT_SOURCE" ]; then
     dump_error "Both target and source must be provided!"
     exit 1
   fi
 
-  if [ "$RUN" = false ] ; then
+  if [ "$MAKE_ISO_SCRIPT_RUN" = false ] ; then
     dump_error "--run flag was not provided!"
     exit 1
   fi
@@ -76,8 +76,8 @@ main() {
   parse_args "$@"
   process_args
 
-  if [ ! -d "$SOURCE" ]; then
-    dump_error "Source directory does not exist: $SOURCE"
+  if [ ! -d "$MAKE_ISO_SCRIPT_SOURCE" ]; then
+    dump_error "Source directory does not exist: $MAKE_ISO_SCRIPT_SOURCE"
     exit 1
   fi
 
@@ -87,16 +87,16 @@ main() {
   fi
 
   pretty_info "Creating boot directory"
-  base_runner "Failed to create boot directory" "${VERBOSE}" mkdir -p "${SOURCE}/boot"
+  base_runner "Failed to create boot directory" "${MAKE_ISO_SCRIPT_VERBOSE}" mkdir -p "${MAKE_ISO_SCRIPT_SOURCE}/boot"
 
   pretty_info "Creating grub.cfg file"
-  base_runner "Failed to create grub.cfg" "${VERBOSE}" \
-    echo "${MAKE_ISO_SCRIPT_GRUB_CONTENTS}" > "${SOURCE}/${MAKE_ISO_SCRIPT_GRUB_PATH_IN_ISO}"
+  base_runner "Failed to create grub.cfg" "${MAKE_ISO_SCRIPT_VERBOSE}" \
+    echo "${MAKE_ISO_SCRIPT_GRUB_CONTENTS}" > "${MAKE_ISO_SCRIPT_SOURCE}/${MAKE_ISO_SCRIPT_GRUB_PATH_IN_ISO}"
 
-  pretty_info "Creating .iso file $TARGET from $SOURCE"
-  base_runner "Failed to create .iso file" "${VERBOSE}" \
-    grub-mkrescue -o "${TARGET}" "${SOURCE}"
-  pretty_info "Created .iso file $(basename "${TARGET}")"
+  pretty_info "Creating .iso file $MAKE_ISO_SCRIPT_TARGET from $MAKE_ISO_SCRIPT_SOURCE"
+  base_runner "Failed to create .iso file" "${MAKE_ISO_SCRIPT_VERBOSE}" \
+    grub-mkrescue -o "${MAKE_ISO_SCRIPT_TARGET}" "${MAKE_ISO_SCRIPT_SOURCE}"
+  pretty_info "Created .iso file $(basename "${MAKE_ISO_SCRIPT_TARGET}")"
 }
 
 main "$@"

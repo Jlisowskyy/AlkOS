@@ -8,7 +8,7 @@ source "${RUN_ALKOS_SOURCE_DIR}/scripts/utils/helpers.bash"
 source "${RUN_ALKOS_SOURCE_DIR}/scripts/utils/pretty_print.bash"
 
 QEMU_COMMAND="qemu-system-i386"
-QEMU_ARGS="-kernel ${RUN_ALKOS_SOURCE_DIR}/build/bin/alkos.bin"
+QEMU_ARGS="-kernel ${RUN_ALKOS_SOURCE_DIR}/build/sysroot/boot/alkos.kernel"
 
 help() {
   echo "${RUN_ALKOS_SCRIPT_PATH} [--run | -r] [--install | -i] [--verbose | -v]"
