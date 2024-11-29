@@ -37,14 +37,10 @@ add_subdirectory(libc)
 add_subdirectory(kernel)
 
 # Custom target to create ISO image
+set(MAKE_ISO_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/install/make_iso.bash)
+message(STATUS "Using make_iso script: ${MAKE_ISO_SCRIPT_PATH}")
 add_custom_target(iso
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${SYSROOT}/boot/grub
-        COMMAND ${CMAKE_COMMAND} -E echo "set timeout=0" > ${SYSROOT}/boot/grub/grub.cfg
-        COMMAND ${CMAKE_COMMAND} -E echo "set default=0" >> ${SYSROOT}/boot/grub/grub.cfg
-        COMMAND ${CMAKE_COMMAND} -E echo "menuentry \"AlkOS\" {" >> ${SYSROOT}/boot/grub/grub.cfg
-        COMMAND ${CMAKE_COMMAND} -E echo "    multiboot /boot/alkos.kernel" >> ${SYSROOT}/boot/grub/grub.cfg
-        COMMAND ${CMAKE_COMMAND} -E echo "}" >> ${SYSROOT}/boot/grub/grub.cfg
-        COMMAND grub-mkrescue -o ${CMAKE_BINARY_DIR}/alkos.iso ${SYSROOT}
+        COMMAND ${MAKE_ISO_SCRIPT_PATH} "${CMAKE_BINARY_DIR}/alkos.iso" ${SYSROOT} -v -r
         DEPENDS alkos.kernel
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
