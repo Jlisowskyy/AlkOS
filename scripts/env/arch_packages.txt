@@ -1,0 +1,4 @@
+qemu-full
+nasm
+libisoburn
+mtools
