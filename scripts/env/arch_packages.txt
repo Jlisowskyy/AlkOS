@@ -1,0 +1,9 @@
+qemu-full
+nasm
+libisoburn
+mtools
+base-devel
+gmp
+libmpc
+mpfr
+base-devel

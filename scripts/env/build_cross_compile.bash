@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CROSS_COMPILE_BUILD_SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+CROSS_COMPILE_BUILD_SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 CROSS_COMPILE_BUILD_SCRIPT_PATH="${CROSS_COMPILE_BUILD_SCRIPT_DIR}/$(basename "$0")"
 
 CROSS_COMPILE_BUILD_BIN_UTILS_VER="2.43.1"
@@ -14,8 +14,8 @@ CROSS_COMPILE_BUILD_VERBOSE=false
 
 PROC_COUNT=$(nproc --all)
 
-source "${CROSS_COMPILE_BUILD_SCRIPT_DIR}/pretty_print.bash"
-source "${CROSS_COMPILE_BUILD_SCRIPT_DIR}/helpers.bash"
+source "${CROSS_COMPILE_BUILD_SCRIPT_DIR}/../utils/pretty_print.bash"
+source "${CROSS_COMPILE_BUILD_SCRIPT_DIR}/../utils/helpers.bash"
 
 help() {
     echo "${CROSS_COMPILE_BUILD_SCRIPT_PATH} --install [--build_dir | -b <dir>] [--tool_dir | -t <dir>] [--verbose | -v]"

@@ -7,7 +7,7 @@ set(CMAKE_SYSTEM_PROCESSOR i686)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 # Define the path to your cross-compiler tools
-set(CROSS_COMPILER_PATH "${CMAKE_CURRENT_LIST_DIR}/../tools/bin")
+set(CROSS_COMPILER_PATH "${CMAKE_CURRENT_LIST_DIR}/../../tools/bin")
 
 # Specify the cross-compilers
 set(CMAKE_C_COMPILER "${CROSS_COMPILER_PATH}/i686-elf-gcc")
