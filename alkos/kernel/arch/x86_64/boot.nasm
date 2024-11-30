@@ -6,6 +6,7 @@
           ; 6. C++ runtime initialization
 
           BITS 32
+
           ; Entry point for the kernel
           extern vga_print
           extern kernel_main
@@ -13,32 +14,10 @@
           extern check_long_mode
           extern check_and_handle_errors
 
-          ; Constants for Multiboot header
-MBALIGN   equ  1 << 0              ; align loaded modules on page boundaries
-MEMINFO   equ  1 << 1              ; provide memory map
-MBFLAGS   equ  MBALIGN | MEMINFO   ; this is the Multiboot 'flag' field
-MAGIC     equ  0x1BADB002          ; 'magic number' lets bootloader find the header
-CHECKSUM  equ -(MAGIC + MBFLAGS)   ; checksum of above, to prove we are multiboot
-
-; GDT constants
-; Access bits
-PRESENT    equ 1 << 7 ; Present
-NOT_SYS    equ 0 << 4 ; Not a system segment
-EXEC       equ 1 << 3 ; Executable
-DC         equ 1 << 2 ; Direction/Conforming
-RW         equ 1 << 1 ; Readable/Writable
-AC         equ 1 << 0 ; Accessed
-; Flags bits
-GRAN_4K    equ 1 << 7 ; 4 KiB granularity
-SZ_32      equ 1 << 6 ; 32-bit segment
-LONG_MODE  equ 1 << 5 ; Long mode
-
-; Multiboot header
-section   .multiboot
-          align 4
-	dd MAGIC
-	dd MBFLAGS
-	dd CHECKSUM
+          extern GDT64
+          extern GDT64.Pointer
+          extern GDT64.Code
+          extern GDT64.Data
 
 ; The multiboot standard does not define the value of the stack pointer register.
 ; The stack on x86 must be 16-byte aligned according to the
@@ -60,27 +39,6 @@ stack_bottom:
 stack_top:
 
 
-section   .data
-          align 8
-GDT64:
-          .Null:
-          dq 0
-          .Code: equ $ - GDT64
-          dd 0xFFFF ; Limit
-          db 0      ; Base
-          db PRESENT | NOT_SYS | EXEC | RW ; Access
-          db GRAN_4K | LONG_MODE | 0xF     ; Flags & Limit
-          db 0      ; Base
-          .Data: equ $ - GDT64
-          dd 0xFFFF ; Limit
-          db 0      ; Base
-          db PRESENT | NOT_SYS | RW ; Access
-          db GRAN_4K | SZ_32 | 0xF     ; Flags & Limit
-          db 0      ; Base
-          .Pointer:
-          dw $ - GDT64 - 1 ; $ - Special symbol that evaluates to the current address
-          dd GDT64
-.End:
 
 ; The linker script specifies _start as the entry point to the kernel and the
 ; bootloader will jump to this position once the kernel has been loaded. It
