@@ -19,6 +19,12 @@ file(GLOB ARCH_SOURCES
         "${ARCH_DIR}/*.nasm"
 )
 
+# Add boot.nasm
+set(BOOT_ASM "${ARCH_DIR}/boot.nasm")
+set_source_files_properties(${BOOT_ASM} PROPERTIES LANGUAGE ASM_NASM)
+set_source_files_properties(${BOOT_ASM} PROPERTIES COMPILE_FLAGS "-f elf64")
+
+# Add kernel sources
 file(GLOB KERNEL_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
@@ -28,7 +34,12 @@ file(GLOB KERNEL_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.nasm"
 )
 
-add_executable(alkos.kernel ${ARCH_SOURCES} ${KERNEL_SOURCES})
+# Build the kernel executable
+add_executable(alkos.kernel
+        ${ARCH_SOURCES}
+        ${BOOT_ASM}
+        ${KERNEL_SOURCES}
+        )
 
 # Set linker flags
 set(LINKER_SCRIPT "${ARCH_DIR}/linker.ld")
@@ -50,5 +61,3 @@ set_target_properties(alkos.kernel PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${SYSROOT}/boot
         OUTPUT_NAME "alkos.kernel"
 )
-
-

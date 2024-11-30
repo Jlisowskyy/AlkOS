@@ -1,6 +1,6 @@
+          BITS 32
           ; Entry point for the kernel
-          extern kernel_main
-          extern kernel_write_message_quit
+          extern vga_print
 
           ; Constants for Multiboot header
 MBALIGN   equ  1 << 0              ; align loaded modules on page boundaries
@@ -27,13 +27,18 @@ stack_bottom:
           resb 16384 ; 16 KiB
 stack_top:
 
-section   .rodata
-ERROR_NO_CPUID  db  "ERROR: CPUID not supported on the processor", 0
+section   .data
+vga_base  equ 0xB8000
+
+section   .rodata32
+MESSAGE_ERROR_NO_CPUID  db  "ERROR: CPUID not supported on the processor", 0
+MESSAGE_ERROR_NO_LONG_MODE db "ERROR: Long mode not supported on the processor", 0
+MESSAGE_SUCCESS db "SUCCESS: Whatever this currently means", 0
 
 ; The linker script specifies _start as the entry point to the kernel and the
 ; bootloader will jump to this position once the kernel has been loaded. It
 ; doesn't make sense to return from this function as the bootloader is gone.
-section   .text
+section   .text32
 global    _start:function (_start.end - _start)
 _start:
           ; The bootloader has loaded us into 32-bit protected mode on a x86
@@ -55,10 +60,7 @@ _start:
 
           ; Enable various CPU features below:
 
-          ; TODO:
-          ; 1. Enable paging
-          ; 2. Enable interrupts
-          ; 3. Enable long mode
+          ; Check if CPUID is supported and if long mode is supported
 
           ; Check if CPUID is supported by flipping the ID bit (bit 21) in
           ; the FLAGS register. If we can flip it, CPUID is avaliable.
@@ -90,23 +92,69 @@ _start:
           jnz .cpuId
 
           ; If the bit was not flipped. Display the message via kernel
-          push ERROR_NO_CPUID
-          call kernel_write_message_quit
+          push MESSAGE_ERROR_NO_CPUID
+          call vga_print
           jmp .hang_begin
 .cpuId:
+          ; Check the highest possible function supported by CPUID
 
+          ; Source: Intel® 64 and IA-32 Architectures Software Developer’s Manual
+          ; Volume 2A: CPUID-CPU Identification
+          ; INPUT EAX = 0: Returns CPUID’s Highest Value for Basic Processor Information and the Vendor Identification String
+          ; OUTPUT EAX = Highest value for basic processor information
+          ; OUTPUT EBX, EDX, ECX = Vendor Identification String - "GenuineIntel" or "AuthenticAMD"
+          mov eax, 0
+          cpuid ; Highest possible function in EAX
+          cmp eax, 0x80000000
+          jl .noLongModeSupport
+
+          ; Check if extended functions of CPUID are supported
+          ; Source: Intel® 64 and IA-32 Architectures Software Developer’s Manual
+          ; Volume 2A: CPUID-CPU Identification
+          ; INPUT EAX = 80000000h: Get Highest Extended Function Supported
+          ; OUTPUT EAX = Highest extended function supported
+          mov eax, 0x80000000
+          cpuid
+          cmp eax, 0x80000001
+          jl .noLongModeSupport
+
+          ; Check if long mode is supported
+          ; Source: Intel® 64 and IA-32 Architectures Software Developer’s Manual
+          ; Volume 2A: CPUID-CPU Identification
+          ; INPUT EAX = 80000001h: Extended Processor Info and Feature Bits
+          ; Changes EAX, EBX, ECX, EDX
+          ; We are interested in EDX bit 29
+          mov eax, 0x80000001
+          cpuid
+          test edx, 1 << 29 ; Test if LM (Long Mode) bit is set
+          jz .noLongModeSupport
+
+          ; Long mode is supported
+          jmp .longModeSupport
+
+.noLongModeSupport:
+          ; If long mode is not supported, display the message via kernel
+          push MESSAGE_ERROR_NO_LONG_MODE
+          call vga_print
+          jmp .hang_begin
+
+.longModeSupport:
+          push MESSAGE_SUCCESS
+          call vga_print
+
+          jmp .hang_begin
+
+          ; TODO:
+          ; 1. Enable paging
+          ; 2. Enable interrupts
           ; 4. Enable Floating Point Unit (FPU)
           ; 5. Enable Instruction Set Extensions (SSE, AVX, etc.)
           ; 7. GDT, IDT, TSS, etc.
           ; 6. C++ runtime initialization
 
-
           ; Call kernel entry point
           ; Note: Stack already aligned to 16 bytes
           ; Note: that if you are building on Windows, C functions may have "_" prefix in assembly: _kernel_main
-          call kernel_main
-
-
 .hang_begin:
           ; Disable interrupts. For future use.
           cli
@@ -115,3 +163,15 @@ _start:
 .hang_loop:	hlt
           jmp .hang_loop
 .end:
+
+          BITS 64
+section   .text
+long_mode_start:
+          cli
+
+.hang_loop_64:
+          hlt
+          jmp .hang_loop_64
+
+
+

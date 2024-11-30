@@ -8,7 +8,7 @@ message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
 # Set compiler flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -ffreestanding")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -ffreestanding -fno-exceptions -fno-rtti")
-set(CMAKE_ASM_NASM_FLAGS "${CMAKE_ASM_NASM_FLAGS} -f elf32")
+set(CMAKE_ASM_NASM_FLAGS "${CMAKE_ASM_NASM_FLAGS} -f elf64")
 
 # Adjust flags according to the build type
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "DEBUG")
@@ -24,7 +24,7 @@ endif ()
 set(SYSROOT ${CMAKE_BINARY_DIR}/sysroot)
 set(CMAKE_SYSROOT ${SYSROOT})
 set(SYSTEM_LIB_TYPE k)
-set(ARCH i686)
+set(ARCH x86_64)
 
 # Create the sysroot directories
 file(MAKE_DIRECTORY ${SYSROOT}/usr/include)
@@ -47,7 +47,7 @@ add_custom_target(iso
 
 # Custom target to run QEMU
 add_custom_target(run
-        COMMAND qemu-system-i386 -cdrom ${CMAKE_BINARY_DIR}/alkos.iso
+        COMMAND qemu-system-x86_64 -cdrom ${CMAKE_BINARY_DIR}/alkos.iso
         DEPENDS iso
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )

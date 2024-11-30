@@ -10,8 +10,8 @@
 #error "You are not using a cross-compiler, you will most certainly run into trouble"
 #endif
 
-#if !defined(__i386__)
-#error "This tutorial needs to be compiled with a ix86-elf compiler"
+#if !defined(__x86_64__)
+#error "AlkOS needs to be compiled with a x86_64-elf compiler"
 #endif
 
 /* Hardware text mode color constants. */
@@ -105,7 +105,6 @@ extern "C"
         /* Initialize terminal interface */
         terminal_initialize();
 
-        /* Newline support is left as an exercise. */
         terminal_writestring("Hello, AlkOS!");
     }
 
