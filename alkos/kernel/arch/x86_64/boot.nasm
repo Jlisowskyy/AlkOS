@@ -1,6 +1,7 @@
           BITS 32
           ; Entry point for the kernel
           extern vga_print
+          extern kernel_main
 
           ; Constants for Multiboot header
 MBALIGN   equ  1 << 0              ; align loaded modules on page boundaries
@@ -26,6 +27,15 @@ section   .bss
 stack_bottom:
           resb 16384 ; 16 KiB
 stack_top:
+pml4:
+          resb 4096 ; 4 KiB
+pdpt:
+          resb 4096 ; 4 KiB
+pd:
+          resb 4096 ; 4 KiB
+pt:
+          resb 4096 ; 4 KiB
+
 
 section   .data
 vga_base  equ 0xB8000
@@ -139,13 +149,64 @@ _start:
           jmp .hang_begin
 
 .longModeSupport:
-          push MESSAGE_SUCCESS
-          call vga_print
+          ; Setup Paging for Long Mode
+          mov edi, pml4
+          mov cr3, edi
+          xor eax, eax
+          mov ecx, 4096
+          rep stosd ; Zero out the PML4 table
+
+
+          ; PML4[0] = PDPT
+          ; PDPT[0] = PD
+          ; PD[0] = PT
+          mov edi, pml4 ; uint32
+          mov eax, pdpt
+          or eax, 0x3 ; Present, Read/Write
+          mov dword [edi], eax
+          mov edi, pdpt
+          mov eax, pd
+          or eax, 0x3 ; Present, Read/Write
+          mov dword [edi], eax
+          mov edi, pd
+          mov eax, pt
+          or eax, 0x3 ; Present, Read/Write
+          mov dword [pd], eax
+
+          ; Identity map the first 2 MiB of memory
+          mov ebx, 0x00000003
+          mov ecx, 512
+
+          .SetEntry:
+          mov dword [edi], ebx
+          add ebx, 4096
+          add edi, 8
+          loop .SetEntry
+
+          ; Enable PAE-paging
+          mov eax, cr4
+          or eax, 1 << 5 ; Set PAE bit
+          mov cr4, eax
+
+          ; Procesors starting from Ice Lake support 5-level paging
+          ; This is not implemented in this example
+
+          ; Enter compatibility mode
+          ; Set the LME (Long Mode Enable) bit in the
+          ; EFER (Extended Feature Enable Register)
+          ; MSR (Model Specific Register)
+          mov ecx, 0xC0000080 ; EFER MSR
+          rdmsr ;
+          or eax, 1 << 8 ;
+          wrmsr ;
+
+          ; Enable paging and protected mode
+          mov eax, cr0
+          or eax, 1 << 31 | 1 << 0 ; Set PG (Paging - bit 31) and PE (Protected Mode - bit 0)
+          mov cr0, eax
 
           jmp .hang_begin
-
           ; TODO:
-          ; 1. Enable paging
           ; 2. Enable interrupts
           ; 4. Enable Floating Point Unit (FPU)
           ; 5. Enable Instruction Set Extensions (SSE, AVX, etc.)
