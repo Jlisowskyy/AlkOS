@@ -19,10 +19,10 @@ file(GLOB ARCH_SOURCES
         "${ARCH_DIR}/*.nasm"
 )
 
-# Add boot.nasm
-set(BOOT_ASM "${ARCH_DIR}/boot.nasm")
-set_source_files_properties(${BOOT_ASM} PROPERTIES LANGUAGE ASM_NASM)
-set_source_files_properties(${BOOT_ASM} PROPERTIES COMPILE_FLAGS "-f elf64")
+foreach(ASM_FILE ${ARCH_SOURCES})
+    set_source_files_properties(${ASM_FILE} PROPERTIES LANGUAGE ASM_NASM)
+    set_source_files_properties(${ASM_FILE} PROPERTIES COMPILE_FLAGS "-f elf64 -I ${ARCH_DIR}")
+endforeach()
 
 # Add kernel sources
 file(GLOB KERNEL_SOURCES

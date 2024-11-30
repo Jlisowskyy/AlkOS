@@ -1,7 +1,17 @@
+          ; TODO:
+          ; 2. Enable interrupts
+          ; 4. Enable Floating Point Unit (FPU)
+          ; 5. Enable Instruction Set Extensions (SSE, AVX, etc.)
+          ; 7. GDT, IDT, TSS, etc.
+          ; 6. C++ runtime initialization
+
           BITS 32
           ; Entry point for the kernel
           extern vga_print
           extern kernel_main
+          extern check_cpuid
+          extern check_longmode
+          extern check_and_handle_errors
 
           ; Constants for Multiboot header
 MBALIGN   equ  1 << 0              ; align loaded modules on page boundaries
@@ -9,6 +19,19 @@ MEMINFO   equ  1 << 1              ; provide memory map
 MBFLAGS   equ  MBALIGN | MEMINFO   ; this is the Multiboot 'flag' field
 MAGIC     equ  0x1BADB002          ; 'magic number' lets bootloader find the header
 CHECKSUM  equ -(MAGIC + MBFLAGS)   ; checksum of above, to prove we are multiboot
+
+; GDT constants
+; Access bits
+PRESENT    equ 1 << 7 ; Present
+NOT_SYS    equ 0 << 4 ; Not a system segment
+EXEC       equ 1 << 3 ; Executable
+DC         equ 1 << 2 ; Direction/Conforming
+RW         equ 1 << 1 ; Readable/Writable
+AC         equ 1 << 0 ; Accessed
+; Flags bits
+GRAN_4K    equ 1 << 7 ; 4 KiB granularity
+SZ_32      equ 1 << 6 ; 32-bit segment
+LONG_MODE  equ 1 << 5 ; Long mode
 
 ; Multiboot header
 section   .multiboot
@@ -22,34 +45,48 @@ section   .multiboot
 ; System V ABI standard and de-facto extensions. The compiler will assume the
 ; stack is properly aligned and failure to align the stack will result in
 ; undefined behavior.
-section   .bss
-          align 16
+          section   .bss
+          align 4096
+p4_table:
+          resb 4096 ; Page Map Level 4
+p3_table:
+          resb 4096 ; Page Directory Pointer Table
+p2_table:
+          resb 4096 ; Page Directory
+p1_table:
+          resb 4096 ; Page Table
 stack_bottom:
           resb 16384 ; 16 KiB
 stack_top:
-pml4:
-          resb 4096 ; 4 KiB
-pdpt:
-          resb 4096 ; 4 KiB
-pd:
-          resb 4096 ; 4 KiB
-pt:
-          resb 4096 ; 4 KiB
 
 
 section   .data
-vga_base  equ 0xB8000
-
-section   .rodata32
-MESSAGE_ERROR_NO_CPUID  db  "ERROR: CPUID not supported on the processor", 0
-MESSAGE_ERROR_NO_LONG_MODE db "ERROR: Long mode not supported on the processor", 0
-MESSAGE_SUCCESS db "SUCCESS: Whatever this currently means", 0
+          align 8
+GDT64:
+          .Null:
+          dq 0
+          .Code: equ $ - GDT64
+          dd 0xFFFF ; Limit
+          db 0      ; Base
+          db PRESENT | NOT_SYS | EXEC | RW ; Access
+          db GRAN_4K | LONG_MODE | 0xF     ; Flags & Limit
+          db 0      ; Base
+          .Data: equ $ - GDT64
+          dd 0xFFFF ; Limit
+          db 0      ; Base
+          db PRESENT | NOT_SYS | RW ; Access
+          db GRAN_4K | SZ_32 | 0xF     ; Flags & Limit
+          db 0      ; Base
+          .Pointer:
+          dw $ - GDT64 - 1 ; $ - Special symbol that evaluates to the current address
+          dd GDT64
+.End:
 
 ; The linker script specifies _start as the entry point to the kernel and the
 ; bootloader will jump to this position once the kernel has been loaded. It
 ; doesn't make sense to return from this function as the bootloader is gone.
 section   .text32
-global    _start:function (_start.end - _start)
+global    _start
 _start:
           ; The bootloader has loaded us into 32-bit protected mode on a x86
           ; machine. Interrupts are disabled. Paging is disabled. The processor
@@ -65,123 +102,51 @@ _start:
           ; To set up a stack, we set the esp register to point to the top of the
           ; stack (as it grows downwards on x86 systems). This is necessarily done
           ; in assembly as languages such as C cannot function without a stack.
-
           mov esp, stack_top
 
-          ; Enable various CPU features below:
-
-          ; Check if CPUID is supported and if long mode is supported
-
-          ; Check if CPUID is supported by flipping the ID bit (bit 21) in
-          ; the FLAGS register. If we can flip it, CPUID is avaliable.
-
-          ; Copy FLAGS in to EAX via stack
-          pushfd
-          pop eax
-
-          ; Copy to ECX for comparing later
-          mov ecx, eax
-
-          ; Flip the ID bit
-          xor eax, 1 << 21
-          
-          ; Copy EAX to flags via stak
-          push eax
-          popfd
-
-          ; Copy flags back to EAX (with the flipped bit if CPUID is supported)
-          pushfd
-          pop eax
-
-          ; Restore FLAGS
-          push ecx
-          popfd
-
-          ; If the bit was flipped, CPUID is supported
-          xor eax, ecx
-          jnz .cpuId
-
-          ; If the bit was not flipped. Display the message via kernel
-          push MESSAGE_ERROR_NO_CPUID
-          call vga_print
-          jmp .hang_begin
-.cpuId:
-          ; Check the highest possible function supported by CPUID
-
-          ; Source: Intel® 64 and IA-32 Architectures Software Developer’s Manual
-          ; Volume 2A: CPUID-CPU Identification
-          ; INPUT EAX = 0: Returns CPUID’s Highest Value for Basic Processor Information and the Vendor Identification String
-          ; OUTPUT EAX = Highest value for basic processor information
-          ; OUTPUT EBX, EDX, ECX = Vendor Identification String - "GenuineIntel" or "AuthenticAMD"
-          mov eax, 0
-          cpuid ; Highest possible function in EAX
-          cmp eax, 0x80000000
-          jl .noLongModeSupport
-
-          ; Check if extended functions of CPUID are supported
-          ; Source: Intel® 64 and IA-32 Architectures Software Developer’s Manual
-          ; Volume 2A: CPUID-CPU Identification
-          ; INPUT EAX = 80000000h: Get Highest Extended Function Supported
-          ; OUTPUT EAX = Highest extended function supported
-          mov eax, 0x80000000
-          cpuid
-          cmp eax, 0x80000001
-          jl .noLongModeSupport
-
-          ; Check if long mode is supported
-          ; Source: Intel® 64 and IA-32 Architectures Software Developer’s Manual
-          ; Volume 2A: CPUID-CPU Identification
-          ; INPUT EAX = 80000001h: Extended Processor Info and Feature Bits
-          ; Changes EAX, EBX, ECX, EDX
-          ; We are interested in EDX bit 29
-          mov eax, 0x80000001
-          cpuid
-          test edx, 1 << 29 ; Test if LM (Long Mode) bit is set
-          jz .noLongModeSupport
-
-          ; Long mode is supported
-          jmp .longModeSupport
-
-.noLongModeSupport:
-          ; If long mode is not supported, display the message via kernel
-          push MESSAGE_ERROR_NO_LONG_MODE
-          call vga_print
-          jmp .hang_begin
-
-.longModeSupport:
-          ; Setup Paging for Long Mode
-          mov edi, pml4
-          mov cr3, edi
-          xor eax, eax
-          mov ecx, 4096
-          rep stosd ; Zero out the PML4 table
-
+          call check_cpuid
+          call check_and_handle_errors
+          call check_longmode
+          call check_and_handle_errors
 
           ; PML4[0] = PDPT
           ; PDPT[0] = PD
           ; PD[0] = PT
-          mov edi, pml4 ; uint32
-          mov eax, pdpt
+
+          mov eax, p3_table
           or eax, 0x3 ; Present, Read/Write
-          mov dword [edi], eax
-          mov edi, pdpt
-          mov eax, pd
+          mov [p4_table], eax
+
+          mov eax, p2_table
           or eax, 0x3 ; Present, Read/Write
-          mov dword [edi], eax
-          mov edi, pd
-          mov eax, pt
+          mov [p3_table], eax
+
+          mov eax, p1_table
           or eax, 0x3 ; Present, Read/Write
-          mov dword [pd], eax
+          mov [p2_table], eax
 
           ; Identity map the first 2 MiB of memory
           mov ebx, 0x00000003
           mov ecx, 512
 
-          .SetEntry:
-          mov dword [edi], ebx
-          add ebx, 4096
-          add edi, 8
-          loop .SetEntry
+.map_p2_table:
+          ; Map ecx-th page to a page that starts at 2 MiB * ecx
+          mov eax, 0x200000 ; 2 MiB
+          mul ecx           ; start address of ecx-th page
+          or eax, 0b10000011 ; Present, Read/Write, and something (User/Supervisor?)
+          mov [p2_table + ecx * 8], eax
+
+          inc ecx
+          loop .map_p2_table
+
+.enable_paging:
+          ; Setup Paging for Long Mode
+          mov edi, p4_table
+          mov cr3, edi
+
+          xor eax, eax
+          mov ecx, 4096
+          rep stosd ; Zero out the PML4 table
 
           ; Enable PAE-paging
           mov eax, cr4
@@ -189,7 +154,6 @@ _start:
           mov cr4, eax
 
           ; Procesors starting from Ice Lake support 5-level paging
-          ; This is not implemented in this example
 
           ; Enter compatibility mode
           ; Set the LME (Long Mode Enable) bit in the
@@ -205,34 +169,30 @@ _start:
           or eax, 1 << 31 | 1 << 0 ; Set PG (Paging - bit 31) and PE (Protected Mode - bit 0)
           mov cr0, eax
 
-          jmp .hang_begin
-          ; TODO:
-          ; 2. Enable interrupts
-          ; 4. Enable Floating Point Unit (FPU)
-          ; 5. Enable Instruction Set Extensions (SSE, AVX, etc.)
-          ; 7. GDT, IDT, TSS, etc.
-          ; 6. C++ runtime initialization
+          ; Jump to long mode
+          lgdt [GDT64.Pointer]
+          jmp GDT64.Code:long_mode_start
 
-          ; Call kernel entry point
-          ; Note: Stack already aligned to 16 bytes
-          ; Note: that if you are building on Windows, C functions may have "_" prefix in assembly: _kernel_main
-.hang_begin:
-          ; Disable interrupts. For future use.
-          cli
-
-          ; Halt the CPU in an infinite loop.
-.hang_loop:	hlt
-          jmp .hang_loop
-.end:
+.hang32:
+          hlt
+          jmp .hang32
 
           BITS 64
-section   .text
+          section   .text
+
 long_mode_start:
           cli
+          mov ax, GDT64.Data
+          mov ds, ax
+          mov es, ax
+          mov fs, ax
+          mov gs, ax
+          mov ss, ax
+          mov edi, 0xB8000
+          mov rax, 0x1F201F201F201F20
+          mov ecx, 500
+          rep stosq
 
-.hang_loop_64:
+.hang:
           hlt
-          jmp .hang_loop_64
-
-
-
+          jmp .hang
