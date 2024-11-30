@@ -10,7 +10,7 @@
           extern vga_print
           extern kernel_main
           extern check_cpuid
-          extern check_longmode
+          extern check_long_mode
           extern check_and_handle_errors
 
           ; Constants for Multiboot header
@@ -106,7 +106,7 @@ _start:
 
           call check_cpuid
           call check_and_handle_errors
-          call check_longmode
+          call check_long_mode
           call check_and_handle_errors
 
           ; PML4[0] = PDPT

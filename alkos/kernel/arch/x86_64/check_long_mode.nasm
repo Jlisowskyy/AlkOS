@@ -2,8 +2,8 @@
           %include "error_codes.nasm"
 
           section .text32
-          global check_longmode
-check_longmode:
+          global check_long_mode
+check_long_mode:
           ; Check the highest possible function supported by CPUID
 
           ; Source: Intel® 64 and IA-32 Architectures Software Developer’s Manual
