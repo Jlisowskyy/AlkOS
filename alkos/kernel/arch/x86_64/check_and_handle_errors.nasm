@@ -3,6 +3,7 @@
           extern MESSAGE_ERROR_NO_LONG_MODE
           extern MESSAGE_ERROR_NO_CPUID
           extern MESSAGE_ERROR_UNKNOWN
+          extern MESSAGE_ERROR_NO_MULTIBOOT
 
           extern vga_print
           section .text32
@@ -21,6 +22,8 @@ check_and_handle_errors:
           je .error_no_long_mode
           cmp al, ERROR_NO_CPUID
           je .error_no_cpuid
+          cmp al, ERROR_NO_MULTIBOOT
+          je .error_no_multiboot
           ; Unknown error
           jmp .unknown_error
 
@@ -34,6 +37,11 @@ check_and_handle_errors:
 
 .error_no_cpuid:
           push MESSAGE_ERROR_NO_CPUID
+          call vga_print
+          jmp .hang32
+
+.error_no_multiboot:
+          push MESSAGE_ERROR_NO_MULTIBOOT
           call vga_print
           jmp .hang32
 

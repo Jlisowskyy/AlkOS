@@ -7,17 +7,31 @@
 
           BITS 32
 
-          ; Entry point for the kernel
+          ; Helper functions
           extern vga_print
-          extern kernel_main
+
+          ; Error checking and handling
+          extern check_multiboot
           extern check_cpuid
           extern check_long_mode
           extern check_and_handle_errors
 
+          extern MESSAGE_ERROR_NO_LONG_MODE
+          extern MESSAGE_ERROR_NO_CPUID
+          extern MESSAGE_ERROR_UNKNOWN
+
+          ; GDT64
           extern GDT64
           extern GDT64.Pointer
           extern GDT64.Code
           extern GDT64.Data
+
+          ; Stack
+          extern stack_bottom
+          extern stack_top
+
+          ; Kernel Entry Point
+          extern kernel_main
 
 ; The multiboot standard does not define the value of the stack pointer register.
 ; The stack on x86 must be 16-byte aligned according to the
@@ -34,11 +48,6 @@ p2_table:
           resb 4096 ; Page Directory
 p1_table:
           resb 4096 ; Page Table
-stack_bottom:
-          resb 16384 ; 16 KiB
-stack_top:
-
-
 
 ; The linker script specifies _start as the entry point to the kernel and the
 ; bootloader will jump to this position once the kernel has been loaded. It
@@ -62,6 +71,8 @@ _start:
           ; in assembly as languages such as C cannot function without a stack.
           mov esp, stack_top
 
+          call check_multiboot
+          call check_and_handle_errors
           call check_cpuid
           call check_and_handle_errors
           call check_long_mode

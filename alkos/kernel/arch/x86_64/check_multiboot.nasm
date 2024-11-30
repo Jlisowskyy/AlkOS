@@ -5,7 +5,7 @@
 ; https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#EFI-amd64-machine-state-with-boot-services-enabled
           %include "error_codes.nasm"
 
-MULTIBOOT_HEADER_MAGIC equ 0x36D76289
+MULTIBOOT_HEADER_MAGIC equ 0x36d76289
           section .text32
           global check_multiboot
 check_multiboot:
