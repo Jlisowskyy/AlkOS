@@ -1,4 +1,3 @@
-          bits 64
 
           ; Stack
           extern stack_bottom
@@ -12,17 +11,11 @@
 
           global boot64
           section .text
+          bits 64
 boot64:
-          cli
-          mov esp, stack_top
-          mov ebp, stack_top
-
-          mov ax, GDT64.Data
-          mov ds, ax
-          mov es, ax
-          mov fs, ax
-          mov gs, ax
-          mov ss, ax
+          mov rax, 0x2f592f412f4b2f4f
+          mov qword [0xb8000], rax
+          hlt
 
 .hang:
           hlt

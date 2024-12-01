@@ -10,7 +10,7 @@ include_directories(${SYSROOT}/usr/include)
 # Define ARCH_DIR
 set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")
 
-file(GLOB ARCH_SOURCES
+file(GLOB_RECURSE ARCH_SOURCES
         "${ARCH_DIR}/*.cpp"
         "${ARCH_DIR}/*.c"
         "${ARCH_DIR}/*.s"
@@ -19,7 +19,7 @@ file(GLOB ARCH_SOURCES
         "${ARCH_DIR}/*.nasm"
 )
 
-set(ARCH_DIR_ASM_FLAGS "-I ${ARCH_DIR} -g -F dwarf")
+set(ARCH_DIR_ASM_FLAGS "-I ${ARCH_DIR} -I ${ARCH_DIR}/utils -g -F dwarf")
 foreach(ASM_FILE ${ARCH_SOURCES})
     get_source_file_property(CURRENT_COMPILE_FLAGS ${ASM_FILE} COMPILE_FLAGS)
     if (CURRENT_COMPILE_FLAGS)

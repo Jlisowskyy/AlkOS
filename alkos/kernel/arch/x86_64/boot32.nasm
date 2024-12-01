@@ -36,8 +36,10 @@
           extern p3_table
           extern p4_table
           extern setup_page_tables
-          ;
-          extern enable_paging_and_long_mode
+          extern enable_paging
+
+          ; Long mode
+          extern enable_long_mode
 
           ; Kernel Entry Point
           extern kernel_main
@@ -81,13 +83,48 @@ _start:
           call check_and_handle_errors
           call setup_page_tables
           call check_and_handle_errors
-          call enable_paging_and_long_mode
+          call enable_long_mode
+          call check_and_handle_errors
+          call enable_paging
           call check_and_handle_errors
 
           ; Jump to long mode
-;          lgdt [GDT64.Pointer]
+          lgdt [GDT64.Pointer]
+          bits 64
+;          This stuff just doesn't work for some reason
 ;          jmp GDT64.Code:boot64
 
+          ; So instead I test if we can access 64-bit registers
+          ; And we can, so we can continue with the 64-bit code
+          ; But we can't jump to boot64 for some reason
+          ; And we can't call kernel_main either
+          ; This may be a problem with the GDT
+          ; I have no idea what the problem is as of now
+
+          ; clear screen
+          mov edi, 0xb8000
+          mov ecx, 80*25
+          xor eax, eax
+          rep stosd
+
+          mov rdi, 0xb8000 ; VGA text buffer
+          mov rcx, 80 * 25 ; 80 columns, 25 rows
+          mov ah, 0x08 ;
+          lea rsi, [LONG_MODE_MESSAGE]
+          call write_string
           .hang:
           hlt
           jmp .hang
+
+write_string:
+          lodsb       ; load byte from rsi into al
+          test al, al ; check if null terminator
+          jz .done
+          mov word [rdi], ax
+          add rdi, 2
+          loop write_string
+.done:
+          ret
+
+section   .data
+LONG_MODE_MESSAGE db "Long mode is supported", 0

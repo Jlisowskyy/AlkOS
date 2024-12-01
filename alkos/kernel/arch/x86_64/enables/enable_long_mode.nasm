@@ -2,7 +2,6 @@
           %include "error_codes.nasm"
 
 LONG_MODE_BIT       equ 1 << 8
-PROTECTED_MODE_BIT  equ 1 << 31
 EFER_MSR            equ 0xC0000080
 
           section .text32
@@ -15,11 +14,6 @@ enable_long_mode:
           rdmsr
           or eax, LONG_MODE_BIT
           wrmsr
-
-          ; Enable protected mode
-          mov eax, cr0
-          or eax, PROTECTED_MODE_BIT
-          mov cr0, eax
 
           mov al, NO_ERROR
           ret
