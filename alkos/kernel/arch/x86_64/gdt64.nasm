@@ -27,7 +27,7 @@ GDT64:
           db 0                                        ; Base (mid, bits 16-23)
           db PRESENT | NOT_SYS | RW                   ; Access
           db GRAN_4K | SZ_32 | 0xF                    ; Flags & Limit (high, bits 16-19)
-          db 0                                        ; Base (high, bits 24-31)          .Pointer:
+          db 0                                        ; Base (high, bits 24-31)
           .Pointer:
           dw $ - GDT64 - 1 ; $ - Special symbol that evaluates to the current address
           dq GDT64
