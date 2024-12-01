@@ -36,10 +36,8 @@
           extern p3_table
           extern p4_table
           extern setup_page_tables
-          extern enable_paging
-
-          ; Long Mode
-          extern enable_long_mode
+          ;
+          extern enable_paging_and_long_mode
 
           ; Kernel Entry Point
           extern kernel_main
@@ -83,9 +81,7 @@ _start:
           call check_and_handle_errors
           call setup_page_tables
           call check_and_handle_errors
-;          call enable_paging
-;          call check_and_handle_errors
-          call enable_long_mode
+          call enable_paging_and_long_mode
           call check_and_handle_errors
 
           ; Jump to long mode
