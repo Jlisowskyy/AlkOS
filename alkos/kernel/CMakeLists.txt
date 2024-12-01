@@ -19,9 +19,15 @@ file(GLOB ARCH_SOURCES
         "${ARCH_DIR}/*.nasm"
 )
 
+set(ARCH_DIR_ASM_FLAGS "-I ${ARCH_DIR} -g -F dwarf")
 foreach(ASM_FILE ${ARCH_SOURCES})
-    set_source_files_properties(${ASM_FILE} PROPERTIES LANGUAGE ASM_NASM)
-    set_source_files_properties(${ASM_FILE} PROPERTIES COMPILE_FLAGS "-f elf64 -I ${ARCH_DIR}")
+    get_source_file_property(CURRENT_COMPILE_FLAGS ${ASM_FILE} COMPILE_FLAGS)
+    if (CURRENT_COMPILE_FLAGS)
+        set(CURRENT_COMPILE_FLAGS "${CURRENT_COMPILE_FLAGS} ${ARCH_DIR_ASM_FLAGS}")
+    else ()
+        set(CURRENT_COMPILE_FLAGS "${ARCH_DIR_ASM_FLAGS}")
+    endif ()
+    set_source_files_properties(${ASM_FILE} PROPERTIES COMPILE_FLAGS ${CURRENT_COMPILE_FLAGS})
 endforeach()
 
 # Add kernel sources

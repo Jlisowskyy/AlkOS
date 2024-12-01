@@ -14,12 +14,18 @@ set(CMAKE_ASM_NASM_FLAGS "${CMAKE_ASM_NASM_FLAGS} -f elf64")
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
+    set(CMAKE_ASM_NASM_FLAGS "${CMAKE_ASM_NASM_FLAGS} -g -F dwarf")
 elseif (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RELEASE")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+    set(CMAKE_ASM_NASM_FLAGS "${CMAKE_ASM_NASM_FLAGS} -O2")
 else ()
     message(FATAL_ERROR "UNKNOWN BUILD TYPE: ${CMAKE_BUILD_TYPE}")
 endif ()
+
+MESSAGE(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
+MESSAGE(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+MESSAGE(STATUS "CMAKE_ASM_NASM_FLAGS: ${CMAKE_ASM_NASM_FLAGS}")
 
 set(SYSROOT ${CMAKE_BINARY_DIR}/sysroot)
 set(CMAKE_SYSROOT ${SYSROOT})
@@ -49,5 +55,18 @@ add_custom_target(iso
 add_custom_target(run
         COMMAND qemu-system-x86_64 -cdrom ${CMAKE_BINARY_DIR}/alkos.iso
         DEPENDS iso
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
+# -s -S flags are used to start QEMU with GDB support, listening on port 1234 - tcp
+add_custom_target(run-with-gdb
+        COMMAND qemu-system-x86_64 -cdrom ${CMAKE_BINARY_DIR}/alkos.iso -s -S
+        DEPENDS iso
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
+add_custom_target(mount
+        COMMAND sudo umount /mnt || true
+        COMMAND sudo mount -o loop ${CMAKE_BINARY_DIR}/alkos.iso /mnt
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
