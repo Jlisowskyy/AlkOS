@@ -5,7 +5,7 @@
           ; 7. GDT, IDT, TSS, etc.
           ; 6. C++ runtime initialization
 
-          BITS 32
+          bits 32
 
           ; Helper functions
           extern vga_print
@@ -30,24 +30,28 @@
           extern stack_bottom
           extern stack_top
 
+          ; Paging
+          extern p1_table
+          extern p2_table
+          extern p3_table
+          extern p4_table
+          extern setup_page_tables
+          extern enable_paging
+
+          ; Long Mode
+          extern enable_long_mode
+
           ; Kernel Entry Point
           extern kernel_main
+
+          ; Boot64 - entry point to 64-bit boot code - continuation of what is here
+          extern boot64
 
 ; The multiboot standard does not define the value of the stack pointer register.
 ; The stack on x86 must be 16-byte aligned according to the
 ; System V ABI standard and de-facto extensions. The compiler will assume the
 ; stack is properly aligned and failure to align the stack will result in
 ; undefined behavior.
-          section   .bss
-          align 4096
-p4_table:
-          resb 4096 ; Page Map Level 4
-p3_table:
-          resb 4096 ; Page Directory Pointer Table
-p2_table:
-          resb 4096 ; Page Directory
-p1_table:
-          resb 4096 ; Page Table
 
 ; The linker script specifies _start as the entry point to the kernel and the
 ; bootloader will jump to this position once the kernel has been loaded. It
@@ -71,97 +75,23 @@ _start:
           ; in assembly as languages such as C cannot function without a stack.
           mov esp, stack_top
 
-          call check_multiboot
-          call check_and_handle_errors
+;          call check_multiboot
+;          call check_and_handle_errors
           call check_cpuid
           call check_and_handle_errors
           call check_long_mode
           call check_and_handle_errors
-
-          ; PML4[0] = PDPT
-          ; PDPT[0] = PD
-          ; PD[0] = PT
-
-          mov eax, p3_table
-          or eax, 0x3 ; Present, Read/Write
-          mov [p4_table], eax
-
-          mov eax, p2_table
-          or eax, 0x3 ; Present, Read/Write
-          mov [p3_table], eax
-
-          mov eax, p1_table
-          or eax, 0x3 ; Present, Read/Write
-          mov [p2_table], eax
-
-          ; Identity map the first 2 MiB of memory
-          mov ebx, 0x00000003
-          mov ecx, 512
-
-.map_p2_table:
-          ; Map ecx-th page to a page that starts at 2 MiB * ecx
-          mov eax, 0x200000 ; 2 MiB
-          mul ecx           ; start address of ecx-th page
-          or eax, 0b10000011 ; Present, Read/Write, and something (User/Supervisor?)
-          mov [p2_table + ecx * 8], eax
-
-          inc ecx
-          loop .map_p2_table
-
-.enable_paging:
-          ; Setup Paging for Long Mode
-          mov edi, p4_table
-          mov cr3, edi
-
-          xor eax, eax
-          mov ecx, 4096
-          rep stosd ; Zero out the PML4 table
-
-          ; Enable PAE-paging
-          mov eax, cr4
-          or eax, 1 << 5 ; Set PAE bit
-          mov cr4, eax
-
-          ; Procesors starting from Ice Lake support 5-level paging
-
-          ; Enter compatibility mode
-          ; Set the LME (Long Mode Enable) bit in the
-          ; EFER (Extended Feature Enable Register)
-          ; MSR (Model Specific Register)
-          mov ecx, 0xC0000080 ; EFER MSR
-          rdmsr ;
-          or eax, 1 << 8 ;
-          wrmsr ;
-
-          ; Enable paging and protected mode
-          mov eax, cr0
-          or eax, 1 << 31 | 1 << 0 ; Set PG (Paging - bit 31) and PE (Protected Mode - bit 0)
-          mov cr0, eax
+          call setup_page_tables
+          call check_and_handle_errors
+;          call enable_paging
+;          call check_and_handle_errors
+          call enable_long_mode
+          call check_and_handle_errors
 
           ; Jump to long mode
-          lgdt [GDT64.Pointer]
-          jmp GDT64.Code:long_mode_start
+;          lgdt [GDT64.Pointer]
+;          jmp GDT64.Code:boot64
 
-.hang32:
-          hlt
-          jmp .hang32
-
-          BITS 64
-          section   .text
-
-long_mode_start:
-          cli
-          mov ax, GDT64.Data
-          mov ds, ax
-          mov es, ax
-          mov fs, ax
-          mov gs, ax
-          mov ss, ax
-          mov edi, 0xB8000
-          mov rax, 0x1F201F201F201F20
-          mov ecx, 500
-          rep stosq
-
-.hang:
+          .hang:
           hlt
           jmp .hang
