@@ -17,23 +17,26 @@ GDT64:
           .Null:
           dq 0
           .Code: equ $ - GDT64
-          dd 0xFFFF                                   ; Limit & Base (low, bits 0-15)
-          db 0                                        ; Base (mid, bits 16-23)
-          db PRESENT | NOT_SYS | EXEC | RW            ; Access
-          db GRAN_4K | LONG_MODE | 0xF                ; Flags & Limit (high, bits 16-19)
-          db 0                                        ; Base (high, bits 24-31)
+          dw 0x0000
+          dw 0x0000
+          db 0x00
+          db 0x9A        ; Access byte
+          db 0x20        ; Flags
+          db 0x00
           .Data: equ $ - GDT64
-          dd 0xFFFF                                   ; Limit & Base (low, bits 0-15)
-          db 0                                        ; Base (mid, bits 16-23)
-          db PRESENT | NOT_SYS | RW                   ; Access
-          db GRAN_4K | SZ_32 | 0xF                    ; Flags & Limit (high, bits 16-19)
-          db 0                                        ; Base (high, bits 24-31)
-          .Pointer:
-          dw $ - GDT64 - 1 ; $ - Special symbol that evaluates to the current address
-          dq GDT64
+          dw 0x0000
+          dw 0x0000
+          db 0x00
+          db 0x92        ; Access byte
+          db 0x00        ; Flags
+          db 0x00
 .End:
+          .Pointer:
+          dw .End - GDT64 - 1 ;
+          dq GDT64
 
           global GDT64
           global GDT64.Pointer
           global GDT64.Code
           global GDT64.Data
+

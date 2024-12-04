@@ -11,15 +11,14 @@ EFER_MSR            equ 0xC0000080
           section .text32
           global enable_paging
 enable_paging:
-          ; Load the PML4 table into CR3
-          mov eax, p4_table
-          mov cr3, eax
-
-          ; TODO: THESE TWO LINES ARE THE PROBLEM
-;          ; Enable PAE
+          ; Enable PAE
           mov eax, cr4
           or eax, PAE_BIT
           mov cr4, eax
+
+          ; Load the PML4 table into CR3
+          mov eax, p4_table
+          mov cr3, eax
 
           ; Note: Processors starting from Ice Lake support 5-level paging
 

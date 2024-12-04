@@ -21,10 +21,8 @@
           extern MESSAGE_ERROR_UNKNOWN
 
           ; GDT64
-          extern GDT64
           extern GDT64.Pointer
           extern GDT64.Code
-          extern GDT64.Data
 
           ; Stack
           extern stack_bottom
@@ -90,41 +88,4 @@ _start:
 
           ; Jump to long mode
           lgdt [GDT64.Pointer]
-          bits 64
-;          This stuff just doesn't work for some reason
-;          jmp GDT64.Code:boot64
-
-          ; So instead I test if we can access 64-bit registers
-          ; And we can, so we can continue with the 64-bit code
-          ; But we can't jump to boot64 for some reason
-          ; And we can't call kernel_main either
-          ; This may be a problem with the GDT
-          ; I have no idea what the problem is as of now
-
-          ; clear screen
-          mov edi, 0xb8000
-          mov ecx, 80*25
-          xor eax, eax
-          rep stosd
-
-          mov rdi, 0xb8000 ; VGA text buffer
-          mov rcx, 80 * 25 ; 80 columns, 25 rows
-          mov ah, 0x08 ;
-          lea rsi, [LONG_MODE_MESSAGE]
-          call write_string
-          .hang:
-          hlt
-          jmp .hang
-
-write_string:
-          lodsb       ; load byte from rsi into al
-          test al, al ; check if null terminator
-          jz .done
-          mov word [rdi], ax
-          add rdi, 2
-          loop write_string
-.done:
-          ret
-
-section   .data
-LONG_MODE_MESSAGE db "Long mode is supported", 0
+          jmp GDT64.Code:boot64
