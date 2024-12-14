@@ -10,7 +10,7 @@ include_directories(${SYSROOT}/usr/include)
 # Define ARCH_DIR
 set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")
 
-file(GLOB ARCH_SOURCES
+file(GLOB_RECURSE ARCH_SOURCES
         "${ARCH_DIR}/*.cpp"
         "${ARCH_DIR}/*.c"
         "${ARCH_DIR}/*.s"
@@ -19,6 +19,18 @@ file(GLOB ARCH_SOURCES
         "${ARCH_DIR}/*.nasm"
 )
 
+set(ARCH_DIR_ASM_FLAGS "-I ${ARCH_DIR} -I ${ARCH_DIR}/utils -g -F dwarf")
+foreach(ASM_FILE ${ARCH_SOURCES})
+    get_source_file_property(CURRENT_COMPILE_FLAGS ${ASM_FILE} COMPILE_FLAGS)
+    if (CURRENT_COMPILE_FLAGS)
+        set(CURRENT_COMPILE_FLAGS "${CURRENT_COMPILE_FLAGS} ${ARCH_DIR_ASM_FLAGS}")
+    else ()
+        set(CURRENT_COMPILE_FLAGS "${ARCH_DIR_ASM_FLAGS}")
+    endif ()
+    set_source_files_properties(${ASM_FILE} PROPERTIES COMPILE_FLAGS ${CURRENT_COMPILE_FLAGS})
+endforeach()
+
+# Add kernel sources
 file(GLOB KERNEL_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
@@ -28,7 +40,12 @@ file(GLOB KERNEL_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.nasm"
 )
 
-add_executable(alkos.kernel ${ARCH_SOURCES} ${KERNEL_SOURCES})
+# Build the kernel executable
+add_executable(alkos.kernel
+        ${ARCH_SOURCES}
+        ${BOOT_ASM}
+        ${KERNEL_SOURCES}
+        )
 
 # Set linker flags
 set(LINKER_SCRIPT "${ARCH_DIR}/linker.ld")
@@ -50,5 +67,3 @@ set_target_properties(alkos.kernel PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${SYSROOT}/boot
         OUTPUT_NAME "alkos.kernel"
 )
-
-

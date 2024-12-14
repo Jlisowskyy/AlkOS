@@ -1,0 +1,5 @@
+; Error codes
+NO_ERROR equ 0
+ERROR_NO_MULTIBOOT equ 1
+ERROR_NO_CPUID equ 2
+ERROR_NO_LONG_MODE equ 3
