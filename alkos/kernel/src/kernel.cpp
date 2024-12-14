@@ -20,6 +20,6 @@ extern "C"
 
     const char* kernel_main()
     {
-        return "Hello from AlkOS!";
+        return "Hello, AlkOS!";
     }
 }
