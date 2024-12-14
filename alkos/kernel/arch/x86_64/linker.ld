@@ -22,9 +22,15 @@ SECTIONS
 	/* First put the multiboot header, as it is required to be put very early
 	   in the image or the bootloader won't recognize the file format.
 	   Next we'll put the .text section. */
+	.text32 BLOCK(4K) : ALIGN(4K)
+          {
+		*(.multiboot)
+                    *(.text32)
+          }
+
+
 	.text BLOCK(4K) : ALIGN(4K)
 	{
-		*(.multiboot)
 		*(.text)
 	}
 
@@ -46,6 +52,7 @@ SECTIONS
 		*(COMMON)
 		*(.bss)
 	}
+
 
 	/* The compiler may produce other sections, by default it will put them in
 	   a segment with the same name. Simply add stuff here as needed. */

@@ -45,9 +45,9 @@ parse_args() {
         shift
         ;;
       *)
-        if [ -z "$TARGET" ]; then
+        if [ -z "$MAKE_ISO_SCRIPT_TARGET" ]; then
           MAKE_ISO_SCRIPT_TARGET="$1"
-        elif [ -z "$SOURCE" ]; then
+        elif [ -z "$MAKE_ISO_SCRIPT_SOURCE" ]; then
           MAKE_ISO_SCRIPT_SOURCE="$1"
         else
           echo "Unknown argument: $1"
@@ -94,6 +94,8 @@ main() {
     echo "${MAKE_ISO_SCRIPT_GRUB_CONTENTS}" > "${MAKE_ISO_SCRIPT_SOURCE}/${MAKE_ISO_SCRIPT_GRUB_PATH_IN_ISO}"
 
   pretty_info "Creating .iso file $MAKE_ISO_SCRIPT_TARGET from $MAKE_ISO_SCRIPT_SOURCE"
+  pretty_info "Ensuring that the path to the .iso file exists"
+  base_runner "Failed to create path to .iso file" "${MAKE_ISO_SCRIPT_VERBOSE}" mkdir -p "$(dirname "${MAKE_ISO_SCRIPT_TARGET}")"
   base_runner "Failed to create .iso file" "${MAKE_ISO_SCRIPT_VERBOSE}" \
     grub-mkrescue -o "${MAKE_ISO_SCRIPT_TARGET}" "${MAKE_ISO_SCRIPT_SOURCE}"
   pretty_info "Created .iso file $(basename "${MAKE_ISO_SCRIPT_TARGET}")"

@@ -44,4 +44,3 @@ add_custom_command(TARGET lib${LIB_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/include ${SYSROOT}/usr/include
 )
-

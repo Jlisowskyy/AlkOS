@@ -1,13 +1,17 @@
 #!/bin/bash
-BUILD_SCRIPT_CMAKE_TOOLCHAIN_FILE_NAME="i686-elf-toolchain.cmake"
+BUILD_SCRIPT_CMAKE_TOOLCHAIN_FILE_NAME="x86_64-elf-toolchain.cmake"
 
 BUILD_SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 BUILD_SCRIPT_PATH="${BUILD_SCRIPT_DIR}/$(basename "$0")"
+
+BUILD_SCRIPT_MAKE_ISO_SCRIPT_PATH="${BUILD_SCRIPT_DIR}/make_iso.bash"
 
 BUILD_SCRIPT_SOURCE_DIR="${BUILD_SCRIPT_DIR}/../.."
 BUILD_SCRIPT_BUILD_DIR="${BUILD_SCRIPT_SOURCE_DIR}/build"
 BUILD_SCRIPT_CMAKE_TOOLCHAIN_FILE_PATH="${BUILD_SCRIPT_SOURCE_DIR}/alkos/toolchains/${BUILD_SCRIPT_CMAKE_TOOLCHAIN_FILE_NAME}"
 BUILD_SCRIPT_CMAKE_LISTS_PATH="${BUILD_SCRIPT_SOURCE_DIR}/alkos/"
+
+BUILD_SCRIPT_OUTPUT_DIR="${BUILD_SCRIPT_BUILD_DIR}/bin"
 
 source "${BUILD_SCRIPT_SOURCE_DIR}/scripts/utils/helpers.bash"
 source "${BUILD_SCRIPT_SOURCE_DIR}/scripts/utils/pretty_print.bash"
@@ -73,7 +77,9 @@ main() {
   pretty_success "AlkOS configured successfully"
 
   base_runner "Failed to build AlkOS" "${BUILD_SCRIPT_VERBOSE}" cmake --build "${BUILD_SCRIPT_BUILD_DIR}"
-  pretty_success "AlkOS built successfully - Image is located in ${BUILD_SCRIPT_BUILD_DIR}/bin"
+  base_runner "Failed to create AlkOS ISO" "${BUILD_SCRIPT_VERBOSE}" "${BUILD_SCRIPT_MAKE_ISO_SCRIPT_PATH}" \
+   "${BUILD_SCRIPT_OUTPUT_DIR}/alkos.iso" "${BUILD_SCRIPT_BUILD_DIR}/sysroot" -v -r
+  pretty_success "AlkOS built successfully - Image is located in ${BUILD_SCRIPT_BUILD_DIR}/${BUILD_SCRIPT_OUTPUT_DIR}"
 }
 
 main "$@"
