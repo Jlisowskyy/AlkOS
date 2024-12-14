@@ -78,7 +78,7 @@ main() {
 
   base_runner "Failed to build AlkOS" "${BUILD_SCRIPT_VERBOSE}" cmake --build "${BUILD_SCRIPT_BUILD_DIR}"
   base_runner "Failed to create AlkOS ISO" "${BUILD_SCRIPT_VERBOSE}" "${BUILD_SCRIPT_MAKE_ISO_SCRIPT_PATH}" \
-   "${BUILD_SCRIPT_BUILD_DIR}/${BUILD_SCRIPT_OUTPUT_DIR}/alkos.iso" "${BUILD_SCRIPT_BUILD_DIR}/sysroot" -v -r
+   "${BUILD_SCRIPT_OUTPUT_DIR}/alkos.iso" "${BUILD_SCRIPT_BUILD_DIR}/sysroot" -v -r
   pretty_success "AlkOS built successfully - Image is located in ${BUILD_SCRIPT_BUILD_DIR}/${BUILD_SCRIPT_OUTPUT_DIR}"
 }
 
