@@ -27,6 +27,7 @@ void *memcpy(void *dest, const void *src, size_t n);
  * @param n Number of bytes to copy
  * @return void* Pointer to the destination memory area
  */
+
 void *memmove(void *dest, const void *src, size_t n);
 /**
  * @brief Fill memory area with a constant byte
