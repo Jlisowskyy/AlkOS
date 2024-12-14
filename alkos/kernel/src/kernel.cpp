@@ -10,8 +10,7 @@
 #include "../test/tester.hpp"
 #endif
 
-static void KernelInit() {
-}
+#include "../include/init.hpp"
 
 static void KernelRun() {
 }

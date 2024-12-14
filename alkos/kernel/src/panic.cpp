@@ -1,4 +1,4 @@
 #include "../include/panic.hpp"
 
-void KernelPanic() {
+void KernelPanic([[maybe_unused]] const char* msg) {
 }
