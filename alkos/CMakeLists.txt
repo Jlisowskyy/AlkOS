@@ -43,7 +43,9 @@ add_subdirectory(kernel)
 
 # Custom target to create ISO image
 set(MAKE_ISO_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/install/make_iso.bash)
+set(RUN_ALKOS_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/install/run_alkos.bash)
 message(STATUS "Using make_iso script: ${MAKE_ISO_SCRIPT_PATH}")
+message(STATUS "Using run_alkos script: ${RUN_ALKOS_SCRIPT_PATH}")
 add_custom_target(iso
         COMMAND ${MAKE_ISO_SCRIPT_PATH} "${CMAKE_BINARY_DIR}/alkos.iso" ${SYSROOT} -v -r
         DEPENDS alkos.kernel
@@ -52,14 +54,14 @@ add_custom_target(iso
 
 # Custom target to run QEMU
 add_custom_target(run
-        COMMAND qemu-system-x86_64 -cdrom ${CMAKE_BINARY_DIR}/alkos.iso
+        COMMAND ${RUN_ALKOS_SCRIPT_PATH} -v -r
         DEPENDS iso
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
 # -s -S flags are used to start QEMU with GDB support, listening on port 1234 - tcp
 add_custom_target(run-with-gdb
-        COMMAND qemu-system-x86_64 -cdrom ${CMAKE_BINARY_DIR}/alkos.iso -s -S
+        COMMAND ${RUN_ALKOS_SCRIPT_PATH} -v -r -g
         DEPENDS iso
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )

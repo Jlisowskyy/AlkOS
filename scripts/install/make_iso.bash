@@ -94,6 +94,8 @@ main() {
     echo "${MAKE_ISO_SCRIPT_GRUB_CONTENTS}" > "${SOURCE}/${MAKE_ISO_SCRIPT_GRUB_PATH_IN_ISO}"
 
   pretty_info "Creating .iso file $TARGET from $SOURCE"
+  pretty_info "Ensuring that the path to the .iso file exists"
+  base_runner "Failed to create path to .iso file" "${MAKE_ISO_SCRIPT_VERBOSE}" mkdir -p "$(dirname "${TARGET}")"
   base_runner "Failed to create .iso file" "${MAKE_ISO_SCRIPT_VERBOSE}" \
     grub-mkrescue -o "${TARGET}" "${SOURCE}"
   pretty_info "Created .iso file $(basename "${TARGET}")"
