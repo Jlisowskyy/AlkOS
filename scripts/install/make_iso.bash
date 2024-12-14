@@ -28,8 +28,8 @@ help() {
 }
 
 parse_args() {
-  RUN=false
-  VERBOSE=false
+  MAKE_ISO_SCRIPT_RUN=false
+  MAKE_ISO_SCRIPT_VERBOSE=false
   while [[ $# -gt 0 ]]; do
     case $1 in
       -h|--help)
@@ -37,11 +37,11 @@ parse_args() {
         exit 0
         ;;
       -r|--run)
-        RUN=true
+        MAKE_ISO_SCRIPT_RUN=true
         shift
         ;;
       -v|--verbose)
-        VERBOSE=true
+        MAKE_ISO_SCRIPT_VERBOSE=true
         shift
         ;;
       *)
@@ -65,7 +65,7 @@ process_args() {
     exit 1
   fi
 
-  if [ "$RUN" = false ] ; then
+  if [ "$MAKE_ISO_SCRIPT_RUN" = false ] ; then
     dump_error "--run flag was not provided!"
     exit 1
   fi
@@ -87,14 +87,14 @@ main() {
   fi
 
   pretty_info "Creating boot directory"
-  base_runner "Failed to create boot directory" "${VERBOSE}" mkdir -p "${SOURCE}/boot"
+  base_runner "Failed to create boot directory" "${MAKE_ISO_SCRIPT_VERBOSE}" mkdir -p "${SOURCE}/boot"
 
   pretty_info "Creating grub.cfg file"
-  base_runner "Failed to create grub.cfg" "${VERBOSE}" \
+  base_runner "Failed to create grub.cfg" "${MAKE_ISO_SCRIPT_VERBOSE}" \
     echo "${MAKE_ISO_SCRIPT_GRUB_CONTENTS}" > "${SOURCE}/${MAKE_ISO_SCRIPT_GRUB_PATH_IN_ISO}"
 
   pretty_info "Creating .iso file $TARGET from $SOURCE"
-  base_runner "Failed to create .iso file" "${VERBOSE}" \
+  base_runner "Failed to create .iso file" "${MAKE_ISO_SCRIPT_VERBOSE}" \
     grub-mkrescue -o "${TARGET}" "${SOURCE}"
   pretty_info "Created .iso file $(basename "${TARGET}")"
 }

@@ -1,6 +1,5 @@
           bits 32
 
-          section .rodata
 vga_base  equ 0xB8000
 vga_width equ 80
 vga_height equ 25
@@ -38,13 +37,11 @@ begin:
           ; Check for the end of the string
           test al, al
           jz .end
-
 .print_char:
           mov ah, vga_attr ; set the attribute byte (foreground / background)
                          ; al is already set to the character we want to print
           mov [edi], ax  ; Write the character
           add edi, 2     ; Move to the next character
-.next_char:
           inc esi        ; Move to the next character
           jmp .loop
 .end:

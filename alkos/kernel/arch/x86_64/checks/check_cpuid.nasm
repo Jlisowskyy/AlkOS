@@ -35,3 +35,4 @@ check_cpuid:
           ret
 .no_cpuid:
           mov al, ERROR_NO_CPUID
+          ret

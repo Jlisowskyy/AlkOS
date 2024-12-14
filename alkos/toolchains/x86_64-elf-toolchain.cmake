@@ -26,4 +26,3 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)  # Only search for packages in the t
 
 # Optional: Specify NASM if it's not in your PATH
 # set(CMAKE_ASM_NASM_COMPILER "/path/to/your/nasm")
-

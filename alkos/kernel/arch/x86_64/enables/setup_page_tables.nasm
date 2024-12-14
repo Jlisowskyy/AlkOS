@@ -12,6 +12,8 @@ HUGE_PAGE_BIT       equ 1 << 7  ; Creates a 2 MiB page in P2 table or 1 GiB page
 GLOBAL_BIT          equ 1 << 8  ; The page isn't flushed from the TLB on address space switch
 NO_EXECUTE_BIT      equ 1 << 63 ; Forbid execution from this page
 
+
+
           global p4_table
           global p3_table
           global p2_table
@@ -48,7 +50,7 @@ setup_page_tables:
           ; Setup each entry in p2 table to a page with HUGE_PAGE_BIT set
           ; This will map 2 MiB of memory
 
-          mov ecx, 0
+          xor ecx, ecx
 .map_p2_table:
           mov eax, 0x200000 ; 2 MiB
           mul ecx
