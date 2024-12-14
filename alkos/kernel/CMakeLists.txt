@@ -10,6 +10,9 @@ include_directories(${SYSROOT}/usr/include)
 # Define ARCH_DIR
 set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")
 
+# Additional test definitions
+add_compile_definitions(ALKOS_TEST=0)
+
 file(GLOB_RECURSE ARCH_SOURCES
         "${ARCH_DIR}/*.cpp"
         "${ARCH_DIR}/*.c"

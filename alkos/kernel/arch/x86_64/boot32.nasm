@@ -39,9 +39,6 @@
           ; Long mode
           extern enable_long_mode
 
-          ; Kernel Entry Point
-          extern kernel_main
-
           ; Boot64 - entry point to 64-bit boot code - continuation of what is here
           extern boot64
 

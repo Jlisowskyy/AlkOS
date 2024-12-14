@@ -1,0 +1,6 @@
+#ifndef ALKOS_INCLUDE_PANIC_HPP_
+#define ALKOS_INCLUDE_PANIC_HPP_
+
+void KernelPanic();
+
+#endif // ALKOS_INCLUDE_PANIC_HPP_
