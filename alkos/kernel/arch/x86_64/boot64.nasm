@@ -12,7 +12,6 @@
           section .text
           bits 64
 boot64:
-          ; Calc the GDT64 Data segment selector as GDT64.Data - GDT64
           mov ax, GDT64.Data
           mov ds, ax
           mov es, ax

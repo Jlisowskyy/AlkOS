@@ -25,9 +25,7 @@ SECTIONS
 	.text32 BLOCK(4K) : ALIGN(4K)
           {
 		*(.multiboot)
-                    __text32_start = .;
                     *(.text32)
-                    __text32_end = .;
           }
 
 
