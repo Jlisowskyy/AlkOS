@@ -8,6 +8,9 @@
           ; Kernel Entry Point
           extern KernelMain
 
+          ; Enabling extension
+          extern enable_extensions
+
           global boot64
           section .text
           bits 64
@@ -18,6 +21,13 @@ boot64:
           mov fs, ax
           mov gs, ax
           mov ss, ax
+
+        ; TODO:
+        ; 1. Enable interrupts
+        ; 2. GDT, IDT, TSS, etc.
+        ; 3. C++ runtime initialization
+
+          call enable_extensions
 
           call KernelMain
           mov r10, rax
