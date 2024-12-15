@@ -49,6 +49,7 @@ message(STATUS "Using run_alkos script: ${RUN_ALKOS_SCRIPT_PATH}")
 add_custom_target(iso
         COMMAND ${MAKE_ISO_SCRIPT_PATH} "${CMAKE_BINARY_DIR}/alkos.iso" ${SYSROOT} -v -r
         DEPENDS alkos.kernel
+        DEPENDS libk
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 

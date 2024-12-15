@@ -1,13 +1,18 @@
 ; Constants for Multiboot header
-MBALIGN   equ  1 << 0              ; align loaded modules on page boundaries
-MEMINFO   equ  1 << 1              ; provide memory map
-MBFLAGS   equ  MBALIGN | MEMINFO   ; this is the Multiboot 'flag' field
-MAGIC     equ  0x1BADB002          ; 'magic number' lets bootloader find the header
-CHECKSUM  equ -(MAGIC + MBFLAGS)   ; checksum of above, to prove we are multiboot
+ARCHINFO  equ  0                   ; '0' means 32-bit protected mode of the i386 architecture
+MAGIC     equ  0xE85250D6          ; 'magic number' lets bootloader find the header
+CHECKSUM  equ -(MAGIC + ARCHINFO + (multiboot_end - multiboot_start))
 
 ; Multiboot header
 section   .multiboot
-          align 4
+          align 8
+multiboot_start:
 	dd MAGIC
-	dd MBFLAGS
+	dd ARCHINFO
+	dd multiboot_end - multiboot_start
 	dd CHECKSUM
+
+	dw 0
+	dw 0
+	dd 8
+multiboot_end:

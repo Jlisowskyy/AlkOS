@@ -54,7 +54,7 @@ add_executable(alkos.kernel
 # Set linker flags
 set(LINKER_SCRIPT "${ARCH_DIR}/linker.ld")
 set_target_properties(alkos.kernel PROPERTIES
-        LINK_FLAGS "-T ${LINKER_SCRIPT} -nostdlib -lgcc"
+        LINK_FLAGS "-T ${LINKER_SCRIPT} -nostdlib -lgcc -z max-page-size=0x1000 -n"
 )
 
 # Link against libk and gcc
