@@ -80,9 +80,8 @@ enable_osxsave:
 enable_osxsave_avx_fail:
     lea rdi, [FAIL_OSXSAVE_AVX]
     call KernelPanic
-    ret
+
 
 enable_osxsave_fail:
     lea rdi, [FAIL_OSXSAVE]
     call KernelPanic
-    ret

@@ -21,7 +21,7 @@ static void StackSmashTest() {
 /**
 * @brief Test should not drop kernel panic due to enabled float extension
 *
-* @note This test is architecture dependent
+* @note This test is architecture dependent, simply invokes floating point instructions
 */
 extern void FloatExtensionTest();
 
