@@ -1,11 +1,3 @@
-/**
- * Stub kernel entry
- * */
-
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
 #if defined(__linux__)
 #error "You are not using a cross-compiler, you will most certainly run into trouble"
 #endif
@@ -14,12 +6,26 @@
 #error "AlkOS needs to be compiled with a x86_64-elf compiler"
 #endif
 
-/* Make kernel entry C compatible */
-extern "C"
-{
+#ifdef ALKOS_TEST
+#include <tester.hpp>
+#endif
 
-    const char* kernel_main()
-    {
-        return "Hello, AlkOS!";
-    }
+#include <init.hpp>
+
+static void KernelRun() {
+}
+
+extern "C" const char *KernelMain() {
+    KernelInit();
+
+#ifdef ALKOS_TEST
+
+    VERIFY_TEST_TYPE(ALKOS_TEST)
+    RunTest(static_cast<TestType>(ALKOS_TEST));
+    return "Hello from AlkOS test!";
+
+#endif
+
+    KernelRun();
+    return "Hello from AlkOS!";
 }
