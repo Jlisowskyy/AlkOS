@@ -11,21 +11,22 @@
 #endif
 
 #include <init.hpp>
+#include "serial64.h"
 
 static void KernelRun() {
+    serial_init();
+    serial_puts("[INFO]\t  Hello from AlkOS!\n");
 }
 
-extern "C" const char *KernelMain() {
+extern "C" void KernelMain() {
     KernelInit();
 
 #ifdef ALKOS_TEST
 
     VERIFY_TEST_TYPE(ALKOS_TEST)
     RunTest(static_cast<TestType>(ALKOS_TEST));
-    return "Hello from AlkOS test!";
 
 #endif
 
     KernelRun();
-    return "Hello from AlkOS!";
 }

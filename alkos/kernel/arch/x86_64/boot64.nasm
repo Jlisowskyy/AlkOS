@@ -5,6 +5,13 @@
           ; GDT64
           extern GDT64.Data
 
+          ; Serial
+          extern serial_init
+          extern serial_puts
+
+          ; Message
+          extern MESSAGE_INFO_IN_64
+
           ; Kernel Entry Point
           extern KernelMain
 
@@ -19,30 +26,12 @@ boot64:
           mov gs, ax
           mov ss, ax
 
+          mov rdi, MESSAGE_INFO_IN_64
+          call serial_puts
+
           call KernelMain
-          mov r10, rax
 
-          ; clear screen
-          mov edi, 0xb8000
-          mov ecx, 80*25
-          xor eax, eax
-          rep stosd
-
-          mov rdi, 0xb8000 ; VGA text buffer
-          mov rcx, 80 * 25 ; 80 columns, 25 rows
-          mov ah, 0x08 ;
-          lea rsi, [r10]
-          call write_string
-          .hang:
+          cli
+.hang:
           hlt
           jmp .hang
-
-write_string:
-          lodsb       ; load byte from rsi into al
-          test al, al ; check if null terminator
-          jz .done
-          mov word [rdi], ax
-          add rdi, 2
-          loop write_string
-.done:
-          ret

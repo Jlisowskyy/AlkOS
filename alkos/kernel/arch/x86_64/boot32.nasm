@@ -13,9 +13,9 @@
           extern locate_framebuffer_tag
 
           ; Serial
-          extern serial_init
-          extern serial_print
-          extern serial_puts
+          extern serial_init32
+          extern serial_print32
+          extern serial_puts32
 
           ; Error checking and handling
           extern check_multiboot
@@ -23,9 +23,8 @@
           extern check_long_mode
           extern handle_return_code
 
-          extern MESSAGE_ERROR_NO_LONG_MODE
-          extern MESSAGE_ERROR_NO_CPUID
-          extern MESSAGE_ERROR_UNKNOWN
+          extern MESSAGE_INIT_ALKOS
+          extern MESSAGE_INFO_JUMPING_TO_64
 
           ; GDT64
           extern GDT64.Pointer
@@ -79,9 +78,9 @@ _start:
           mov esp, stack_top
           push      ebx ; Save multiboot_info_t* for later at the top of the stack
 
-          call serial_init
+          call serial_init32
           push MESSAGE_INIT_ALKOS
-          call serial_puts
+          call serial_puts32
           add esp, 4
 
           call check_multiboot
@@ -102,6 +101,10 @@ _start:
           call handle_return_code
           call enable_paging
           call handle_return_code
+
+          push MESSAGE_INFO_JUMPING_TO_64
+          call serial_puts32
+          add esp, 4
 
           ; Jump to long mode
           lgdt [GDT64.Pointer]
