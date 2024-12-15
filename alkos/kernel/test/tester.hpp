@@ -5,10 +5,11 @@
 
 enum TestType: uint64_t {
     kStackSmashTest,
+    kFloatExtensionTest,
     kLastTest,
 };
 
-#define IS_MACRO_EMPTY_(x) 0##x
+#define IS_MACRO_EMPTY_(x) !(x##0)
 #define IS_MACRO_EMPTY(x) IS_MACRO_EMPTY_(x)
 
 #define VERIFY_TEST_TYPE(type)                                       \

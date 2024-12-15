@@ -11,7 +11,8 @@ include_directories(${SYSROOT}/usr/include)
 set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")
 
 # Additional test definitions
-# add_compile_definitions(ALKOS_TEST=0)
+# add_compile_definitions(ALKOS_TEST=0) # Stack Smash Protection Test
+add_compile_definitions(ALKOS_TEST=1) # Floating Point Test
 
 file(GLOB_RECURSE ARCH_SOURCES
         "${ARCH_DIR}/*.cpp"
