@@ -48,11 +48,12 @@ static void __stack_chk_init_hosted() {
 
 /**
  * Initialize the stack check guard variable for the kernel environment
+ *
+ * @todo Implement this when random number generator is implemented
  */
 #ifdef __ALKOS_KERNEL__
 
 static void __stack_chk_init_kernel() {
-    // TODO: Implement this
 }
 
 #endif // __ALKOS_KERNEL__
@@ -78,6 +79,8 @@ void __stack_chk_init() {
 
 /**
  * Stack check fail for the kernel environment
+ *
+ * @todo Add some debug message about stack in future
  */
 #ifdef __ALKOS_KERNEL__
 API_CALL static void __stack_chk_fail_kernel() {
