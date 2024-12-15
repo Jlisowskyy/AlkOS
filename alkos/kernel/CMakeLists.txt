@@ -11,10 +11,8 @@ include_directories(test)
 # Define ARCH_DIR
 set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")
 
-# Additional test definitions
-# add_compile_definitions(ALKOS_TEST=0) # Stack Smash Protection Test
-add_compile_definitions(ALKOS_TEST=1) # Floating Point Test
-
+# Additional test definitions - refer to test/tester.hpp file for value specifics
+ add_compile_definitions(ALKOS_TEST=1)
 
 file(GLOB_RECURSE ARCH_SOURCES
         "${ARCH_DIR}/*.cpp"

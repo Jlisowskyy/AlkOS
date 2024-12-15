@@ -25,6 +25,7 @@ enable_avx:
     jz enable_avx_fail
 
     ; NOTE: At this moment XSAVE feature is assumed to be supported, enabled and configure before this function is called
+    ; NOTE: Furthermore AVX support is already available after XSAVE (with AVX support) and SEE support is enabled
 
     ret
 
