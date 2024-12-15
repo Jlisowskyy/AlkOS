@@ -12,7 +12,7 @@ include_directories(test)
 set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")
 
 # Additional test definitions
-# add_compile_definitions(ALKOS_TEST=0)
+ add_compile_definitions(ALKOS_TEST=1)
 
 file(GLOB_RECURSE ARCH_SOURCES
         "${ARCH_DIR}/*.cpp"

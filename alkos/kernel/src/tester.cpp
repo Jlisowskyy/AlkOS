@@ -4,6 +4,11 @@
 /* external include */
 #include <stddef.h>
 #include <new.hpp>
+#include <panic.hpp>
+
+// ---------------------------------------
+// cpp compatibility test components
+// ---------------------------------------
 
 class TestClass {
 public:
@@ -14,16 +19,7 @@ public:
     const int m_b;
 };
 
-static void StackSmashTest() {
-    static constexpr uint64_t kStackSize = 32;
-    static constexpr uint64_t kWriteSize = 64;
-
-    char buff[kStackSize];
-
-    for (size_t i = 0; i < kWriteSize; i++) {
-        buff[i] = 'A';
-    }
-}
+TestClass g_GlobalTestClass(5);
 
 static void CppTest() {
     char mem[sizeof(TestClass)];
@@ -40,11 +36,32 @@ static void CppTest() {
     const auto *test3 = new int[5];
     delete[] test3;
 
-    /*I test placement new and delete */
+    /* test placement new and delete */
     auto *test4 = new(reinterpret_cast<TestClass *>(mem)) TestClass(5);
     test4->m_a++;
     delete test4;
+
+    /* test global object */
+    if (g_GlobalTestClass.m_b != 12) {
+        KernelPanic("Global object initialization failed");
+    }
 }
+
+// ------------------------------
+// Stack Smash Test
+// ------------------------------
+
+static void StackSmashTest() {
+    static constexpr uint64_t kStackSize = 32;
+    static constexpr uint64_t kWriteSize = 64;
+
+    char buff[kStackSize];
+
+    for (size_t i = 0; i < kWriteSize; i++) {
+        buff[i] = 'A';
+    }
+}
+
 
 using TestFuncType = void (*)();
 static TestFuncType TestTable[]{
