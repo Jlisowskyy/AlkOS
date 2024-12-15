@@ -81,7 +81,7 @@ void __stack_chk_init() {
  */
 #ifdef __ALKOS_KERNEL__
 API_CALL static void __stack_chk_fail_kernel() {
-    KernelPanic("");
+    KernelPanic("Stack smashing detected");
 }
 
 #endif // __ALKOS_KERNEL__
@@ -99,7 +99,7 @@ static void __stack_chk_fail_hosted() {
 /**
  * Stack check fail
  */
-__attribute__((noreturn)) void __stack_chk_fail() {
+extern "C" __attribute__((noreturn)) void __stack_chk_fail() {
 #if __STDC_HOSTED__
 
     __stack_chk_fail_hosted();
