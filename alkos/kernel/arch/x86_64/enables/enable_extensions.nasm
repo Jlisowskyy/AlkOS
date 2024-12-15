@@ -1,28 +1,30 @@
     bits 64
 
+    extern KernelPanic
+    ; Intel manual page 814 Vol 2A CPUID - CPU Identification
+
+    ; CPUID flags
+    FEATURE_FLAG equ 0x1      ; CPUID EAX code
+    SSE_FLAG     equ 1<<25    ; EDX
+    AVX_FLAG     equ 1<<28    ; ECX
+    XSAVE_FLAG   equ 1<<26    ; ECX
+    FXSAVE_FLAG  equ 1<<24    ; EDX
+
+    ; SSE Control Register flags
+    OSFXSR_FLAG     equ 1<<9   ; CR4.OSFXSR
+    OSXMMEXCPT_FLAG equ 1<<10  ; CR4.OSXMMEXCPT
+    EM_FLAG         equ 1<<2   ; CR0.EM
+    MP_FLAG         equ 1<<1   ; CR0.MP
+
+    ; AVX Control Register flags
+
+    section .rodata
+    FAIL_AVX   db "Unable to init avx", 0
+    FAIL_SSE   db "Unable to init sse", 0
+    FAIL_STORE db "Missing FXSAVE or XSAVE support", 0
+
     section .text
     global enable_extensions
-
-; CPUID flags
-FEATURE_FLAG equ 0x1      ; CPUID EAX code
-SSE_FLAG     equ 1<<25    ; EDX
-AVX_FLAG     equ 1<<28    ; ECX
-XSAVE_FLAG   equ 1<<26    ; ECX
-FXSAVE_FLAG  equ 1<<24    ; EDX
-
-; SSE Control Register flags
-OSFXSR_FLAG     equ 1<<9   ; CR4.OSFXSR
-OSXMMEXCPT_FLAG equ 1<<10  ; CR4.OSXMMEXCPT
-EM_FLAG         equ 1<<2   ; CR0.EM
-MP_FLAG         equ 1<<1   ; CR0.MP
-
-; AVX Control Register flags
-
-; OSXSAVE Control Register flags
-
-; Intel manual page 319 (Chapter 13 - Managing State Using the XSAVE Feature Set)
-enable_osxsave:
-    ret
 
 ; According to intel manual page: 3570 (15.1.3 - Initialization of the SSE Extensions)
 ; TODO:
@@ -70,32 +72,47 @@ enable_avx:
 
 enable_extensions:
     ; query the cpu for supported features
-    mov rax, FEATURE_FLAG
+    mov eax, FEATURE_FLAG
     cpuid
 
-    call enable_osxsave
-
     ; check if the SSE flag is set
-    test rdx, SSE_FLAG
-    jz enable_extensions_end
+    test edx, SSE_FLAG
+    jz enable_extensions_see_fail
 
     ; One of below is expected to be supported to provide context switching for SSE registers
 
-    ; check if FXSAVE and FXRSTOR instructions are supported
-    test rdx, FXSAVE_FLAG
+    ; check if XSAVE and XRSTOR instructions are supported
+    test ecx, XSAVE_FLAG
     jnz enable_extensions_sse
 
-    ; check if XSAVE and XRSTOR instructions are supported
-    test rcx, XSAVE_FLAG
-    jz enable_extensions_end
+    ; check if FXSAVE and FXRSTOR instructions are supported
+    test edx, FXSAVE_FLAG
+    jz enable_extensions_fail_store
 
 enable_extensions_sse:
     call enable_sse
 
-    ; check if the AVX flag is setz
-    test rcx, AVX_FLAG
-    jz enable_extensions_end
+    ; check if the AVX flag is set
+    test ecx, AVX_FLAG
+    jz enable_extensions_avx_fail
     call enable_avx
 
-enable_extensions_end:
+    ret
+
+enable_extensions_see_fail:
+    lea rdi, [FAIL_SSE]
+    call KernelPanic
+
+    ret
+
+enable_extensions_avx_fail:
+    lea rdi, [FAIL_AVX]
+    call KernelPanic
+
+    ret
+
+enable_extensions_fail_store:
+    lea rdi, [FAIL_STORE]
+    call KernelPanic
+
     ret

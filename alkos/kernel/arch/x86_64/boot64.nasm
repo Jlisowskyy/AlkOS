@@ -5,13 +5,20 @@
           ; GDT64
           extern GDT64.Data
 
+          ; vga code
+          extern terminal_initialize
+
           ; Kernel Entry Point
           extern KernelMain
+
+          ; Enabling osxsave
+          extern enable_osxsave
 
           ; Enabling extension
           extern enable_extensions
 
           global boot64
+          global os_hang
           section .text
           bits 64
 boot64:
@@ -27,32 +34,20 @@ boot64:
         ; 2. GDT, IDT, TSS, etc.
         ; 3. C++ runtime initialization
 
+          sub rsp, 32 ; shadow space
+
+          ; Pre-kernel init code
+          call terminal_initialize
+
+          ; Setuping CPU features
+          call enable_osxsave
           call enable_extensions
 
+          ; Kernel Entry Point
           call KernelMain
-          mov r10, rax
 
-          ; clear screen
-          mov edi, 0xb8000
-          mov ecx, 80*25
-          xor eax, eax
-          rep stosd
-
-          mov rdi, 0xb8000 ; VGA text buffer
-          mov rcx, 80 * 25 ; 80 columns, 25 rows
-          mov ah, 0x08 ;
-          lea rsi, [r10]
-          call write_string
-          .hang:
+          ; Infinite loop
+os_hang:
           hlt
-          jmp .hang
+          jmp os_hang
 
-write_string:
-          lodsb       ; load byte from rsi into al
-          test al, al ; check if null terminator
-          jz .done
-          mov word [rdi], ax
-          add rdi, 2
-          loop write_string
-.done:
-          ret
