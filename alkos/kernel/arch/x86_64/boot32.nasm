@@ -9,12 +9,19 @@
 
           ; Helper functions
           extern vga_print
+          extern framebuffer_print
+          extern locate_framebuffer_tag
+
+          ; Serial
+          extern serial_init
+          extern serial_print
+          extern serial_puts
 
           ; Error checking and handling
           extern check_multiboot
           extern check_cpuid
           extern check_long_mode
-          extern check_and_handle_errors
+          extern handle_return_code
 
           extern MESSAGE_ERROR_NO_LONG_MODE
           extern MESSAGE_ERROR_NO_CPUID
@@ -51,6 +58,7 @@
 ; The linker script specifies _start as the entry point to the kernel and the
 ; bootloader will jump to this position once the kernel has been loaded. It
 ; doesn't make sense to return from this function as the bootloader is gone.
+          extern MESSAGE_INIT_ALKOS
 section   .text32
 global    _start
 _start:
@@ -69,19 +77,31 @@ _start:
           ; stack (as it grows downwards on x86 systems). This is necessarily done
           ; in assembly as languages such as C cannot function without a stack.
           mov esp, stack_top
+          push      ebx ; Save multiboot_info_t* for later at the top of the stack
+
+          call serial_init
+          push MESSAGE_INIT_ALKOS
+          call serial_puts
+          add esp, 4
 
           call check_multiboot
-          call check_and_handle_errors
+          call handle_return_code
+
+          ; Use the multiboot information to locate the framebuffer
+          call locate_framebuffer_tag
+          push eax ; Save multiboot_tag_framebuffer_t* at stack_top - 4
+
           call check_cpuid
-          call check_and_handle_errors
+          call handle_return_code
           call check_long_mode
-          call check_and_handle_errors
+          call handle_return_code
+
           call setup_page_tables
-          call check_and_handle_errors
+          call handle_return_code
           call enable_long_mode
-          call check_and_handle_errors
+          call handle_return_code
           call enable_paging
-          call check_and_handle_errors
+          call handle_return_code
 
           ; Jump to long mode
           lgdt [GDT64.Pointer]

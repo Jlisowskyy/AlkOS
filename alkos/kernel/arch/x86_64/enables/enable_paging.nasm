@@ -1,5 +1,5 @@
           bits 32
-          %include "error_codes.nasm"
+          %include "return_codes.nasm"
 
 PAGING_BIT          equ 1 << 31
 PAE_BIT             equ 1 << 5
@@ -27,6 +27,5 @@ enable_paging:
           or eax, PAGING_BIT
           mov cr0, eax
 
-          mov al, NO_ERROR
+          mov eax, SUCCESS_ENABLE_PAGING
           ret
-

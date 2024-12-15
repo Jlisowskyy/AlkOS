@@ -8,6 +8,7 @@ source "${RUN_ALKOS_SCRIPT_SOURCE_DIR}/scripts/utils/helpers.bash"
 source "${RUN_ALKOS_SCRIPT_SOURCE_DIR}/scripts/utils/pretty_print.bash"
 
 RUN_ALKOS_SCRIPT_QEMU_COMMAND="qemu-system-x86_64"
+RUN_ALKOS_SCRIPT_QEMU_ARGS="-serial stdio"
 RUN_ALKOS_SCRIPT_GDB_ARGS="-s -S"
 
 help() {

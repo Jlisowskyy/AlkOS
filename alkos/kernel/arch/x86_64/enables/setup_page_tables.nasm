@@ -1,5 +1,5 @@
           bits 32
-          %include "error_codes.nasm"
+          %include "return_codes.nasm"
 
 PRESENT_BIT         equ 1 << 0  ; The page is present in memory
 WRITE_BIT           equ 1 << 1  ; The page is writable
@@ -61,5 +61,5 @@ setup_page_tables:
           cmp ecx, 512 ; 512 * 8 = 4096kb = 4mb ; Mapped the whole p2 table
           jl .map_p2_table
 
-          mov al, NO_ERROR
+          mov eax, SUCCESS_SETUP_PAGE_TABLES
           ret

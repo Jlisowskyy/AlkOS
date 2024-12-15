@@ -1,5 +1,5 @@
           bits 32
-          %include "error_codes.nasm"
+          %include "return_codes.nasm"
 
 LONG_MODE_BIT       equ 1 << 8
 EFER_MSR            equ 0xC0000080
@@ -15,5 +15,5 @@ enable_long_mode:
           or eax, LONG_MODE_BIT
           wrmsr
 
-          mov al, NO_ERROR
+          mov eax, SUCCESS_ENABLE_LONG_MODE
           ret

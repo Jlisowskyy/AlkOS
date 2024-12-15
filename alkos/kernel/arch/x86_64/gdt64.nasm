@@ -39,4 +39,3 @@ GDT64:
           global GDT64.Pointer
           global GDT64.Code
           global GDT64.Data
-

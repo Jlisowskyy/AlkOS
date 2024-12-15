@@ -3,16 +3,21 @@
 ; by a Multiboot2-compliant boot loader.
 ; Source:
 ; https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#EFI-amd64-machine-state-with-boot-services-enabled
-          %include "error_codes.nasm"
+          %include "return_codes.nasm"
 
 MULTIBOOT_HEADER_MAGIC equ 0x36d76289
+
+          section .rodata
+
+
+          extern serial_puts
           section .text32
           global check_multiboot
 check_multiboot:
           cmp eax, MULTIBOOT_HEADER_MAGIC
           jne .no_multiboot
-          mov al, NO_ERROR
+          mov eax, SUCCESS_CHECK_MULTIBOOT
           ret
 .no_multiboot:
-          mov al, ERROR_NO_MULTIBOOT
+          mov eax, ERROR_NO_MULTIBOOT
           ret
