@@ -6,7 +6,6 @@
     ; CPUID flags
     FEATURE_FLAG equ 0x1      ; CPUID EAX code
     SSE_FLAG     equ 1<<25    ; EDX
-    AVX_FLAG     equ 1<<28    ; ECX
 
     ; SSE Control Register flags
     OSFXSR_FLAG     equ 1<<9   ; CR4.OSFXSR
@@ -14,14 +13,12 @@
     EM_FLAG         equ 1<<2   ; CR0.EM
     MP_FLAG         equ 1<<1   ; CR0.MP
 
-    ; AVX Control Register flags
 
     section .rodata
-    FAIL_AVX   db "Missing AVX feature set. Unable to start...", 0
     FAIL_SSE   db "Missing SEE feature set. Unable to start...", 0
 
     section .text
-    global enable_extensions
+    global enable_sse
 
 ; According to intel manual page: 3570 (15.1.3 - Initialization of the SSE Extensions)
 ; TODO:
@@ -29,6 +26,22 @@
 ; 2. SSE EXCEPTION HANDLING
 ; 3. SSE BEHAVIOR
 enable_sse:
+    ; query the cpu for supported features
+    mov eax, FEATURE_FLAG
+    cpuid
+
+    ; check if the SSE flag is set
+    test edx, SSE_FLAG
+    jz enable_sse_fail
+
+    ; One of below is expected to be supported to provide context switching for SSE registers
+
+    ; In theory there should be  check if XSAVE or XRSTOR instructions are supported,
+    ; but in our case we assumes that XSAVE is supported and those checks are performed before this function is called
+    ; NOT: enable_osxsave MUST be called before this function
+    ; test ecx, XSAVE_FLAG
+    ; test edx, FXSAVE_FLAG
+
     mov rax, cr4
 
     ; step 1
@@ -64,45 +77,6 @@ enable_sse:
 
     ret
 
-enable_avx:
-    ret
-
-enable_extensions:
-    ; query the cpu for supported features
-    mov eax, FEATURE_FLAG
-    cpuid
-
-    ; check if the SSE flag is set
-    test edx, SSE_FLAG
-    jz enable_extensions_see_fail
-
-    ; One of below is expected to be supported to provide context switching for SSE registers
-
-    ; In theory there should be  check if XSAVE or XRSTOR instructions are supported,
-    ; but in our case we assumes that XSAVE is supported and those checks are performed before this function is called
-    ; NOT: enable_osxsave MUST be called before this function
-
-    ; test ecx, XSAVE_FLAG
-    ; test edx, FXSAVE_FLAG
-
-enable_extensions_sse:
-    call enable_sse
-
-    ; check if the AVX flag is set
-    test ecx, AVX_FLAG
-    jz enable_extensions_avx_fail
-    call enable_avx
-
-    ret
-
-enable_extensions_see_fail:
+enable_sse_fail:
     lea rdi, [FAIL_SSE]
     call KernelPanic
-
-    ret
-
-enable_extensions_avx_fail:
-    lea rdi, [FAIL_AVX]
-    call KernelPanic
-
-    ret

@@ -11,11 +11,10 @@
           ; Kernel Entry Point
           extern KernelMain
 
-          ; Enabling osxsave
+          ; Enabling various extensions
           extern enable_osxsave
-
-          ; Enabling extension
-          extern enable_extensions
+          extern enable_sse
+          extern enable_avx
 
           global boot64
           global os_hang
@@ -40,8 +39,10 @@ boot64:
           call terminal_initialize
 
           ; Setuping CPU features
+          ; NOTE: sequence is important
           call enable_osxsave
-          call enable_extensions
+          call enable_sse
+          call enable_avx
 
           ; Kernel Entry Point
           call KernelMain

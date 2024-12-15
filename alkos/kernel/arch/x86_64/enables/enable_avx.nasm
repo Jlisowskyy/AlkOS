@@ -1,0 +1,33 @@
+    bits 64
+
+    extern KernelPanic
+    ; Intel manual page 814 Vol 2A CPUID - CPU Identification
+
+    ; CPUID flags
+    FEATURE_FLAG equ 0x1      ; CPUID EAX code
+    AVX_FLAG     equ 1<<28    ; ECX
+
+    ; AVX Control Register flags
+
+    section .rodata
+    FAIL_AVX   db "Missing AVX feature set. Unable to start...", 0
+
+    section .text
+    global enable_avx
+
+; NOTE: Should be called ONLY after enable_osxsave
+enable_avx:
+    ; query the cpu for supported features
+    mov eax, FEATURE_FLAG
+    cpuid
+
+    test ecx, AVX_FLAG
+    jz enable_avx_fail
+
+    ; NOTE: At this moment XSAVE feature is assumed to be supported, enabled and configure before this function is called
+
+    ret
+
+enable_avx_fail:
+    lea rdi, [FAIL_AVX]
+    call KernelPanic
