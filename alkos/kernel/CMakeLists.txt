@@ -6,9 +6,13 @@ endif ()
 
 include_directories(include)
 include_directories(${SYSROOT}/usr/include)
+include_directories(test)
 
 # Define ARCH_DIR
 set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")
+
+# Additional test definitions
+# add_compile_definitions(ALKOS_TEST=0)
 
 file(GLOB_RECURSE ARCH_SOURCES
         "${ARCH_DIR}/*.cpp"

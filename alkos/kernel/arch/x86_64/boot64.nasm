@@ -6,7 +6,7 @@
           extern GDT64.Data
 
           ; Kernel Entry Point
-          extern kernel_main
+          extern KernelMain
 
           global boot64
           section .text
@@ -19,7 +19,7 @@ boot64:
           mov gs, ax
           mov ss, ax
 
-          call kernel_main
+          call KernelMain
           mov r10, rax
 
           ; clear screen

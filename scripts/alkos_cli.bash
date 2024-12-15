@@ -10,6 +10,7 @@ ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH="${ALK_OS_CLI_SCRIPT_DIR}/env/build_cross_comp
 ALK_OS_CLI_BUILD_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/install/build_alkos.bash"
 ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/env/install_deps_arch.bash"
 ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/install/run_alkos.bash"
+ALK_OS_CLI_ISO_PATH="${ALK_OS_CLI_DEFAULT_BUILD_DIR}/bin/alkos.iso"
 
 source "${ALK_OS_CLI_SCRIPT_DIR}/utils/pretty_print.bash"
 source "${ALK_OS_CLI_SCRIPT_DIR}/utils/helpers.bash"
@@ -103,7 +104,7 @@ main() {
 
   if [ $ALK_OS_CLI_RUN = true ] ; then
     base_runner "Failed to build AlkOS" "${ALK_OS_CLI_VERBOSE}" "${ALK_OS_CLI_BUILD_SCRIPT_PATH}" --run ${ALK_OS_CLI_VERBOSE_FLAG}
-    base_runner "Failed to run AlkOS in QEMU" "${ALK_OS_CLI_VERBOSE}" "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" --run ${ALK_OS_CLI_VERBOSE_FLAG}
+    base_runner "Failed to run AlkOS in QEMU" "${ALK_OS_CLI_VERBOSE}" "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" "${ALK_OS_CLI_ISO_PATH}" --run ${ALK_OS_CLI_VERBOSE_FLAG}
   fi
 }
 

@@ -8,12 +8,12 @@ source "${RUN_ALKOS_SCRIPT_SOURCE_DIR}/scripts/utils/helpers.bash"
 source "${RUN_ALKOS_SCRIPT_SOURCE_DIR}/scripts/utils/pretty_print.bash"
 
 RUN_ALKOS_SCRIPT_QEMU_COMMAND="qemu-system-x86_64"
-RUN_ALKOS_SCRIPT_QEMU_ARGS="-cdrom ${RUN_ALKOS_SCRIPT_SOURCE_DIR}/build/bin/alkos.iso"
 RUN_ALKOS_SCRIPT_GDB_ARGS="-s -S"
 
 help() {
-  echo "${RUN_ALKOS_SCRIPT_PATH} [--run | -r] [--install | -i] [--verbose | -v]"
+  echo "${RUN_ALKOS_SCRIPT_PATH} [alkos_iso_path] [--run | -r] [--install | -i] [--verbose | -v]"
   echo "Where:"
+  echo "alkos_iso_path - path to the .iso file"
   echo "--run     | -r - flag to run AlkOS in QEMU"
   echo "--verbose | -v - flag to enable verbose output"
   echo "--"
@@ -42,8 +42,13 @@ parse_args() {
         shift
         ;;
       *)
-        echo "Unknown argument: $1"
-        exit 1
+        if [ -z "$RUN_ALKOS_ISO_PATH" ]; then
+          RUN_ALKOS_ISO_PATH="$1"
+        else
+          echo "Unknown argument: $1"
+          exit 1
+        fi
+        shift
         ;;
     esac
   done
@@ -53,6 +58,13 @@ process_args() {
   if [ "$RUN_ALKOS_SCRIPT_RUN" = false ] ; then
     dump_error "--run flag was not provided!"
     exit 1
+  fi
+
+  if [ -z "$RUN_ALKOS_ISO_PATH" ]; then
+    dump_error "No path to the .iso file was provided!"
+    exit 1
+  else
+    RUN_ALKOS_SCRIPT_QEMU_ARGS="${RUN_ALKOS_SCRIPT_QEMU_ARGS} -cdrom ${RUN_ALKOS_ISO_PATH}"
   fi
 
   if [ "$RUN_ALKOS_SCRIPT_GDB" = true ] ; then
