@@ -4,19 +4,25 @@
     global enable_extensions
 
 ; CPUID flags
-FEATURE_FLAG equ 0x1
-SSE_FLAG     equ 1<<25
-AVX_FLAG     equ 1<<28
+FEATURE_FLAG equ 0x1      ; CPUID EAX code
+SSE_FLAG     equ 1<<25    ; EDX
+AVX_FLAG     equ 1<<28    ; ECX
+XSAVE_FLAG   equ 1<<26    ; ECX
+FXSAVE_FLAG  equ 1<<24    ; EDX
 
 ; SSE Control Register flags
-OSFXSR_FLAG     equ 1<<9
-OSXMMEXCPT_FLAG equ 1<<10
-EM_FLAG         equ 1<<2
-MP_FLAG         equ 1<<1
+OSFXSR_FLAG     equ 1<<9   ; CR4.OSFXSR
+OSXMMEXCPT_FLAG equ 1<<10  ; CR4.OSXMMEXCPT
+EM_FLAG         equ 1<<2   ; CR0.EM
+MP_FLAG         equ 1<<1   ; CR0.MP
 
 ; AVX Control Register flags
 
 ; According to intel manual page: 3570 (15.1.3 - Initialization of the SSE Extensions)
+; TODO:
+; 1. SSE CONTEXT SWITCHING
+; 2. SSE EXCEPTION HANDLING
+; 3. SSE BEHAVIOR
 enable_sse:
     mov rax, cr4
 
@@ -47,6 +53,10 @@ enable_sse:
     ; write back to CR0
     mov cr0, rax
 
+    ; step 7
+    ; configure the MXCSR register
+    ; TODO: IMPLEMENT TOGETHER WITH HANDLERS ETC
+
     ret
 
 enable_avx:
@@ -60,6 +70,18 @@ enable_extensions:
     ; check if the SSE flag is set
     test rdx, SSE_FLAG
     jz enable_extensions_end
+
+    ; One of below is expected to be supported to provide context switching for SSE registers
+
+    ; check if FXSAVE and FXRSTOR instructions are supported
+    test rdx, FXSAVE_FLAG
+    jnz enable_extensions_sse
+
+    ; check if XSAVE and XRSTOR instructions are supported
+    test rcx, XSAVE_FLAG
+    jz enable_extensions_end
+
+enable_extensions_sse:
     call enable_sse
 
     ; check if the AVX flag is set
