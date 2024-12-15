@@ -18,6 +18,12 @@ MP_FLAG         equ 1<<1   ; CR0.MP
 
 ; AVX Control Register flags
 
+; OSXSAVE Control Register flags
+
+; Intel manual page 319 (Chapter 13 - Managing State Using the XSAVE Feature Set)
+enable_osxsave:
+    ret
+
 ; According to intel manual page: 3570 (15.1.3 - Initialization of the SSE Extensions)
 ; TODO:
 ; 1. SSE CONTEXT SWITCHING
@@ -67,6 +73,8 @@ enable_extensions:
     mov rax, FEATURE_FLAG
     cpuid
 
+    call enable_osxsave
+
     ; check if the SSE flag is set
     test rdx, SSE_FLAG
     jz enable_extensions_end
@@ -84,7 +92,7 @@ enable_extensions:
 enable_extensions_sse:
     call enable_sse
 
-    ; check if the AVX flag is set
+    ; check if the AVX flag is setz
     test rcx, AVX_FLAG
     jz enable_extensions_end
     call enable_avx
