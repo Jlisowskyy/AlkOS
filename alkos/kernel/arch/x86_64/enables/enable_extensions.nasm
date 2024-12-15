@@ -7,8 +7,6 @@
     FEATURE_FLAG equ 0x1      ; CPUID EAX code
     SSE_FLAG     equ 1<<25    ; EDX
     AVX_FLAG     equ 1<<28    ; ECX
-    XSAVE_FLAG   equ 1<<26    ; ECX
-    FXSAVE_FLAG  equ 1<<24    ; EDX
 
     ; SSE Control Register flags
     OSFXSR_FLAG     equ 1<<9   ; CR4.OSFXSR
@@ -19,9 +17,8 @@
     ; AVX Control Register flags
 
     section .rodata
-    FAIL_AVX   db "Unable to init avx", 0
-    FAIL_SSE   db "Unable to init sse", 0
-    FAIL_STORE db "Missing FXSAVE or XSAVE support", 0
+    FAIL_AVX   db "Missing AVX feature set. Unable to start...", 0
+    FAIL_SSE   db "Missing SEE feature set. Unable to start...", 0
 
     section .text
     global enable_extensions
@@ -81,13 +78,12 @@ enable_extensions:
 
     ; One of below is expected to be supported to provide context switching for SSE registers
 
-    ; check if XSAVE and XRSTOR instructions are supported
-    test ecx, XSAVE_FLAG
-    jnz enable_extensions_sse
+    ; In theory there should be  check if XSAVE or XRSTOR instructions are supported,
+    ; but in our case we assumes that XSAVE is supported and those checks are performed before this function is called
+    ; NOT: enable_osxsave MUST be called before this function
 
-    ; check if FXSAVE and FXRSTOR instructions are supported
-    test edx, FXSAVE_FLAG
-    jz enable_extensions_fail_store
+    ; test ecx, XSAVE_FLAG
+    ; test edx, FXSAVE_FLAG
 
 enable_extensions_sse:
     call enable_sse
@@ -107,12 +103,6 @@ enable_extensions_see_fail:
 
 enable_extensions_avx_fail:
     lea rdi, [FAIL_AVX]
-    call KernelPanic
-
-    ret
-
-enable_extensions_fail_store:
-    lea rdi, [FAIL_STORE]
     call KernelPanic
 
     ret

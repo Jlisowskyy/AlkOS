@@ -11,7 +11,7 @@ XSAVE_FLAG   equ 1<<26    ; ECX
     global enable_osxsave
 
     section .rodata
-    FAIL_OSXSAVE db "Unable to init osxsave", 0
+    FAIL_OSXSAVE db "Missing OSXSAVE feature set. Unable to start...", 0
 
 ; Intel manual page 319 (Chapter 13 - Managing State Using the XSAVE Feature Set)
 enable_osxsave:
@@ -22,7 +22,6 @@ enable_osxsave:
     test ecx, XSAVE_FLAG
     jz enable_osxsave_fail
 
-enable_osxsave_end:
     ret
 
 enable_osxsave_fail:
