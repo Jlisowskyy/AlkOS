@@ -3,13 +3,13 @@
 // ------------------------------
 
 /* main include */
-#include "libssp.hpp"
+#include <libssp.hpp>
 
 /* external includes */
 #include <stdint.h>
 
 /* internal includes */
-#include "../include/defines.hpp"
+#include <defines.hpp>
 
 #ifdef __ALKOS_KERNEL__
 #include "../../kernel/include/panic.hpp"
@@ -25,12 +25,12 @@
 
 /* random init value, should be changed by init proc */
 #if UINT32_MAX == UINTPTR_MAX
-#define STACK_CHK_GUARD 0xe2dee396
+static constexpr uintptr_t kStackChkGuard = 0xe2dee396;
 #else
-#define STACK_CHK_GUARD 0x595e9fbd94fda766
+static constexpr uintptr_t kStackChkGuard = 0x595e9fbd94fda766;
 #endif
 
-volatile uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
+volatile uintptr_t __stack_chk_guard = kStackChkGuard;
 
 // ------------------------------
 // Stack Check Init

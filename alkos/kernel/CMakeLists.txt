@@ -6,6 +6,7 @@ endif ()
 
 include_directories(include)
 include_directories(${SYSROOT}/usr/include)
+include_directories(test)
 
 # Define ARCH_DIR
 set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")

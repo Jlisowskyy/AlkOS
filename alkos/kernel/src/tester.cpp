@@ -1,5 +1,5 @@
 /* main include */
-#include "../test/tester.hpp"
+#include <tester.hpp>
 
 /* external include */
 #include <stddef.h>

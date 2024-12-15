@@ -7,10 +7,10 @@
 #endif
 
 #ifdef ALKOS_TEST
-#include "../test/tester.hpp"
+#include <tester.hpp>
 #endif
 
-#include "../include/init.hpp"
+#include <init.hpp>
 
 static void KernelRun() {
 }
