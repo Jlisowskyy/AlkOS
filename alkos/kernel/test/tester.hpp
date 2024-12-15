@@ -9,12 +9,20 @@ enum TestType: uint64_t {
     kLastTest,
 };
 
-#define IS_MACRO_EMPTY_(x) !(x##0)
-#define IS_MACRO_EMPTY(x) IS_MACRO_EMPTY_(x)
+#ifdef ALKOS_TEST
 
-#define VERIFY_TEST_TYPE(type)                                       \
-static_assert(!IS_MACRO_EMPTY(type), "Test type is empty");          \
-static_assert(type < TestType::kLastTest, "Test type is invalid");
+#if (0 - ALKOS_TEST - 1) == 1
+#error "Test type is invalid: empty ALKOS_TEST macro"
+#endif
+
+#endif
+
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
+#define VERIFY_TEST_TYPE(type)                                                \
+static_assert(type < TestType::kLastTest,                                     \
+    "Test type is invalid. File: " __FILE__ ", Line: " TOSTRING(__LINE__));
 
 void RunTest(TestType type);
 

@@ -1,8 +1,7 @@
 /* main include */
-#include "../test/tester.hpp"
+#include <tester.hpp>
 
 /* external include */
-#include <panic.hpp>
 #include <stddef.h>
 
 /**

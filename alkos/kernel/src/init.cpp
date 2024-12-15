@@ -1,4 +1,4 @@
-#include "../include/init.hpp"
+#include <init.hpp>
 
 /* internal includes */
 #include <libssp.hpp>

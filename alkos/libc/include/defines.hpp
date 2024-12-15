@@ -5,6 +5,12 @@
 #error "Missing environment definition"
 #endif
 
+#ifdef __ALKOS_KERNEL__
+static constexpr bool kIsKernel = true;
+#else
+static constexpr bool kIsKernel = false;
+#endif
+
 #define INLINE inline __attribute__((always_inline))
 #define API_CALL INLINE
 
