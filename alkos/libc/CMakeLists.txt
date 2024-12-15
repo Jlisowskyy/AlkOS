@@ -13,6 +13,7 @@ endif ()
 
 if (SYSTEM_LIB_TYPE STREQUAL "k" OR SYSTEM_LIB_TYPE STREQUAL "K")
     set(LIB_NAME "k")
+    add_compile_definitions(__ALKOS_KERNEL__=1)
 elseif (SYSTEM_LIB_TYPE STREQUAL "c" OR SYSTEM_LIB_TYPE STREQUAL "C")
     set(LIB_NAME "c")
 else ()

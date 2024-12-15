@@ -31,9 +31,6 @@ set(CMAKE_SYSROOT ${SYSROOT})
 set(SYSTEM_LIB_TYPE k)
 set(ARCH x86_64)
 
-# Global kernel macro
-add_compile_definitions(__ALKOS_KERNEL__=1)
-
 # Create the sysroot directories
 file(MAKE_DIRECTORY ${SYSROOT}/usr/include)
 file(MAKE_DIRECTORY ${SYSROOT}/usr/lib)
