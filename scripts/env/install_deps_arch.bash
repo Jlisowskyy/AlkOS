@@ -38,10 +38,10 @@ enable_kvm() {
   fi
 
   local cpu_vendor
-  cpu_vendor=$(grep -E '^vendor_id' /proc/cpuinfo | head -n 1 | awk '{print $3}')
-
   local kvm_module="kvm"
   local kvm_cpu_module
+
+  cpu_vendor=$(grep -E '^vendor_id' /proc/cpuinfo | head -n 1 | awk '{print $3}')
   case "$cpu_vendor" in
     GenuineIntel)
       kvm_cpu_module="kvm_intel"
