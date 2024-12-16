@@ -2,7 +2,11 @@
 #include <stddef.h>
 
 /* internal include */
-#include <panic.hpp>
+#include <defines.hpp>
+
+#ifdef __ALKOS_KERNEL__
+#include "../../kernel/include/panic.hpp"
+#endif
 
 // -------------------------------------------
 // Static initializer expected functions
@@ -24,7 +28,15 @@ extern "C" void __cxa_guard_release(__guard *) {
 }
 
 extern "C" void __cxa_guard_abort(__guard *) {
+#if __STDC_HOSTED__
+
+    /* TODO */
+
+#else
+
     KernelPanic("Failed to initialize static object");
+
+#endif
 }
 
 // -----------------------------------
