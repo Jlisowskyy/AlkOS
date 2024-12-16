@@ -1,12 +1,12 @@
           bits 32
 
-          FRAMEBUFFER_INFO_TAG_POINTER equ stack_top - 4
-          FRAMEBUFFER_ADDR equ 8
-          FRAMEBUFFER_PITCH equ 16
-          FRAMEBUFFER_WIDTH equ 20
-          FRAMEBUFFER_HEIGHT equ 24
-          FRAMEBUFFER_BPP equ 26
-          FRAMEBUFFER_TYPE equ 28
+          FRAMEBUFFER_INFO_TAG_POINTER equ stack_top - 8
+          FRAMEBUFFER_ADDR equ FRAMEBUFFER_INFO_TAG_POINTER + 8
+          FRAMEBUFFER_PITCH equ FRAMEBUFFER_INFO_TAG_POINTER + 16
+          FRAMEBUFFER_WIDTH equ FRAMEBUFFER_INFO_TAG_POINTER + 20
+          FRAMEBUFFER_HEIGHT equ FRAMEBUFFER_INFO_TAG_POINTER + 24
+          FRAMEBUFFER_BPP equ FRAMEBUFFER_INFO_TAG_POINTER + 26
+          FRAMEBUFFER_TYPE equ FRAMEBUFFER_INFO_TAG_POINTER + 28
 
           extern stack_top
           extern reg_to_message
@@ -14,10 +14,6 @@
           section .text32
           global framebuffer_print
 framebuffer_print:
-          ; mov garbage into FRAMEBUFFER_ADDR
-          mov [FRAMEBUFFER_INFO_TAG_POINTER + FRAMEBUFFER_ADDR], eax
-          ret
-
           push ebp
           mov ebp, esp
           push ebx

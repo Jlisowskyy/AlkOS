@@ -1,9 +1,13 @@
           bits 32
 
+          MULTI_BOOT_INFO_T_LOCATION equ stack_top - 4
+          FRAMEBUFFER_INFO_T_LOCATION equ stack_top - 8
+
           ; Helper functions
           extern vga_print
           extern framebuffer_print
           extern locate_framebuffer_tag
+          extern reg_to_message
 
           ; Serial
           extern serial_init32
@@ -69,7 +73,8 @@ boot32:
           ; stack (as it grows downwards on x86 systems). This is necessarily done
           ; in assembly as languages such as C cannot function without a stack.
           mov esp, stack_top
-          push      ebx ; Save multiboot_info_t* for later at the top of the stack
+          sub esp, 8; Reserve space for multiboot_info_t* and framebuffer_info_t*
+          mov [MULTI_BOOT_INFO_T_LOCATION], ebx ; Save multiboot_info_t*
 
           call serial_init32
           push MESSAGE_INIT_ALKOS
@@ -80,8 +85,10 @@ boot32:
           call handle_return_code
 
           ; Use the multiboot information to locate the framebuffer
+          push dword [MULTI_BOOT_INFO_T_LOCATION]
           call locate_framebuffer_tag
-          push eax ; Save multiboot_tag_framebuffer_t* at stack_top - 4
+          add esp, 4
+          mov [FRAMEBUFFER_INFO_T_LOCATION], eax ; Save multiboot_tag_framebuffer_t*
 
           call check_cpuid
           call handle_return_code

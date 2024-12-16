@@ -62,35 +62,37 @@ locate_framebuffer_tag:
 
 .loop:
           ; Debug prints for the tag type and size
-          push MESSAGE_NEW_TAG
-          call serial_puts32
-          add esp, 4
-
-          push dword [edi]
-          call reg_to_message
-          add esp, 4
-
-          push eax
-          call serial_puts32
-          add esp, 4
-
-          push dword [edi + 4]
-          call reg_to_message
-          add esp, 4
-
-          push eax
-          call serial_puts32
-          add esp, 4
+          ; TODO - Wrap in a macro
+;          push MESSAGE_NEW_TAG
+;          call serial_puts32
+;          add esp, 4
+;
+;          push dword [edi]
+;          call reg_to_message
+;          add esp, 4
+;
+;          push eax
+;          call serial_puts32
+;          add esp, 4
+;
+;          push dword [edi + 4]
+;          call reg_to_message
+;          add esp, 4
+;
+;          push eax
+;          call serial_puts32
+;          add esp, 4
 
           ; Check if the tag is a framebuffer tag
           cmp dword [edi], MULTIBOOT_TAG_TYPE_FRAMEBUFFER
           je .end
 
           ; Align the tag size to 8 bytes
+          mov eax, [edi + 4]  ; load tag size
           xor edx, edx        ; Clear edx (is old part of extended accumulator and used for division)
           mov ecx, 8          ; 8 bytes alignment
           div ecx             ; Remainder in edx
-          mov eax, [edi + 4]  ; load tag size
+          mov eax, [edi + 4]  ; load tag size again (div modifies eax)
           cmp edx, 0          ; If remainder is 0 - tag size is already aligned
           je .align8
 .not_aligned:
@@ -100,13 +102,14 @@ locate_framebuffer_tag:
           add edi, eax        ; add aligned tag size
 
           ; Debug prints for aligned tag size
-          push eax
-          call reg_to_message
-          add esp, 4
+          ; TODO - Wrap in a macro
+;          push eax
+;          call reg_to_message
+;          add esp, 4
 
-          push eax
-          call serial_puts32
-          add esp, 4
+;          push eax
+;          call serial_puts32
+;          add esp, 4
 
           ; Check if we reached the end of the multiboot tags
           cmp edi, [esp]
