@@ -33,6 +33,7 @@
           extern enable_long_mode
 
           extern testerek_32
+          extern testerek1_32
 
           ; Boot64 - entry point to 64-bit boot code - continuation of what is here
           extern boot64
@@ -79,6 +80,7 @@ _start:
           call check_and_handle_errors
 
           call testerek_32
+          call testerek1_32
 
           ; Jump to long mode
           lgdt [GDT64.Pointer]

@@ -104,15 +104,10 @@ add_dependencies(alkos.kernel alkos.kernel32)
 # TODO: should be moved to file in arch/${ARCH}/utils
 set(ELF64_CONVERTER "${CMAKE_CURRENT_SOURCE_DIR}/arch/convert_to_elf64.bash")
 
-# WARNING: There is some problem when objcopy is launched to move to elf64 format and file is already in elf64 format
-# We need to verify this first -> this is done inside the script
-foreach (OBJ_FILE $<TARGET_OBJECTS:alkos.kernel32>)
-    # Add custom command to pre-link stage of the kernel target
-    add_custom_command(TARGET alkos.kernel PRE_LINK
-            COMMAND ${ELF64_CONVERTER} ${OBJ_FILE} ${CMAKE_OBJCOPY}
-            COMMENT "Convert 32bit object to 64bit only if needed"
-    )
-endforeach ()
+add_custom_command(TARGET alkos.kernel PRE_LINK
+        COMMAND ${ELF64_CONVERTER} ${CMAKE_OBJCOPY} \"$<TARGET_OBJECTS:alkos.kernel32>\"
+        COMMENT "Convert 32bit object to 64bit only if needed"
+)
 
 # link 32bit objects to kernel
 target_link_libraries(alkos.kernel PRIVATE

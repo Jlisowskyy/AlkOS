@@ -13,6 +13,7 @@
           extern _fini
 
           extern testerek
+          extern testerek1
 
           ; Kernel Entry Point
           extern KernelMain
@@ -32,6 +33,7 @@ boot64:
           sub rsp, 32 ; shadow space
 
           call testerek
+          call testerek1
 
           ; There all basic initialization should be done
           call PreKernelInit
