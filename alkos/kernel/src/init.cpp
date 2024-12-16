@@ -10,6 +10,8 @@ extern "C" void enable_sse();
 
 extern "C" void enable_avx();
 
+extern "C" void terminal_initialize();
+
 extern "C" void PreKernelInit() {
     /**
      * TODO:
@@ -23,6 +25,8 @@ extern "C" void PreKernelInit() {
     enable_avx();
 
     __stack_chk_init();
+
+    terminal_initialize();
 }
 
 void KernelInit() {
