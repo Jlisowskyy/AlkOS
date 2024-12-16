@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.30)
-project(AlkOS LANGUAGES C CXX ASM_NASM)
+project(AlkOS LANGUAGES C CXX ASM ASM_NASM)
 
 enable_language(ASM_NASM)
 

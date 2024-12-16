@@ -39,7 +39,6 @@ static void CppTest() {
     /* test placement new and delete */
     auto *test4 = new(reinterpret_cast<TestClass *>(mem)) TestClass(5);
     test4->m_a++;
-    delete test4;
 
     /* test global object */
     if (g_GlobalTestClass.m_b != 12) {
@@ -70,7 +69,7 @@ static TestFuncType TestTable[]{
 };
 
 static constexpr uint64_t kTestTableSize = sizeof(TestTable) == 0 ? 0 : sizeof(TestTable) / sizeof(TestTable[0]);
-static_assert(kTestTableSize == TestType::kLastTest, "TestTable does not contain all tests");
+static_assert(kTestTableSize == kLastTest, "TestTable does not contain all tests");
 
 void RunTest(const TestType type) {
     TestTable[static_cast<uint64_t>(type)]();

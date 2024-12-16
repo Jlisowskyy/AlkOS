@@ -3,6 +3,10 @@
 /* internal includes */
 #include <libssp.hpp>
 
-void KernelInit() {
+extern "C" void PreKernelInit() {
     __stack_chk_init();
+}
+
+void KernelInit() {
+
 }

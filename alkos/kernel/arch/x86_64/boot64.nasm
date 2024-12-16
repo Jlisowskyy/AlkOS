@@ -5,6 +5,13 @@
           ; GDT64
           extern GDT64.Data
 
+          ; Totally basic initialization that must be done before calling _init
+          extern PreKernelInit
+
+          ; GCC compiler global constructors initialization
+          extern _init
+          extern _fini
+
           ; Kernel Entry Point
           extern KernelMain
 
@@ -19,8 +26,18 @@ boot64:
           mov gs, ax
           mov ss, ax
 
+          ; There all basic initialization should be done
+          call PreKernelInit
+
+          ; Invoke global constructors
+          call _init
+
+          ; Call actual kernel entry point
           call KernelMain
           mov r10, rax
+
+          ; Not actually needed (as we expect to never return from Kernel), but exists for completeness
+          call _fini
 
           ; clear screen
           mov edi, 0xb8000
