@@ -16,6 +16,7 @@
           extern KernelMain
 
           global boot64
+          global os_hang
           section .text
           bits 64
 boot64:
@@ -26,6 +27,8 @@ boot64:
           mov gs, ax
           mov ss, ax
 
+          sub rsp, 32 ; shadow space
+
           ; There all basic initialization should be done
           call PreKernelInit
 
@@ -34,32 +37,12 @@ boot64:
 
           ; Call actual kernel entry point
           call KernelMain
-          mov r10, rax
 
           ; Not actually needed (as we expect to never return from Kernel), but exists for completeness
           call _fini
 
-          ; clear screen
-          mov edi, 0xb8000
-          mov ecx, 80*25
-          xor eax, eax
-          rep stosd
-
-          mov rdi, 0xb8000 ; VGA text buffer
-          mov rcx, 80 * 25 ; 80 columns, 25 rows
-          mov ah, 0x08 ;
-          lea rsi, [r10]
-          call write_string
-          .hang:
+          ; Infinite loop
+os_hang:
           hlt
-          jmp .hang
+          jmp os_hang
 
-write_string:
-          lodsb       ; load byte from rsi into al
-          test al, al ; check if null terminator
-          jz .done
-          mov word [rdi], ax
-          add rdi, 2
-          loop write_string
-.done:
-          ret

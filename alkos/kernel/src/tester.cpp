@@ -50,6 +50,9 @@ static void CppTest() {
 // Stack Smash Test
 // ------------------------------
 
+/**
+ * @brief Test should drop kernel panic due to stack smashing
+ */
 static void StackSmashTest() {
     static constexpr uint64_t kStackSize = 32;
     static constexpr uint64_t kWriteSize = 64;
@@ -61,11 +64,26 @@ static void StackSmashTest() {
     }
 }
 
+// ------------------------------
+// Float operations test
+// ------------------------------
+
+/**
+* @brief Test should not drop kernel panic due to enabled float extension
+*
+* @note This test is architecture dependent, simply invokes floating point instructions
+*/
+extern void FloatExtensionTest();
+
+// ------------------------------
+// Test table
+// ------------------------------
 
 using TestFuncType = void (*)();
 static TestFuncType TestTable[]{
     StackSmashTest,
     CppTest,
+    FloatExtensionTest,
 };
 
 static constexpr uint64_t kTestTableSize = sizeof(TestTable) == 0 ? 0 : sizeof(TestTable) / sizeof(TestTable[0]);

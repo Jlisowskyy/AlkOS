@@ -9,7 +9,7 @@ source "${RUN_ALKOS_SCRIPT_SOURCE_DIR}/scripts/utils/pretty_print.bash"
 
 RUN_ALKOS_SCRIPT_QEMU_COMMAND="qemu-system-x86_64"
 RUN_ALKOS_SCRIPT_GDB_ARGS="-s -S"
-
+RUN_ALKOS_SCRIPT_QEMU_ARGS="-enable-kvm -cpu host"
 help() {
   echo "${RUN_ALKOS_SCRIPT_PATH} [alkos_iso_path] [--run | -r] [--install | -i] [--verbose | -v]"
   echo "Where:"

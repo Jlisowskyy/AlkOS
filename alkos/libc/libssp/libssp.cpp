@@ -79,7 +79,6 @@ void __stack_chk_init() {
 #endif
 }
 
-
 extern "C" __attribute__((noreturn)) void __stack_chk_fail() {
 #if __STDC_HOSTED__
 
