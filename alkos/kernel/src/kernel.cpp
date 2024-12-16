@@ -11,11 +11,13 @@
 #endif
 
 #include <init.hpp>
-#include "serial64.h"
+#include "utils/serial/serial64.h"
 
 static void KernelRun() {
-    serial_init();
-    serial_puts("[INFO]\t  Hello from AlkOS!\n");
+#ifdef ALKOS_SERIAL
+    SerialInit();
+    SerialPutString("[INFO]\t  Hello from AlkOS!\n");
+#endif
 }
 
 extern "C" void KernelMain() {

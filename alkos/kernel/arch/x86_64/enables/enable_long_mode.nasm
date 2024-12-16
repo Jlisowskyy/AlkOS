@@ -1,8 +1,9 @@
           bits 32
+
           %include "return_codes.nasm"
 
-LONG_MODE_BIT       equ 1 << 8
-EFER_MSR            equ 0xC0000080
+          LONG_MODE_BIT       equ 1 << 8
+          EFER_MSR            equ 0xC0000080
 
           section .text32
           global enable_long_mode

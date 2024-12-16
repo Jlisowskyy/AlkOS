@@ -1,9 +1,9 @@
           bits 32
 
-vga_base  equ 0xB8000
-vga_width equ 80
-vga_height equ 25
-vga_attr  equ 0x07 ; white on black
+          vga_base  equ 0xB8000
+          vga_width equ 80
+          vga_height equ 25
+          vga_attr  equ 0x07 ; white on black
 
           section .text32
           global vga_print

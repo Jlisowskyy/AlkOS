@@ -1,8 +1,10 @@
           bits 32
+
           TAB equ 0x09
           NEWLINE equ 0x0A
           WHITESPACE equ 0x20
-; Error messages
+
+          ; Error messages
           section .rodata
           ; Info messages
           global MESSAGE_INIT_ALKOS

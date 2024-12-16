@@ -44,10 +44,29 @@ add_subdirectory(kernel)
 # Custom target to create ISO image
 set(MAKE_ISO_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/install/make_iso.bash)
 set(RUN_ALKOS_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/install/run_alkos.bash)
+set(RUN_GDB_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/utils/run_gdb.bash)
+set(ALKOS_ISO_PATH ${CMAKE_BINARY_DIR}/alkos.iso)
+set(ALKOS_KERNEL_PATH ${CMAKE_BINARY_DIR}sysroot/boot/alkos.kernel)
+
+if (NOT EXISTS ${MAKE_ISO_SCRIPT_PATH})
+    message(FATAL_ERROR "make_iso script not found: ${MAKE_ISO_SCRIPT_PATH}")
+endif ()
+
+if (NOT EXISTS ${RUN_ALKOS_SCRIPT_PATH})
+    message(FATAL_ERROR "run_alkos script not found: ${RUN_ALKOS_SCRIPT_PATH}")
+endif ()
+
+if (NOT EXISTS ${RUN_GDB_SCRIPT_PATH})
+    message(FATAL_ERROR "run_gdb script not found: ${RUN_GDB_SCRIPT_PATH}")
+endif ()
+
 message(STATUS "Using make_iso script: ${MAKE_ISO_SCRIPT_PATH}")
 message(STATUS "Using run_alkos script: ${RUN_ALKOS_SCRIPT_PATH}")
+message(STATUS "Using run_gdb script: ${RUN_GDB_SCRIPT_PATH}")
+
+
 add_custom_target(iso
-        COMMAND ${MAKE_ISO_SCRIPT_PATH} "${CMAKE_BINARY_DIR}/alkos.iso" ${SYSROOT} -v -r
+        COMMAND ${MAKE_ISO_SCRIPT_PATH} ${ALKOS_ISO_PATH} ${SYSROOT} -v -r
         DEPENDS alkos.kernel
         DEPENDS libk
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -55,20 +74,20 @@ add_custom_target(iso
 
 # Custom target to run QEMU
 add_custom_target(run
-        COMMAND ${RUN_ALKOS_SCRIPT_PATH} "${CMAKE_BINARY_DIR}/alkos.iso" -v -r
+        COMMAND ${RUN_ALKOS_SCRIPT_PATH} ${ALKOS_ISO_PATH} -v -r
         DEPENDS iso
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
 # -s -S flags are used to start QEMU with GDB support, listening on port 1234 - tcp
 add_custom_target(run-with-gdb
-        COMMAND ${RUN_ALKOS_SCRIPT_PATH} -v -r -g
+        COMMAND ${RUN_ALKOS_SCRIPT_PATH} ${ALKOS_ISO_PATH} -v -r -g
         DEPENDS iso
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
 add_custom_target(mount
         COMMAND sudo umount /mnt || true
-        COMMAND sudo mount -o loop ${CMAKE_BINARY_DIR}/alkos.iso /mnt
+        COMMAND sudo mount -o loop ${ALKOS_ISO_PATH} /mnt
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )

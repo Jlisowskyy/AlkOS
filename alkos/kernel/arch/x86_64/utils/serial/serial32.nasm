@@ -10,13 +10,13 @@
 ; -----------------------------------------------------------------------------
 ; Constants Definition
 ; -----------------------------------------------------------------------------
-COM1        equ 0x3F8    ; Base address for COM1
-DLAB_BIT    equ 0x80     ; Divisor Latch Access Bit
-BAUD_DIVISOR equ 3       ; Divisor for 38400 baud
-EMPTY       equ 0x20     ; Line Status Register bit indicating empty
-NEWLINE     equ 0x0A     ; Line Feed
-SLASH_R     equ 0x0D     ; Carriage Return
-NULL        equ 0        ; Null terminator for strings
+          COM1        equ 0x3F8    ; Base address for COM1
+          DLAB_BIT    equ 0x80     ; Divisor Latch Access Bit
+          BAUD_DIVISOR equ 3       ; Divisor for 38400 baud
+          EMPTY       equ 0x20     ; Line Status Register bit indicating empty
+          NEWLINE     equ 0x0A     ; Line Feed
+          SLASH_R     equ 0x0D     ; Carriage Return
+          NULL        equ 0        ; Null terminator for strings
 
 ; -----------------------------------------------------------------------------
 ; Section: Text (32-bit)

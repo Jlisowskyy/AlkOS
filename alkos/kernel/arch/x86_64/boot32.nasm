@@ -1,10 +1,3 @@
-          ; TODO:
-          ; 2. Enable interrupts
-          ; 4. Enable Floating Point Unit (FPU)
-          ; 5. Enable Instruction Set Extensions (SSE, AVX, etc.)
-          ; 7. GDT, IDT, TSS, etc.
-          ; 6. C++ runtime initialization
-
           bits 32
 
           ; Helper functions
@@ -57,10 +50,10 @@
 ; The linker script specifies _start as the entry point to the kernel and the
 ; bootloader will jump to this position once the kernel has been loaded. It
 ; doesn't make sense to return from this function as the bootloader is gone.
-          extern MESSAGE_INIT_ALKOS
-section   .text32
-global    _start
+          section   .text32
+          global    _start
 _start:
+boot32:
           ; The bootloader has loaded us into 32-bit protected mode on a x86
           ; machine. Interrupts are disabled. Paging is disabled. The processor
           ; state is as defined in the multiboot standard. The kernel has full

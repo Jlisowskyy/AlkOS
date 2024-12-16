@@ -1,12 +1,15 @@
           bits 32
+
+          FRAMEBUFFER_INFO_TAG_POINTER equ stack_top - 4
+          FRAMEBUFFER_ADDR equ 8
+          FRAMEBUFFER_PITCH equ 16
+          FRAMEBUFFER_WIDTH equ 20
+          FRAMEBUFFER_HEIGHT equ 24
+          FRAMEBUFFER_BPP equ 26
+          FRAMEBUFFER_TYPE equ 28
+
           extern stack_top
-FRAMEBUFFER_INFO_TAG_POINTER equ stack_top - 4
-FRAMEBUFFER_ADDR equ 8
-FRAMEBUFFER_PITCH equ 16
-FRAMEBUFFER_WIDTH equ 20
-FRAMEBUFFER_HEIGHT equ 24
-FRAMEBUFFER_BPP equ 26
-FRAMEBUFFER_TYPE equ 28
+          extern reg_to_message
 
           section .text32
           global framebuffer_print

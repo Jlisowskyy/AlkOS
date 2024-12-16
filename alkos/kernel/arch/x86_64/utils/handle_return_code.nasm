@@ -1,5 +1,7 @@
           bits 32
+
           %include "return_codes.nasm"
+
           extern MESSAGE_ERROR_NO_LONG_MODE
           extern MESSAGE_ERROR_NO_CPUID
           extern MESSAGE_ERROR_UNKNOWN
@@ -16,6 +18,7 @@
           extern vga_print
           extern framebuffer_print
           extern serial_puts32
+
           section .text32
           global handle_return_code
           ; void check_and_handle_errors(uint8_t error_code);

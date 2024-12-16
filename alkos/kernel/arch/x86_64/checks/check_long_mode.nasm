@@ -1,8 +1,9 @@
           bits 32
+
           %include "return_codes.nasm"
 
-EXTENDED_FUNCTIONS_THRESHOLD equ 0x80000000
-LONG_MODE_BIT equ 1 << 29
+          EXTENDED_FUNCTIONS_THRESHOLD equ 0x80000000
+          LONG_MODE_BIT equ 1 << 29
 
           section .text32
           global check_long_mode

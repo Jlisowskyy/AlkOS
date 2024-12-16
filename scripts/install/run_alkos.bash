@@ -12,7 +12,7 @@ RUN_ALKOS_SCRIPT_QEMU_ARGS="-serial stdio"
 RUN_ALKOS_SCRIPT_GDB_ARGS="-s -S"
 
 help() {
-  echo "${RUN_ALKOS_SCRIPT_PATH} [alkos_iso_path] [--run | -r] [--install | -i] [--verbose | -v]"
+  echo "${RUN_ALKOS_SCRIPT_PATH} [alkos_iso_path] [--run | -r] [--verbose | -v]"
   echo "Where:"
   echo "alkos_iso_path - path to the .iso file"
   echo "--run     | -r - flag to run AlkOS in QEMU"

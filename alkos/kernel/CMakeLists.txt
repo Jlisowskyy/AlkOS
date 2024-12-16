@@ -10,6 +10,7 @@ include_directories(test)
 
 # Define ARCH_DIR
 set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")
+include_directories(${ARCH_DIR})
 
 # Additional test definitions
 # add_compile_definitions(ALKOS_TEST=0)

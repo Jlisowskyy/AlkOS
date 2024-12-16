@@ -1,4 +1,5 @@
           bits 32
+
           %include "return_codes.nasm"
 
           section .text32

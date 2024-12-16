@@ -5,21 +5,23 @@
 #ifndef ALKOS_SERIAL64_H_
 #define ALKOS_SERIAL64_H_
 
+#define ALKOS_SERIAL 1
+
 /**
  * @brief initialize the serial port (COM1)
  */
-extern "C" void serial_init();
+void SerialInit();
 
 /**
  * @brief send a character to the serial port (COM1)
  * @param c the character to send
  */
-extern "C" void serial_putchar(char c);
+void SerialPutChar(char c);
 
 /**
  * @brief send a null-terminated string to the serial port (COM1)
  * @param s pointer to the null-terminated string
  */
-extern "C" void serial_puts(const char *s);
+void SerialPutString(const char *s);
 
 #endif //ALKOS_SERIAL64_H_
