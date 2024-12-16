@@ -12,7 +12,7 @@ include_directories(test)
 set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")
 
 # Additional test definitions
-# add_compile_definitions(ALKOS_TEST=1)
+# add_compile_definitions(ALKOS_TEST=0)
 
 file(GLOB_RECURSE ARCH_SOURCES
         "${ARCH_DIR}/*.cpp"
@@ -51,7 +51,7 @@ add_executable(alkos.kernel
         ${ARCH_SOURCES}
         ${BOOT_ASM}
         ${KERNEL_SOURCES}
-)
+        )
 
 # Set linker flags
 set(LINKER_SCRIPT "${ARCH_DIR}/linker.ld")

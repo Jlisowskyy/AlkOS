@@ -56,8 +56,3 @@ void operator delete[](void *) {
 void operator delete[](void *, size_t) {
     /* TODO */
 }
-
-// ----------------------------------
-// Placement new implementation
-// ----------------------------------
-
