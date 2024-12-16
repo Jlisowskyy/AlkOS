@@ -79,40 +79,39 @@ set_target_properties(alkos.kernel PROPERTIES
 # Preprocess 32bit sources
 # ------------------------------
 
+# TODO: this whole section should be moved to a separate file
+
 # Find 32bit sources
 file(GLOB_RECURSE ARCH_SOURCES_32
         "${ARCH_DIR}/*_32.cpp"
         "${ARCH_DIR}/*_32.c"
 )
 
-# Add -m32 flag to 32bit sources
-foreach(SOURCE ${ARCH_SOURCES_32})
-    get_source_file_property(CURRENT_COMPILE_FLAGS ${SOURCE} COMPILE_FLAGS)
-    if (CURRENT_COMPILE_FLAGS)
-        set(CURRENT_COMPILE_FLAGS "${CURRENT_COMPILE_FLAGS}" "-m32")
-    else ()
-        set(CURRENT_COMPILE_FLAGS "-m32")
-    endif ()
-    set_source_files_properties(${ASM_FILE} PROPERTIES COMPILE_FLAGS ${CURRENT_COMPILE_FLAGS})
-endforeach()
-
 add_library(alkos.kernel32 OBJECT
         ${ARCH_SOURCES_32}
 )
 
+set_target_properties(alkos.kernel32 PROPERTIES
+        COMPILE_FLAGS "-m32"
+)
+
+target_compile_definitions(alkos.kernel32 PRIVATE
+        __i386__=1
+)
+
 add_dependencies(alkos.kernel alkos.kernel32)
 
-# Change elf_i386 to elf_x86_64 for each 32bit source
-foreach(SOURCE ${ARCH_SOURCES_32})
-    execute_process(
-            COMMAND ${CMAKE_OBJCOPY} -I elf32-i386 -O elf64-x86-64 ${SOURCE} ${SOURCE}
-            RESULT_VARIABLE OBJCOPY_RESULT
-            ERROR_VARIABLE OBJCOPY_ERROR
-    )
+# TODO: should be moved to file in arch/${ARCH}/utils
+set(ELF64_CONVERTER "${CMAKE_CURRENT_SOURCE_DIR}/arch/convert_to_elf64.bash")
 
-    if(NOT OBJCOPY_RESULT EQUAL 0)
-        message(FATAL_ERROR "Failed to convert ${SOURCE}: ${OBJCOPY_ERROR}")
-    endif()
+# WARNING: There is some problem when objcopy is launched to move to elf64 format and file is already in elf64 format
+# We need to verify this first -> this is done inside the script
+foreach (OBJ_FILE $<TARGET_OBJECTS:alkos.kernel32>)
+    # Add custom command to pre-link stage of the kernel target
+    add_custom_command(TARGET alkos.kernel PRE_LINK
+            COMMAND ${ELF64_CONVERTER} ${OBJ_FILE} ${CMAKE_OBJCOPY}
+            COMMENT "Convert 32bit object to 64bit only if needed"
+    )
 endforeach ()
 
 # link 32bit objects to kernel
