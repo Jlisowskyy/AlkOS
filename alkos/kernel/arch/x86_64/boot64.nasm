@@ -5,16 +5,15 @@
           ; GDT64
           extern GDT64.Data
 
-          ; vga code
-          extern terminal_initialize
+          ; Totally basic initialization that must be done before calling _init
+          extern PreKernelInit
+
+          ; GCC compiler global constructors initialization
+          extern _init
+          extern _fini
 
           ; Kernel Entry Point
           extern KernelMain
-
-          ; Enabling various extensions
-          extern enable_osxsave
-          extern enable_sse
-          extern enable_avx
 
           global boot64
           global os_hang
@@ -28,24 +27,19 @@ boot64:
           mov gs, ax
           mov ss, ax
 
-        ; TODO:
-        ; 1. Enable interrupts
-        ; 2. GDT, IDT, TSS, etc.
-        ; 3. C++ runtime initialization
-
           sub rsp, 32 ; shadow space
 
-          ; Pre-kernel init code
-          call terminal_initialize
+          ; There all basic initialization should be done
+          call PreKernelInit
 
-          ; Setuping CPU features
-          ; NOTE: sequence is important
-          call enable_osxsave
-          call enable_sse
-          call enable_avx
+          ; Invoke global constructors
+          call _init
 
-          ; Kernel Entry Point
+          ; Call actual kernel entry point
           call KernelMain
+
+          ; Not actually needed (as we expect to never return from Kernel), but exists for completeness
+          call _fini
 
           ; Infinite loop
 os_hang:
