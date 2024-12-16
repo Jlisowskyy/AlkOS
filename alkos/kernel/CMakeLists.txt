@@ -7,6 +7,7 @@ endif ()
 include_directories(include)
 include_directories(${SYSROOT}/usr/include)
 include_directories(test)
+include_directories(arch/${ARCH}/include)
 
 # Define ARCH_DIR
 set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")
@@ -75,6 +76,51 @@ set_target_properties(alkos.kernel PROPERTIES
 )
 
 # ------------------------------
+# Preprocess 32bit sources
+# ------------------------------
+
+# Find 32bit sources
+file(GLOB_RECURSE ARCH_SOURCES_32
+        "${ARCH_DIR}/*_32.cpp"
+        "${ARCH_DIR}/*_32.c"
+)
+
+# Add -m32 flag to 32bit sources
+foreach(SOURCE ${ARCH_SOURCES_32})
+    get_source_file_property(CURRENT_COMPILE_FLAGS ${SOURCE} COMPILE_FLAGS)
+    if (CURRENT_COMPILE_FLAGS)
+        set(CURRENT_COMPILE_FLAGS "${CURRENT_COMPILE_FLAGS}" "-m32")
+    else ()
+        set(CURRENT_COMPILE_FLAGS "-m32")
+    endif ()
+    set_source_files_properties(${ASM_FILE} PROPERTIES COMPILE_FLAGS ${CURRENT_COMPILE_FLAGS})
+endforeach()
+
+add_library(alkos.kernel32 OBJECT
+        ${ARCH_SOURCES_32}
+)
+
+add_dependencies(alkos.kernel alkos.kernel32)
+
+# Change elf_i386 to elf_x86_64 for each 32bit source
+foreach(SOURCE ${ARCH_SOURCES_32})
+    execute_process(
+            COMMAND ${CMAKE_OBJCOPY} -I elf32-i386 -O elf64-x86-64 ${SOURCE} ${SOURCE}
+            RESULT_VARIABLE OBJCOPY_RESULT
+            ERROR_VARIABLE OBJCOPY_ERROR
+    )
+
+    if(NOT OBJCOPY_RESULT EQUAL 0)
+        message(FATAL_ERROR "Failed to convert ${SOURCE}: ${OBJCOPY_ERROR}")
+    endif()
+endforeach ()
+
+# link 32bit objects to kernel
+target_link_libraries(alkos.kernel PRIVATE
+        $<TARGET_OBJECTS:alkos.kernel32>
+)
+
+# ------------------------------
 # CXX global constructors
 # ------------------------------
 
@@ -102,11 +148,6 @@ add_library(alkos.kernel.crts OBJECT
 )
 
 add_dependencies(alkos.kernel alkos.kernel.crts)
-
-set(PREFIX x86_64-elf)
-set(CMAKE_LINKER "${CROSS_COMPILER_PATH}/${PREFIX}-ld")
-
-message(STATUS "Using linker: ${CMAKE_LINKER}")
 
 # Retrieve object files to CRTI_OBJ and CRTN_OBJ
 set(ALKOS_KERNEL_CRTS_DIR ${CMAKE_CURRENT_BINARY_DIR})
