@@ -5,6 +5,14 @@ enable_language(ASM_NASM)
 
 message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
 
+# Inform the user about the selected tools
+message(STATUS "Using C compiler: ${CMAKE_C_COMPILER}")
+message(STATUS "Using C++ compiler: ${CMAKE_CXX_COMPILER}")
+message(STATUS "Using AR: ${CMAKE_AR}")
+message(STATUS "Using Ranlib: ${CMAKE_RANLIB}")
+message(STATUS "Using Linker: ${CMAKE_LINKER}")
+message(STATUS "Using GDB: ${CMAKE_GDB}")
+
 # Set compiler flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -ffreestanding")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -ffreestanding -fno-exceptions -fno-rtti")
