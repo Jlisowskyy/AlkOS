@@ -87,32 +87,36 @@ file(GLOB_RECURSE ARCH_SOURCES_32
         "${ARCH_DIR}/*_32.c"
 )
 
-add_library(alkos.kernel32 OBJECT
-        ${ARCH_SOURCES_32}
-)
+if (ARCH_SOURCES_32)
+    add_library(alkos.kernel32 OBJECT
+            ${ARCH_SOURCES_32}
+    )
 
-set_target_properties(alkos.kernel32 PROPERTIES
-        COMPILE_FLAGS "-m32"
-)
+    set_target_properties(alkos.kernel32 PROPERTIES
+            COMPILE_FLAGS "-m32"
+    )
 
-target_compile_definitions(alkos.kernel32 PRIVATE
-        __i386__=1
-)
+    target_compile_definitions(alkos.kernel32 PRIVATE
+            __i386__=1
+    )
 
-add_dependencies(alkos.kernel alkos.kernel32)
+    add_dependencies(alkos.kernel alkos.kernel32)
 
-# TODO: should be moved to file in arch/${ARCH}/utils
-set(ELF64_CONVERTER "${CMAKE_CURRENT_SOURCE_DIR}/arch/convert_to_elf64.bash")
+    # TODO: should be moved to file in arch/${ARCH}/utils
+    set(ELF64_CONVERTER "${CMAKE_CURRENT_SOURCE_DIR}/arch/convert_to_elf64.bash")
 
-add_custom_command(TARGET alkos.kernel PRE_LINK
-        COMMAND ${ELF64_CONVERTER} ${CMAKE_OBJCOPY} \"$<TARGET_OBJECTS:alkos.kernel32>\"
-        COMMENT "Convert 32bit object to 64bit only if needed"
-)
+    add_custom_command(TARGET alkos.kernel PRE_LINK
+            COMMAND ${ELF64_CONVERTER} ${CMAKE_OBJCOPY} \"$<TARGET_OBJECTS:alkos.kernel32>\"
+            COMMENT "Convert 32bit object to 64bit only if needed"
+    )
 
-# link 32bit objects to kernel
-target_link_libraries(alkos.kernel PRIVATE
-        $<TARGET_OBJECTS:alkos.kernel32>
-)
+    # link 32bit objects to kernel
+    target_link_libraries(alkos.kernel PRIVATE
+            $<TARGET_OBJECTS:alkos.kernel32>
+    )
+else ()
+    message(STATUS "No 32bit sources found")
+endif ()
 
 # ------------------------------
 # CXX global constructors
