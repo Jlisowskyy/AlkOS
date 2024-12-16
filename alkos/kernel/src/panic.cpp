@@ -1,6 +1,10 @@
 #include <panic.hpp>
 
-void KernelPanic([[maybe_unused]] const char *msg) {
-    int *ptr = reinterpret_cast<int *>(0xdeadc0de);
-    *ptr = 1;
+extern "C" void terminal_write_error(const char *data);
+
+extern "C" void os_hang();
+
+extern "C" void KernelPanic(const char *msg) {
+    terminal_write_error(msg);
+    os_hang();
 }
