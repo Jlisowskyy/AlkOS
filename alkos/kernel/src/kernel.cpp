@@ -12,20 +12,23 @@
 
 #include <init.hpp>
 
+extern "C" void terminal_writestring(const char *data);
+
 static void KernelRun() {
 }
 
-extern "C" const char *KernelMain() {
+extern "C" void KernelMain() {
     KernelInit();
 
 #ifdef ALKOS_TEST
 
     VERIFY_TEST_TYPE(ALKOS_TEST)
     RunTest(static_cast<TestType>(ALKOS_TEST));
-    return "Hello from AlkOS test!";
+    terminal_writestring("Hello from AlkOS test!");
+    return;
 
 #endif
 
     KernelRun();
-    return "Hello from AlkOS!";
+    terminal_writestring("Hello from AlkOS!");
 }

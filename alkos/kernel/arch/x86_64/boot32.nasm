@@ -1,10 +1,3 @@
-          ; TODO:
-          ; 2. Enable interrupts
-          ; 4. Enable Floating Point Unit (FPU)
-          ; 5. Enable Instruction Set Extensions (SSE, AVX, etc.)
-          ; 7. GDT, IDT, TSS, etc.
-          ; 6. C++ runtime initialization
-
           bits 32
 
           ; Helper functions

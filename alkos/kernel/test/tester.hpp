@@ -5,6 +5,7 @@
 
 enum TestType: uint64_t {
     kStackSmashTest,
+    kFloatExtensionTest,
     kLastTest,
 };
 
