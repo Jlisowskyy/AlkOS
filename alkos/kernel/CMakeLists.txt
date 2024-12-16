@@ -12,7 +12,7 @@ include_directories(test)
 set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")
 
 # Additional test definitions - refer to test/tester.hpp file for value specifics
-# add_compile_definitions(ALKOS_TEST=0)
+ add_compile_definitions(ALKOS_TEST=1)
 
 file(GLOB_RECURSE ARCH_SOURCES
         "${ARCH_DIR}/*.cpp"
@@ -24,7 +24,7 @@ file(GLOB_RECURSE ARCH_SOURCES
 )
 
 # Remove crti.S and crtn.S from ARCH_SOURCES
-list(FILTER ARCH_SOURCES EXCLUDE REGEX ".*/(crti\\.S|crtn\\.S)$")
+list(FILTER ARCH_SOURCES EXCLUDE REGEX ".*/(crti\\.nasm|crtn\\.nasm)$")
 
 set(ARCH_DIR_ASM_FLAGS "-I ${ARCH_DIR} -I ${ARCH_DIR}/utils -g -F dwarf")
 foreach(ASM_FILE ${ARCH_SOURCES})
@@ -91,19 +91,14 @@ execute_process(
 )
 
 set(CXX_CONSTRUCTORS_SOURCES
-        "${ARCH_DIR}/cxx/crti.S"
-        "${ARCH_DIR}/cxx/crtn.S"
+        "${ARCH_DIR}/cxx/crti.nasm"
+        "${ARCH_DIR}/cxx/crtn.nasm"
         "${CRTBEGIN_OBJ}"
         "${CRTEND_OBJ}"
 )
 
 add_library(alkos.kernel.crts OBJECT
         ${CXX_CONSTRUCTORS_SOURCES}
-)
-
-set_source_files_properties(
-        ${CXX_CONSTRUCTORS_SOURCES}
-        PROPERTIES LANGUAGE ASM
 )
 
 add_dependencies(alkos.kernel alkos.kernel.crts)
@@ -115,8 +110,8 @@ message(STATUS "Using linker: ${CMAKE_LINKER}")
 
 # Retrieve object files to CRTI_OBJ and CRTN_OBJ
 set(ALKOS_KERNEL_CRTS_DIR ${CMAKE_CURRENT_BINARY_DIR})
-set(CRTI_OBJ "${ALKOS_KERNEL_CRTS_DIR}/CMakeFiles/alkos.kernel.crts.dir/arch/${ARCH}/cxx/crti.S.obj")
-set(CRTN_OBJ "${ALKOS_KERNEL_CRTS_DIR}/CMakeFiles/alkos.kernel.crts.dir/arch/${ARCH}/cxx/crtn.S.obj")
+set(CRTI_OBJ "${ALKOS_KERNEL_CRTS_DIR}/CMakeFiles/alkos.kernel.crts.dir/arch/${ARCH}/cxx/crti.nasm.obj")
+set(CRTN_OBJ "${ALKOS_KERNEL_CRTS_DIR}/CMakeFiles/alkos.kernel.crts.dir/arch/${ARCH}/cxx/crtn.nasm.obj")
 message(STATUS "CRTI_OBJ: ${CRTI_OBJ}, CRTN_OBJ: ${CRTN_OBJ}")
 
 set(CMAKE_CXX_LINK_EXECUTABLE
