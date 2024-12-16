@@ -11,7 +11,6 @@ set(CROSS_COMPILER_PATH "${CMAKE_CURRENT_LIST_DIR}/../../tools/bin")
 
 # Specify the cross-compilers
 set(PREFIX x86_64-elf)
-message(STATUS "Building for target: ${PREFIX}")
 
 set(CMAKE_C_COMPILER "${CROSS_COMPILER_PATH}/${PREFIX}-gcc")
 set(CMAKE_CXX_COMPILER "${CROSS_COMPILER_PATH}/${PREFIX}-g++")
@@ -19,13 +18,6 @@ set(CMAKE_AR "${CROSS_COMPILER_PATH}/${PREFIX}-ar")
 set(CMAKE_RANLIB "${CROSS_COMPILER_PATH}/${PREFIX}-ranlib")
 set(CMAKE_LINKER "${CROSS_COMPILER_PATH}/${PREFIX}-ld")
 set(CMAKE_ASM_NASM_COMPILER "nasm")
-
-# Inform the user about the selected tools
-message(STATUS "Using C compiler: ${CMAKE_C_COMPILER}")
-message(STATUS "Using C++ compiler: ${CMAKE_CXX_COMPILER}")
-message(STATUS "Using AR: ${CMAKE_AR}")
-message(STATUS "Using Ranlib: ${CMAKE_RANLIB}")
-message(STATUS "Using Linker: ${CMAKE_LINKER}")
 
 # Setup the cmake environment
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER) # Don't search for programs on the host system
