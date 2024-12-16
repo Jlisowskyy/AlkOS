@@ -2,27 +2,27 @@
 
     extern KernelPanic
 
-; Intel manual page 814 Vol 2A CPUID - CPU Identification
-; cpuid flags
-FEATURE_CPUID_FLAG equ 0x1      ; CPUID EAX code
-XSAVE_CPUID_FLAG   equ 0xD      ; CPUID EAX code
-XSAVE_FLAG         equ 1<<26    ; ECX
-XSAVE_AVX_FLAG     equ 1<<2     ; EAX
+    ; Intel manual page 814 Vol 2A CPUID - CPU Identification
+    ; cpuid flags
+    FEATURE_CPUID_FLAG equ 0x1      ; CPUID EAX code
+    XSAVE_CPUID_FLAG   equ 0xD      ; CPUID EAX code
+    XSAVE_FLAG         equ 1<<26    ; ECX
+    XSAVE_AVX_FLAG     equ 1<<2     ; EAX
 
-; OSXSAVE Control Register flags
-OSXSAVE_FLAG equ 1<<18  ; CR4.OSXSAVE[bit 18]
+    ; OSXSAVE Control Register flags
+    OSXSAVE_FLAG equ 1<<18  ; CR4.OSXSAVE[bit 18]
 
-; XCR0 flags
-X87_FLAG     equ 1<<0   ; x87 state
-SSE_FLAG     equ 1<<1   ; SSE state
-AVX_FLAG     equ 1<<2   ; AVX state
-
-    section .text
-    global enable_osxsave
+    ; XCR0 flags
+    X87_FLAG     equ 1<<0   ; x87 state
+    SSE_FLAG     equ 1<<1   ; SSE state
+    AVX_FLAG     equ 1<<2   ; AVX state
 
     section .rodata
     FAIL_OSXSAVE     db "Missing OSXSAVE feature set. Unable to start...", 0
     FAIL_OSXSAVE_AVX db "Missing AVX support in OSXSAVE feature set. Unable to start...", 0
+
+    section .text
+    global enable_osxsave
 
 ; Intel manual page 319 (Chapter 13 - Managing State Using the XSAVE Feature Set)
 enable_osxsave:
