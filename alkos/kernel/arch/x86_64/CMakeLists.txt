@@ -1,0 +1,92 @@
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(alkos.kernel PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/utils)
+
+file(GLOB_RECURSE ARCH_SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*.s"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*.S"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*.asm"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*.nasm"
+)
+
+list(FILTER ARCH_SOURCES EXCLUDE REGEX ".*/(crti\\.nasm|crtn\\.nasm)$")
+
+# Apply flags to kernel target
+target_compile_options(alkos.kernel PRIVATE ${ARCH_C_FLAGS} ${ARCH_CXX_FLAGS})
+set_source_files_properties(${ARCH_SOURCES} PROPERTIES COMPILE_FLAGS "${ARCH_ASM_FLAGS}")
+
+# Add kernel sources
+target_sources(alkos.kernel PRIVATE ${ARCH_SOURCES})
+
+# Set linker script and link flags
+set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld")
+set_target_properties(alkos.kernel PROPERTIES LINK_FLAGS "-T ${LINKER_SCRIPT} -nostdlib -lgcc")
+
+################################################################################
+#                             Convert 32 bit files                             #
+################################################################################
+file(GLOB_RECURSE ARCH_SOURCES_32
+        "${CMAKE_CURRENT_SOURCE_DIR}/*_32.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*_32.c"
+)
+
+if(ARCH_SOURCES_32)
+    add_library(alkos.kernel32 OBJECT ${ARCH_SOURCES_32})
+    set_target_properties(alkos.kernel32 PROPERTIES COMPILE_FLAGS "-m32")
+    target_compile_definitions(alkos.kernel32 PRIVATE __i386__=1)
+
+    # Convert 32 bit sources to 64 bit using objcopy
+    add_custom_command(
+            OUTPUT "${CMAKE_BINARY_DIR}/converted_32bit_to_64bit.o"
+            COMMAND ${CMAKE_OBJCOPY} -I elf32-i386 -O elf64-x86-64 $<TARGET_OBJECTS:alkos.kernel32> ${CMAKE_BINARY_DIR}/converted_32bit_to_64bit.o
+            DEPENDS alkos.kernel32
+            COMMENT "Converting 32-bit object files to ELF64"
+            BYPRODUCTS "${CMAKE_BINARY_DIR}/converted_32bit_to_64bit.o"
+    )
+
+    add_custom_target(
+            convert_32bit ALL
+            DEPENDS ${CMAKE_BINARY_DIR}/converted_32bit_to_64bit.o
+    )
+    add_dependencies(alkos.kernel convert_32bit)
+
+    target_link_libraries(alkos.kernel PRIVATE ${CMAKE_BINARY_DIR}/converted_32bit_to_64bit.o)
+endif()
+
+################################################################################
+#                           CXX Global Constructors                            #
+################################################################################
+# TODO
+# I TRIED TO MAKE THIS WORK WITHOUT A SEPARATE SCRIPT
+#set(SRTI_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cxx/crti.nasm")
+#set(SRTN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cxx/crtn.nasm")
+#
+#add_library(alkos.kernel.crts OBJECT ${SRTI_FILE} ${SRTN_FILE})
+#
+## Retrieve GCC provided CRT
+#execute_process(
+#        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=crtbegin.o
+#        OUTPUT_VARIABLE CRTBEGIN_OBJ
+#        OUTPUT_STRIP_TRAILING_WHITESPACE
+#)
+#
+#execute_process(
+#        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=crtend.o
+#        OUTPUT_VARIABLE CRTEND_OBJ
+#        OUTPUT_STRIP_TRAILING_WHITESPACE
+#)
+#
+## Override the link line to include CRT objects in the correct order
+#set(CRTI_OBJ "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/alkos.kernel.crts.dir/cxx/crti.nasm.obj")
+#set(CRTN_OBJ "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/alkos.kernel.crts.dir/cxx/crtn.nasm.obj")
+#
+#message(STATUS "CRTI_OBJ: ${CRTI_OBJ}, CRTN_OBJ: ${CRTN_OBJ}")
+#
+#set(CMAKE_CXX_LINK_EXECUTABLE
+#        "${CMAKE_CXX_COMPILER} <CMAKE_C_LINK_FLAGS> <FLAGS> <LINK_FLAGS>\
+#   ${CRTI_OBJ} ${CRTBEGIN_OBJ} <OBJECTS> ${CRTEND_OBJ} ${CRTN_OBJ} \
+#   -o <TARGET> <LINK_LIBRARIES>"
+#)
+#
+#add_dependencies(alkos.kernel alkos.kernel.crts)
