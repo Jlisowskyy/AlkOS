@@ -1,43 +1,31 @@
 cmake_minimum_required(VERSION 3.30)
 project(AlkOS LANGUAGES C CXX ASM_NASM)
-
 enable_language(ASM_NASM)
 
-message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
+set(ARCH "x86_64" CACHE STRING "Target architecture") # Default to x86_64
+include(toolchains/${ARCH}-flags.cmake)
 
-# Inform the user about the selected tools
+################################################################################
+#                                   Messages                                   #
+################################################################################
+message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
+message(STATUS "Using build type: ${CMAKE_BUILD_TYPE}")
+
 message(STATUS "Using C compiler: ${CMAKE_C_COMPILER}")
 message(STATUS "Using C++ compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "Using AR: ${CMAKE_AR}")
 message(STATUS "Using Ranlib: ${CMAKE_RANLIB}")
 message(STATUS "Using Linker: ${CMAKE_LINKER}")
-message(STATUS "Using GDB: ${CMAKE_GDB}")
 
-# Set compiler flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -ffreestanding")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -ffreestanding -fno-exceptions -fno-rtti")
-set(CMAKE_ASM_NASM_FLAGS "${CMAKE_ASM_NASM_FLAGS} -f elf64")
+message(STATUS "Using C flags: ${CMAKE_C_FLAGS}")
+message(STATUS "Using C++ flags: ${CMAKE_CXX_FLAGS}")
+message(STATUS "Using ASM_NASM flags: ${CMAKE_ASM_NASM_FLAGS}")
 
-# Adjust flags according to the build type
-if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g -fno-inline -fstack-protector-all")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -fno-inline -fstack-protector-all")
-    set(CMAKE_ASM_NASM_FLAGS "${CMAKE_ASM_NASM_FLAGS} -g -F dwarf")
-elseif (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RELEASE")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
-else ()
-    message(FATAL_ERROR "UNKNOWN BUILD TYPE: ${CMAKE_BUILD_TYPE}")
-endif ()
-
-MESSAGE(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
-MESSAGE(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
-MESSAGE(STATUS "CMAKE_ASM_NASM_FLAGS: ${CMAKE_ASM_NASM_FLAGS}")
-
+################################################################################
+#                                   Sysroot                                    #
+################################################################################
 set(SYSROOT ${CMAKE_BINARY_DIR}/sysroot)
 set(CMAKE_SYSROOT ${SYSROOT})
-set(SYSTEM_LIB_TYPE k)
-set(ARCH x86_64)
 
 # Create the sysroot directories
 file(MAKE_DIRECTORY ${SYSROOT}/usr/include)
@@ -45,15 +33,21 @@ file(MAKE_DIRECTORY ${SYSROOT}/usr/lib)
 file(MAKE_DIRECTORY ${SYSROOT}/boot)
 file(MAKE_DIRECTORY ${SYSROOT}/boot/grub)
 
+set(SYSTEM_LIB_TYPE k)
+
 # Add the subdirectories
 add_subdirectory(libc)
 add_subdirectory(kernel)
 
-# Custom target to create ISO image
+################################################################################
+#                                Custom Targets                                #
+################################################################################
 set(MAKE_ISO_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/install/make_iso.bash)
 set(RUN_ALKOS_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/install/run_alkos.bash)
+
 message(STATUS "Using make_iso script: ${MAKE_ISO_SCRIPT_PATH}")
 message(STATUS "Using run_alkos script: ${RUN_ALKOS_SCRIPT_PATH}")
+
 add_custom_target(iso
         COMMAND ${MAKE_ISO_SCRIPT_PATH} "${CMAKE_BINARY_DIR}/alkos.iso" ${SYSROOT} -v -r
         DEPENDS alkos.kernel
