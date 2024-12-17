@@ -1,62 +1,36 @@
-project(kernel)
+project(kernel LANGUAGES C CXX ASM_NASM)
 
 if (NOT DEFINED SYSROOT)
     message(FATAL_ERROR "SYSROOT is not defined")
 endif ()
 
+if (NOT DEFINED ARCH)
+    message(FATAL_ERROR "ARCH is not defined")
+endif ()
+
+
+# Base include directories
 include_directories(include)
 include_directories(${SYSROOT}/usr/include)
 include_directories(test)
 
-# Define ARCH_DIR
-set(ARCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}")
-include_directories(${ARCH_DIR})
-
-# Additional test definitions
-# add_compile_definitions(ALKOS_TEST=0)
-
-file(GLOB_RECURSE ARCH_SOURCES
-        "${ARCH_DIR}/*.cpp"
-        "${ARCH_DIR}/*.c"
-        "${ARCH_DIR}/*.s"
-        "${ARCH_DIR}/*.S"
-        "${ARCH_DIR}/*.asm"
-        "${ARCH_DIR}/*.nasm"
-)
-
-set(ARCH_DIR_ASM_FLAGS "-I ${ARCH_DIR} -I ${ARCH_DIR}/utils -g -F dwarf")
-foreach(ASM_FILE ${ARCH_SOURCES})
-    get_source_file_property(CURRENT_COMPILE_FLAGS ${ASM_FILE} COMPILE_FLAGS)
-    if (CURRENT_COMPILE_FLAGS)
-        set(CURRENT_COMPILE_FLAGS "${CURRENT_COMPILE_FLAGS} ${ARCH_DIR_ASM_FLAGS}")
-    else ()
-        set(CURRENT_COMPILE_FLAGS "${ARCH_DIR_ASM_FLAGS}")
-    endif ()
-    set_source_files_properties(${ASM_FILE} PROPERTIES COMPILE_FLAGS ${CURRENT_COMPILE_FLAGS})
-endforeach()
+# Additional test definitions - refer to test/tester.hpp file for value specifics
+# add_compile_definitions(ALKOS_TEST=1)
 
 # Add kernel sources
+# NOTE: kernel should not include any architecture specific code including assembly
 file(GLOB KERNEL_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.s"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.S"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.asm"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.nasm"
 )
 
 # Build the kernel executable
 add_executable(alkos.kernel
-        ${ARCH_SOURCES}
-        ${BOOT_ASM}
         ${KERNEL_SOURCES}
-        )
-
-# Set linker flags
-set(LINKER_SCRIPT "${ARCH_DIR}/linker.ld")
-set_target_properties(alkos.kernel PROPERTIES
-        LINK_FLAGS "-T ${LINKER_SCRIPT} -nostdlib -lgcc -z max-page-size=0x1000 -n"
 )
+
+# Include the architecture specific CMakeLists.txt file
+add_subdirectory(arch/${ARCH})
 
 # Link against libk and gcc
 target_link_libraries(alkos.kernel PRIVATE
@@ -67,8 +41,31 @@ target_link_libraries(alkos.kernel PRIVATE
 # Ensure sysroot/boot directory exists
 file(MAKE_DIRECTORY ${SYSROOT}/boot)
 
-# Set kernel output directory to sysroot/boot
+# Place the kernel in the sysroot/boot directory
 set_target_properties(alkos.kernel PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${SYSROOT}/boot
         OUTPUT_NAME "alkos.kernel"
+)
+
+# Note: architecture file have a possibility to define custom command to run before linking
+if (DEFINED POST_ARCH_ACTION)
+    message(STATUS "POST ACTION: ${POST_ARCH_ACTION}")
+
+    add_custom_command(TARGET alkos.kernel PRE_LINK
+            COMMAND ${POST_ARCH_ACTION}
+            COMMENT "Running post build arch action"
+    )
+endif ()
+
+# Set the linker to link objects in the correct order
+# NOTE: ARCH cmake is expected to provide variables for global constructors according to the compiler needs
+# NOTE: This linking must be done at this level as global constructors should be supported on each architecture
+if (NOT DEFINED CRTI_OBJ OR NOT DEFINED CRTBEGIN_OBJ OR NOT DEFINED CRTEND_OBJ OR NOT DEFINED CRTN_OBJ)
+    message(FATAL_ERROR "One of: crti.o, crtbegin.o, crtend.o, crtn.o is not defined. Those should be defined in the ARCH CMakeLists.txt file")
+endif ()
+
+set(CMAKE_CXX_LINK_EXECUTABLE
+    "${CMAKE_CXX_COMPILER} <CMAKE_C_LINK_FLAGS> <FLAGS> <LINK_FLAGS>\
+    ${CRTI_OBJ} ${CRTBEGIN_OBJ} <OBJECTS> ${CRTEND_OBJ} ${CRTN_OBJ} \
+    -o <TARGET> <LINK_LIBRARIES>"
 )
