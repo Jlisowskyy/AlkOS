@@ -1,5 +1,4 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_include_directories(alkos.kernel PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/utils)
+target_include_directories(alkos.kernel PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 file(GLOB_RECURSE ARCH_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
@@ -26,39 +25,41 @@ set_target_properties(alkos.kernel PROPERTIES LINK_FLAGS "-T ${LINKER_SCRIPT} -n
 ################################################################################
 #                             Convert 32 bit files                             #
 ################################################################################
-#file(GLOB_RECURSE ARCH_SOURCES_32
-#        "${CMAKE_CURRENT_SOURCE_DIR}/*_32.cpp"
-#        "${CMAKE_CURRENT_SOURCE_DIR}/*_32.c"
-#)
-#
-#if(ARCH_SOURCES_32)
-#    add_library(alkos.kernel32 OBJECT ${ARCH_SOURCES_32})
-#    set_target_properties(alkos.kernel32 PROPERTIES COMPILE_FLAGS "-m32")
-#    target_compile_definitions(alkos.kernel32 PRIVATE __i386__=1)
-#
-#    # Convert 32 bit sources to 64 bit using objcopy
-#    add_custom_command(
-#            OUTPUT "${CMAKE_BINARY_DIR}/converted_32bit_to_64bit.o"
-#            COMMAND ${CMAKE_OBJCOPY} -I elf32-i386 -O elf64-x86-64 $<TARGET_OBJECTS:alkos.kernel32> ${CMAKE_BINARY_DIR}/converted_32bit_to_64bit.o
-#            DEPENDS alkos.kernel32
-#            COMMENT "Converting 32-bit object files to ELF64"
-#            BYPRODUCTS "${CMAKE_BINARY_DIR}/converted_32bit_to_64bit.o"
-#    )
-#
-#    add_custom_target(
-#            convert_32bit ALL
-#            DEPENDS ${CMAKE_BINARY_DIR}/converted_32bit_to_64bit.o
-#    )
-#    add_dependencies(alkos.kernel convert_32bit)
-#
-#    target_link_libraries(alkos.kernel PRIVATE ${CMAKE_BINARY_DIR}/converted_32bit_to_64bit.o)
-#endif()
+file(GLOB_RECURSE ARCH_SOURCES_32
+        "${CMAKE_CURRENT_SOURCE_DIR}/*_32.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*_32.c"
+)
+
+if(ARCH_SOURCES_32)
+    add_library(alkos.kernel32 OBJECT
+            ${ARCH_SOURCES_32}
+    )
+    target_include_directories(alkos.kernel32 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+    set_target_properties(alkos.kernel32 PROPERTIES
+            COMPILE_FLAGS "-m32"
+    )
+
+    target_compile_definitions(alkos.kernel32 PRIVATE
+            __i386__=1
+    )
+
+    add_dependencies(alkos.kernel alkos.kernel32)
+
+
+    set(ELF64_CONVERTER "${CMAKE_CURRENT_SOURCE_DIR}/convert_to_elf64.bash")
+    set(POST_ARCH_ACTION ${ELF64_CONVERTER} ${CMAKE_OBJCOPY} \"$<TARGET_OBJECTS:alkos.kernel32>\" PARENT_SCOPE)
+
+    # link 32bit objects to kernel
+    target_link_libraries(alkos.kernel PRIVATE
+            $<TARGET_OBJECTS:alkos.kernel32>
+    )
+
+endif()
 
 ################################################################################
 #                           CXX Global Constructors                            #
 ################################################################################
-# TODO
-# I TRIED TO MAKE THIS WORK WITHOUT A SEPARATE SCRIPT
 
 set(SRTI_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cxx/crti.nasm")
 set(SRTN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cxx/crtn.nasm")

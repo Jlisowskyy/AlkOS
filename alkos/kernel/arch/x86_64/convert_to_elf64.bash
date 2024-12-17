@@ -8,12 +8,12 @@ convert_file() {
 
   if [ ! -f "$filename" ]; then
     echo "File not found: $filename"
-    exit 1
+    return
   fi
 
   if file "$filename" | grep -q "ELF 64-bit"; then
     echo "File is already in ELF64 format"
-    exit 0
+    return
   fi
 
   echo "Converting $filename to ELF64 format..."

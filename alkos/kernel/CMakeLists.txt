@@ -47,6 +47,16 @@ set_target_properties(alkos.kernel PROPERTIES
         OUTPUT_NAME "alkos.kernel"
 )
 
+# Note: architecture file have a possibility to define custom command to run before linking
+if (DEFINED POST_ARCH_ACTION)
+    message(STATUS "POST ACTION: ${POST_ARCH_ACTION}")
+
+    add_custom_command(TARGET alkos.kernel PRE_LINK
+            COMMAND ${POST_ARCH_ACTION}
+            COMMENT "Running post build arch action"
+    )
+endif ()
+
 # Set the linker to link objects in the correct order
 # NOTE: ARCH cmake is expected to provide variables for global constructors according to the compiler needs
 # NOTE: This linking must be done at this level as global constructors should be supported on each architecture
@@ -55,7 +65,7 @@ if (NOT DEFINED CRTI_OBJ OR NOT DEFINED CRTBEGIN_OBJ OR NOT DEFINED CRTEND_OBJ O
 endif ()
 
 set(CMAKE_CXX_LINK_EXECUTABLE
-        "${CMAKE_CXX_COMPILER} <CMAKE_C_LINK_FLAGS> <FLAGS> <LINK_FLAGS>\
-   ${CRTI_OBJ} ${CRTBEGIN_OBJ} <OBJECTS> ${CRTEND_OBJ} ${CRTN_OBJ} \
-   -o <TARGET> <LINK_LIBRARIES>"
+    "${CMAKE_CXX_COMPILER} <CMAKE_C_LINK_FLAGS> <FLAGS> <LINK_FLAGS>\
+    ${CRTI_OBJ} ${CRTBEGIN_OBJ} <OBJECTS> ${CRTEND_OBJ} ${CRTN_OBJ} \
+    -o <TARGET> <LINK_LIBRARIES>"
 )
