@@ -1,8 +1,5 @@
 project(libc)
 
-include_directories(include)
-include_directories(${SYSROOT}/usr/include)
-
 if (NOT DEFINED SYSROOT)
     message(FATAL_ERROR "SYSROOT is not defined")
 endif ()
@@ -10,6 +7,9 @@ endif ()
 if (NOT DEFINED SYSTEM_LIB_TYPE)
     message(FATAL_ERROR "SYSTEM_LIB_TYPE is not defined")
 endif ()
+
+include_directories(include)
+include_directories(${SYSROOT}/usr/include)
 
 if (SYSTEM_LIB_TYPE STREQUAL "k" OR SYSTEM_LIB_TYPE STREQUAL "K")
     set(LIB_NAME "k")
@@ -28,7 +28,6 @@ file(GLOB_RECURSE LIB_SOURCES
 # Build the library
 add_library(lib${LIB_NAME} STATIC ${LIB_SOURCES})
 set_target_properties(lib${LIB_NAME} PROPERTIES OUTPUT_NAME "${LIB_NAME}")
-target_compile_options(lib${LIB_NAME} PRIVATE ${LIB_SYSTEM_FLAGS})
 
 # Ensure sysroot directories exist
 file(MAKE_DIRECTORY ${SYSROOT}/usr/include)
