@@ -18,6 +18,7 @@ include_directories(test)
 # add_compile_definitions(ALKOS_TEST=1)
 
 # Add kernel sources
+# NOTE: kernel should not include any architecture specific code including assembly
 file(GLOB KERNEL_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
@@ -48,6 +49,7 @@ set_target_properties(alkos.kernel PROPERTIES
 
 # Set the linker to link objects in the correct order
 # NOTE: ARCH cmake is expected to provide variables for global constructors according to the compiler needs
+# NOTE: This linking must be done at this level as global constructors should be supported on each architecture
 if (NOT DEFINED CRTI_OBJ OR NOT DEFINED CRTBEGIN_OBJ OR NOT DEFINED CRTEND_OBJ OR NOT DEFINED CRTN_OBJ)
     message(FATAL_ERROR "One of: crti.o, crtbegin.o, crtend.o, crtn.o is not defined. Those should be defined in the ARCH CMakeLists.txt file")
 endif ()
