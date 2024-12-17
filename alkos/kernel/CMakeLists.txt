@@ -21,20 +21,15 @@ include_directories(test)
 file(GLOB KERNEL_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.s"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.S"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.asm"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.nasm"
 )
 
 # Build the kernel executable
 add_executable(alkos.kernel
         ${KERNEL_SOURCES}
-        )
+)
 
 # Include the architecture specific CMakeLists.txt file
 add_subdirectory(arch/${ARCH})
-
 
 # Link against libk and gcc
 target_link_libraries(alkos.kernel PRIVATE
@@ -49,4 +44,16 @@ file(MAKE_DIRECTORY ${SYSROOT}/boot)
 set_target_properties(alkos.kernel PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${SYSROOT}/boot
         OUTPUT_NAME "alkos.kernel"
+)
+
+# Set the linker to link objects in the correct order
+# NOTE: ARCH cmake is expected to provide variables for global constructors according to the compiler needs
+if (NOT DEFINED CRTI_OBJ OR NOT DEFINED CRTBEGIN_OBJ OR NOT DEFINED CRTEND_OBJ OR NOT DEFINED CRTN_OBJ)
+    message(FATAL_ERROR "One of: crti.o, crtbegin.o, crtend.o, crtn.o is not defined. Those should be defined in the ARCH CMakeLists.txt file")
+endif ()
+
+set(CMAKE_CXX_LINK_EXECUTABLE
+        "${CMAKE_CXX_COMPILER} <CMAKE_C_LINK_FLAGS> <FLAGS> <LINK_FLAGS>\
+   ${CRTI_OBJ} ${CRTBEGIN_OBJ} <OBJECTS> ${CRTEND_OBJ} ${CRTN_OBJ} \
+   -o <TARGET> <LINK_LIBRARIES>"
 )
