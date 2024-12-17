@@ -29,9 +29,6 @@
           extern setup_page_tables
           extern enable_paging
 
-                    extern test_32
-                  extern test1_32
-
           ; Long mode
           extern enable_long_mode
 
@@ -78,9 +75,6 @@ _start:
           call check_and_handle_errors
           call enable_paging
           call check_and_handle_errors
-
-            call test_32
-            call test1_32
 
           ; Jump to long mode
           lgdt [GDT64.Pointer]

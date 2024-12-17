@@ -12,9 +12,6 @@
           extern _init
           extern _fini
 
-          extern test
-        extern test1
-
           ; Kernel Entry Point
           extern KernelMain
 
@@ -34,9 +31,6 @@ boot64:
 
           ; There all basic initialization should be done
           call PreKernelInit
-
-          call test
-          call test1
 
           ; Invoke global constructors
           call _init
