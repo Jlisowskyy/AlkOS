@@ -16,7 +16,7 @@ help() {
   echo "alkos_iso_path - path to the .iso file"
   echo "--run     | -r - flag to run AlkOS in QEMU"
   echo "--verbose | -v - flag to enable verbose output"
-  echo "--"
+  echo "--gdb     | -g - flag to run AlkOS in QEMU with GDB"
 }
 
 parse_args() {

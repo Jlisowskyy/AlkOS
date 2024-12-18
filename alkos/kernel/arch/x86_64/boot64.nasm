@@ -15,9 +15,8 @@
           ; Kernel Entry Point
           extern KernelMain
 
-          global boot64
-          global os_hang
           section .text
+          global boot64
           bits 64
 boot64:
           mov ax, GDT64.Data

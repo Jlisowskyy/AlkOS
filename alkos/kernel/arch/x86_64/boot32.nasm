@@ -53,9 +53,6 @@
 ; doesn't make sense to return from this function as the bootloader is gone.
           section   .text32
           global    _start
-
-          ; hang for panic
-          global os_hang_32
 _start:
 boot32:
           ; The bootloader has loaded us into 32-bit protected mode on a x86

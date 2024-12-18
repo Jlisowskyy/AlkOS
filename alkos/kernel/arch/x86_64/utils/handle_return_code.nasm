@@ -17,8 +17,6 @@
           extern MESSAGE_ENABLE_PAGING
           extern MESSAGE_SETUP_PAGE_TABLES
 
-          extern KernelPanic_32
-
           section .text32
           global handle_return_code
           ; void check_and_handle_errors(uint8_t error_code);
@@ -87,3 +85,7 @@ handle_return_code:
 .page_tables_setup:
           trace_32 MESSAGE_SETUP_PAGE_TABLES
           ret
+
+.hang:
+            hlt
+            jmp .hang

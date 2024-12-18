@@ -17,6 +17,7 @@ message(STATUS "Using C++ compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "Using AR: ${CMAKE_AR}")
 message(STATUS "Using Ranlib: ${CMAKE_RANLIB}")
 message(STATUS "Using Linker: ${CMAKE_LINKER}")
+message(STATUS "Using gdb: ${CMAKE_GDB}")
 
 message(STATUS "Using C flags: ${CMAKE_C_FLAGS}")
 message(STATUS "Using C++ flags: ${CMAKE_CXX_FLAGS}")
@@ -46,8 +47,9 @@ add_subdirectory(kernel)
 
 set(MAKE_ISO_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/install/make_iso.bash)
 set(RUN_ALKOS_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/install/run_alkos.bash)
+set(ATTACH_GDB_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/actions/attach_to_qemu_gdb.bash)
 set(ALKOS_ISO_PATH ${CMAKE_BINARY_DIR}/alkos.iso)
-set(ALKOS_KERNEL_PATH ${CMAKE_BINARY_DIR}sysroot/boot/alkos.kernel)
+set(ALKOS_KERNEL_PATH ${CMAKE_BINARY_DIR}/sysroot/boot/alkos.kernel)
 
 if (NOT EXISTS ${MAKE_ISO_SCRIPT_PATH})
     message(FATAL_ERROR "make_iso script not found: ${MAKE_ISO_SCRIPT_PATH}")
@@ -55,6 +57,10 @@ endif ()
 
 if (NOT EXISTS ${RUN_ALKOS_SCRIPT_PATH})
     message(FATAL_ERROR "run_alkos script not found: ${RUN_ALKOS_SCRIPT_PATH}")
+endif ()
+
+if (NOT EXISTS ${ATTACH_GDB_SCRIPT_PATH})
+    message(FATAL_ERROR "attach_to_qemu_gdb.bash script not found: ${ATTACH_GDB_SCRIPT_PATH}")
 endif ()
 
 message(STATUS "Using make_iso script: ${MAKE_ISO_SCRIPT_PATH}")

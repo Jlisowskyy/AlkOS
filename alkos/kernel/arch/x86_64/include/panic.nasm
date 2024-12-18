@@ -1,7 +1,5 @@
 extern KernelPanic_32
 extern KernelPanic
-extern os_hang
-extern os_hang_32
 
 ; Panic is a function that will print an error message and halt the system.
 
