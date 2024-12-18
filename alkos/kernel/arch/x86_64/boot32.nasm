@@ -1,18 +1,15 @@
           bits 32
 
+          %include "log.nasm"
+
           MULTI_BOOT_INFO_T_LOCATION equ stack_top - 4
           FRAMEBUFFER_INFO_T_LOCATION equ stack_top - 8
 
           ; Helper functions
-          extern vga_print
-          extern framebuffer_print
           extern locate_framebuffer_tag
-          extern reg_to_message
 
-          ; Serial
-          extern serial_init32
-          extern serial_print32
-          extern serial_puts32
+          ; Terminal
+          extern TerminalInit_32
 
           ; Error checking and handling
           extern check_multiboot
@@ -56,6 +53,9 @@
 ; doesn't make sense to return from this function as the bootloader is gone.
           section   .text32
           global    _start
+
+          ; hang for panic
+          global os_hang_32
 _start:
 boot32:
           ; The bootloader has loaded us into 32-bit protected mode on a x86
@@ -76,19 +76,27 @@ boot32:
           sub esp, 8; Reserve space for multiboot_info_t* and framebuffer_info_t*
           mov [MULTI_BOOT_INFO_T_LOCATION], ebx ; Save multiboot_info_t*
 
-          call serial_init32
-          push MESSAGE_INIT_ALKOS
-          call serial_puts32
-          add esp, 4
+          ; Set up base pointer
+          mov ebp, esp
 
+          ; save Multiboot info
+          push eax
+
+          call TerminalInit_32
+
+          trace_32 MESSAGE_INIT_ALKOS
+
+          ; reset Multiboot info to eax
+;          pop eax
           call check_multiboot
           call handle_return_code
 
           ; Use the multiboot information to locate the framebuffer
-          push dword [MULTI_BOOT_INFO_T_LOCATION]
-          call locate_framebuffer_tag
-          add esp, 4
-          mov [FRAMEBUFFER_INFO_T_LOCATION], eax ; Save multiboot_tag_framebuffer_t*
+          ; TODO: framebuffer in work
+;          push dword [MULTI_BOOT_INFO_T_LOCATION]
+;          call locate_framebuffer_tag
+;          add esp, 4
+;          mov [FRAMEBUFFER_INFO_T_LOCATION], eax ; Save multiboot_tag_framebuffer_t*
 
           call check_cpuid
           call handle_return_code
@@ -102,9 +110,7 @@ boot32:
           call enable_paging
           call handle_return_code
 
-          push MESSAGE_INFO_JUMPING_TO_64
-          call serial_puts32
-          add esp, 4
+          trace_32 MESSAGE_INFO_JUMPING_TO_64
 
           ; Jump to long mode
           lgdt [GDT64.Pointer]

@@ -7,7 +7,7 @@
           SPACE equ 0x20
           NEWLINE equ 0x0A
 
-          extern serial_puts32
+          extern TerminalWriteString_32
           extern reg_to_message
 
           section .rodata
@@ -64,7 +64,7 @@ locate_framebuffer_tag:
           ; Debug prints for the tag type and size
           ; TODO - Wrap in a macro
 ;          push MESSAGE_NEW_TAG
-;          call serial_puts32
+;          call TerminalWriteString_32
 ;          add esp, 4
 ;
 ;          push dword [edi]
@@ -72,7 +72,7 @@ locate_framebuffer_tag:
 ;          add esp, 4
 ;
 ;          push eax
-;          call serial_puts32
+;          call TerminalWriteString_32
 ;          add esp, 4
 ;
 ;          push dword [edi + 4]
@@ -80,7 +80,7 @@ locate_framebuffer_tag:
 ;          add esp, 4
 ;
 ;          push eax
-;          call serial_puts32
+;          call TerminalWriteString_32
 ;          add esp, 4
 
           ; Check if the tag is a framebuffer tag
@@ -108,7 +108,7 @@ locate_framebuffer_tag:
 ;          add esp, 4
 
 ;          push eax
-;          call serial_puts32
+;          call TerminalWriteString_32
 ;          add esp, 4
 
           ; Check if we reached the end of the multiboot tags
@@ -117,7 +117,7 @@ locate_framebuffer_tag:
           jmp .loop
 .no_tags:
           push MESSAGE_TAG_NOT_FOUND
-          call serial_puts32
+          call TerminalWriteString_32
           add esp, 4
 
           mov eax, 0 ; NULL on failure

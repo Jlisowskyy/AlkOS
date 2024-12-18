@@ -9,7 +9,6 @@
           ; Info messages
           global MESSAGE_INIT_ALKOS
           global MESSAGE_INFO_JUMPING_TO_64
-          global MESSAGE_INFO_IN_64
 
           ; Error messages
           global MESSAGE_ERROR_NO_LONG_MODE
@@ -29,7 +28,6 @@
 
 MESSAGE_INIT_ALKOS db "[INFO]", TAB, WHITESPACE, WHITESPACE, "Initializing Alkos", NEWLINE, 0
 MESSAGE_INFO_JUMPING_TO_64 db "[INFO]", TAB, WHITESPACE, WHITESPACE, "Jumping to 64-bit mode", NEWLINE, 0
-MESSAGE_INFO_IN_64 db "[OK]", TAB, WHITESPACE, WHITESPACE, "In 64-bit mode", NEWLINE, 0
 
 MESSAGE_ERROR_NO_LONG_MODE db "[Error]", TAB, WHITESPACE, WHITESPACE, "No long mode support", NEWLINE, 0
 MESSAGE_ERROR_NO_MULTIBOOT db "[Error]", TAB, WHITESPACE, WHITESPACE, "No multiboot support", NEWLINE, 0

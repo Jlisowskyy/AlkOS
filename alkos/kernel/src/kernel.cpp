@@ -11,11 +11,10 @@
 #endif
 
 #include <init.hpp>
-
-extern "C" void terminal_writestring(const char *data);
+#include <terminal.hpp>
 
 static void KernelRun() {
-
+    TerminalWriteString("Hello from AlkOS!");
 }
 
 extern "C" void KernelMain() {
@@ -25,11 +24,10 @@ extern "C" void KernelMain() {
 
     VERIFY_TEST_TYPE(ALKOS_TEST)
     RunTest(static_cast<TestType>(ALKOS_TEST));
-    terminal_writestring("Hello from AlkOS test!");
+    TerminalWriteString("Hello from AlkOS test (SUCCESS)!");
     return;
 
 #endif
 
     KernelRun();
-    terminal_writestring("Hello from AlkOS!");
 }

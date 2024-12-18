@@ -5,13 +5,6 @@
           ; GDT64
           extern GDT64.Data
 
-          ; Serial
-          extern serial_init
-          extern serial_puts
-
-          ; Message
-          extern MESSAGE_INFO_IN_64
-
           ; Totally basic initialization that must be done before calling _init
           extern PreKernelInit
 
@@ -33,9 +26,6 @@ boot64:
           mov fs, ax
           mov gs, ax
           mov ss, ax
-
-          mov rdi, MESSAGE_INFO_IN_64
-          call serial_puts
 
           sub rsp, 32 ; shadow space
 

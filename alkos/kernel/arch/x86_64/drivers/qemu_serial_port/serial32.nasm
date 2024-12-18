@@ -7,6 +7,8 @@
 
           bits 32
 
+          extern os_hang_32
+
 ; -----------------------------------------------------------------------------
 ; Constants Definition
 ; -----------------------------------------------------------------------------
@@ -22,9 +24,9 @@
 ; Section: Text (32-bit)
 ; -----------------------------------------------------------------------------
           section .text32
-          global serial_init32
-          global serial_putchar32
-          global serial_puts32
+          global serial_init_32
+          global serial_putchar_32
+          global serial_puts_32
 
 ; -----------------------------------------------------------------------------
 ; Function: serial_init
@@ -40,7 +42,7 @@
 ; Returns:
 ;     void
 ; -----------------------------------------------------------------------------
-serial_init32:
+serial_init_32:
           push    eax
           push    edx
 
@@ -94,11 +96,10 @@ serial_init32:
 ; Returns:
 ;     void
 ; -----------------------------------------------------------------------------
-serial_putchar32:
+serial_putchar_32:
           push    ebp            ; Preserve EBP
           mov     ebp, esp       ; Set up stack frame
           push    eax            ; Preserve EAX
-          push    ebx            ; Preserve EBX
           push    edx            ; Preserve EDX
 
           ; Retrieve the character 'c' from [ebp+8]
@@ -118,9 +119,8 @@ serial_putchar32:
           out     dx, al
 
           pop     edx
-          pop     ebx
           pop     eax
-          pop     ebp
+          leave
           ret
 
 ; -----------------------------------------------------------------------------
@@ -133,9 +133,10 @@ serial_putchar32:
 ; Returns:
 ;     void
 ; -----------------------------------------------------------------------------
-serial_puts32:
+serial_puts_32:
           push    ebp            ; Preserve EBP
           mov     ebp, esp       ; Set up stack frame
+
           push    ebx            ; Preserve EBX
           push    eax            ; Preserve EAX
 
@@ -149,7 +150,7 @@ serial_puts32:
           je      .done
 
           push    eax
-          call    serial_putchar32
+          call    serial_putchar_32
           add     esp, 4
 
           inc     ebx
@@ -158,5 +159,5 @@ serial_puts32:
 .done:
           pop     eax
           pop     ebx
-          pop     ebp
+          leave
           ret

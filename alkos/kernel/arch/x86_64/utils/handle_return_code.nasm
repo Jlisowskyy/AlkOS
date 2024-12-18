@@ -1,6 +1,8 @@
           bits 32
 
           %include "return_codes.nasm"
+          %include "log.nasm"
+          %include "panic.nasm"
 
           extern MESSAGE_ERROR_NO_LONG_MODE
           extern MESSAGE_ERROR_NO_CPUID
@@ -15,9 +17,7 @@
           extern MESSAGE_ENABLE_PAGING
           extern MESSAGE_SETUP_PAGE_TABLES
 
-          extern vga_print
-          extern framebuffer_print
-          extern serial_puts32
+          extern KernelPanic_32
 
           section .text32
           global handle_return_code
@@ -47,71 +47,43 @@ handle_return_code:
           cmp eax, SUCCESS_SETUP_PAGE_TABLES
           je .page_tables_setup
 
-
-          ; Unknown error
           jmp .unknown_error
 
 .no_error:
           ret
 
 .error_no_long_mode:
-          push MESSAGE_ERROR_NO_LONG_MODE
-          call serial_puts32
-          jmp .hang32
+          panic_32 MESSAGE_ERROR_NO_LONG_MODE
 
 .error_no_cpuid:
-          push MESSAGE_ERROR_NO_CPUID
-          call serial_puts32
-          jmp .hang32
+          panic_32 MESSAGE_ERROR_NO_CPUID
 
 .error_no_multiboot:
-          push MESSAGE_ERROR_NO_MULTIBOOT
-          call serial_puts32
-          jmp .hang32
+          panic_32 MESSAGE_ERROR_NO_MULTIBOOT
 
 .unknown_error:
-          ; Unknown error
-          push MESSAGE_ERROR_UNKNOWN
-          call serial_puts32
-          jmp .hang32
+          panic_32 MESSAGE_ERROR_UNKNOWN
 
 .cpu_id_check:
-          push MESSAGE_CHECK_CPUID
-          call serial_puts32
-          add esp, 4
+          trace_32 MESSAGE_CHECK_CPUID
           ret
 
-.hang32:
-          cli
-          hlt
-          jmp .hang32
-
 .long_mode_check:
-          push MESSAGE_CHECK_LONG_MODE
-          call serial_puts32
-          add esp, 4
+          trace_32 MESSAGE_CHECK_LONG_MODE
           ret
 
 .multiboot_check:
-          push MESSAGE_CHECK_MULTIBOOT
-          call serial_puts32
-          add esp, 4
+          trace_32 MESSAGE_CHECK_MULTIBOOT
           ret
 
 .long_mode_enable:
-          push MESSAGE_ENABLE_LONG_MODE
-          call serial_puts32
-          add esp, 4
+          trace_32 MESSAGE_ENABLE_LONG_MODE
           ret
 
 .paging_enable:
-          push MESSAGE_ENABLE_PAGING
-          call serial_puts32
-          add esp, 4
+          trace_32 MESSAGE_ENABLE_PAGING
           ret
 
 .page_tables_setup:
-          push MESSAGE_SETUP_PAGE_TABLES
-          call serial_puts32
-          add esp, 4
+          trace_32 MESSAGE_SETUP_PAGE_TABLES
           ret
