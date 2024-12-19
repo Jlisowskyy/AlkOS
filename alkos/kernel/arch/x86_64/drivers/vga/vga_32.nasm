@@ -8,6 +8,7 @@
           section .text32
           global vga_print
 vga_print:
+          ; TODO: WHAT?
           ; void vga_print(const char *message);
           ; Print a message to the screen using VGA text mode.
           ; Note: Does not handle newlines.
