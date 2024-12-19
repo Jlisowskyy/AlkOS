@@ -2,12 +2,11 @@
           extern stack_bottom
           extern stack_top
 
+          ; Includes
+          %include "puts.nasm"
+
           ; GDT64
           extern GDT64.Data
-
-          ; Serial
-          extern serial_init
-          extern serial_puts
 
           ; Message
           extern MESSAGE_INFO_IN_64
@@ -23,7 +22,6 @@
           extern KernelMain
 
           global boot64
-          global os_hang
           section .text
           bits 64
 boot64:
@@ -34,8 +32,7 @@ boot64:
           mov gs, ax
           mov ss, ax
 
-          mov rdi, MESSAGE_INFO_IN_64
-          call serial_puts
+          puts MESSAGE_INFO_IN_64
 
           sub rsp, 32 ; shadow space
 

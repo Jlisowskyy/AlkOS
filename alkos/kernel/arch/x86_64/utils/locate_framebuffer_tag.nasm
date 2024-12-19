@@ -1,5 +1,6 @@
           bits 32
           %include "return_codes.nasm"
+          %include "puts.nasm"
 
           MULTIBOOT_TAG_TYPE_FRAMEBUFFER equ 8
 
@@ -7,7 +8,6 @@
           SPACE equ 0x20
           NEWLINE equ 0x0A
 
-          extern serial_puts32
           extern reg_to_message
 
           section .rodata
@@ -62,7 +62,7 @@ locate_framebuffer_tag:
 
 .loop:
           ; Debug prints for the tag type and size
-          ; TODO - Wrap in a macro
+          ; TODO - USE with %include puts.nasm in future
 ;          push MESSAGE_NEW_TAG
 ;          call serial_puts32
 ;          add esp, 4
@@ -102,7 +102,7 @@ locate_framebuffer_tag:
           add edi, eax        ; add aligned tag size
 
           ; Debug prints for aligned tag size
-          ; TODO - Wrap in a macro
+          ; TODO - USE with %include puts.nasm in future
 ;          push eax
 ;          call reg_to_message
 ;          add esp, 4
@@ -116,9 +116,7 @@ locate_framebuffer_tag:
           jge .no_tags
           jmp .loop
 .no_tags:
-          push MESSAGE_TAG_NOT_FOUND
-          call serial_puts32
-          add esp, 4
+          puts_32 MESSAGE_TAG_NOT_FOUND
 
           mov eax, 0 ; NULL on failure
 .end:

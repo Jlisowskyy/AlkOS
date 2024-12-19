@@ -9,8 +9,6 @@
 
           MULTIBOOT_HEADER_MAGIC equ 0x36d76289
 
-          extern serial_puts
-
           section .text32
           global check_multiboot
 check_multiboot:

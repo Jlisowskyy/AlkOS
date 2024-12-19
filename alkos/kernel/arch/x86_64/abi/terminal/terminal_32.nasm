@@ -8,6 +8,7 @@
 
     extern serial_init32
     extern serial_putchar32
+    extern serial_puts32
     extern vga_print
 
 TerminalInit_32:
@@ -30,7 +31,9 @@ TerminalPutChar_32:
 
     ; create a string from the character
     push byte 0
-    push byte [ebp + 8]
+    sub esp, 1
+    mov eax, [ebp + 8]
+    mov byte [esp], al
     push esp
     call vga_print
     add esp, 6

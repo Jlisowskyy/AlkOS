@@ -1,6 +1,6 @@
     bits 64
 
-    extern KernelPanic
+    %include "panic.nasm"
 
     ; Intel manual page 814 Vol 2A CPUID - CPU Identification
     ; cpuid flags
@@ -78,10 +78,8 @@ enable_osxsave:
     ret
 
 enable_osxsave_avx_fail:
-    lea rdi, [FAIL_OSXSAVE_AVX]
-    call KernelPanic
+    panic FAIL_OSXSAVE_AVX
 
 
 enable_osxsave_fail:
-    lea rdi, [FAIL_OSXSAVE]
-    call KernelPanic
+    panic FAIL_OSXSAVE
