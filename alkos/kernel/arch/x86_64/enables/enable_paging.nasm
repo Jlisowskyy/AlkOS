@@ -1,13 +1,15 @@
           bits 32
-          %include "error_codes.nasm"
 
-PAGING_BIT          equ 1 << 31
-PAE_BIT             equ 1 << 5
-LONG_MODE_BIT       equ 1 << 8
+          %include "return_codes.nasm"
 
-EFER_MSR            equ 0xC0000080
+          PAGING_BIT          equ 1 << 31
+          PAE_BIT             equ 1 << 5
+          LONG_MODE_BIT       equ 1 << 8
+
+          EFER_MSR            equ 0xC0000080
 
           extern p4_table
+
           section .text32
           global enable_paging
 enable_paging:
@@ -27,6 +29,5 @@ enable_paging:
           or eax, PAGING_BIT
           mov cr0, eax
 
-          mov al, NO_ERROR
+          mov eax, SUCCESS_ENABLE_PAGING
           ret
-

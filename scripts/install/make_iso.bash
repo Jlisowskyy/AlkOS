@@ -7,7 +7,7 @@ MAKE_ISO_SCRIPT_GRUB_CONTENTS="
 set timeout=0
 set default=0
 menuentry \"AlkOS\" {
-  multiboot /boot/alkos.kernel
+  multiboot2 /boot/alkos.kernel
   boot
 }
 "

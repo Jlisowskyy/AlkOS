@@ -1,6 +1,6 @@
     bits 64
 
-    extern KernelPanic
+    %include "panic.nasm"
     ; Intel manual page 814 Vol 2A CPUID - CPU Identification
 
     ; CPUID flags
@@ -78,5 +78,4 @@ enable_sse:
     ret
 
 enable_sse_fail:
-    lea rdi, [FAIL_SSE]
-    call KernelPanic
+    panic FAIL_SSE

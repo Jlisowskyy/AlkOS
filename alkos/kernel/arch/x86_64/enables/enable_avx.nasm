@@ -1,6 +1,6 @@
     bits 64
 
-    extern KernelPanic
+    %include "panic.nasm"
     ; Intel manual page 814 Vol 2A CPUID - CPU Identification
 
     ; CPUID flags
@@ -30,5 +30,4 @@ enable_avx:
     ret
 
 enable_avx_fail:
-    lea rdi, [FAIL_AVX]
-    call KernelPanic
+    panic FAIL_AVX

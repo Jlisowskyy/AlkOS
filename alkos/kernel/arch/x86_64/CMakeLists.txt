@@ -1,4 +1,6 @@
+# Note: most of the includes must be added to both alkos.kernel and alkos.kernel32
 target_include_directories(alkos.kernel PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(alkos.kernel PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/drivers)
 
 file(GLOB_RECURSE ARCH_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
@@ -20,7 +22,7 @@ target_sources(alkos.kernel PRIVATE ${ARCH_SOURCES})
 
 # Set linker script and link flags
 set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld")
-set_target_properties(alkos.kernel PROPERTIES LINK_FLAGS "-T ${LINKER_SCRIPT} -nostdlib -lgcc")
+set_target_properties(alkos.kernel PROPERTIES LINK_FLAGS "-T ${LINKER_SCRIPT} -nostdlib -lgcc -z max-page-size=0x1000 -n")
 
 ################################################################################
 #                             Convert 32 bit files                             #
@@ -35,6 +37,7 @@ if(ARCH_SOURCES_32)
             ${ARCH_SOURCES_32}
     )
     target_include_directories(alkos.kernel32 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    target_include_directories(alkos.kernel32 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/drivers)
 
     set_target_properties(alkos.kernel32 PROPERTIES
             COMPILE_FLAGS "-m32"
