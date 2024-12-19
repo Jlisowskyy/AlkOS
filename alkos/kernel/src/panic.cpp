@@ -1,10 +1,12 @@
+/* internal includes */
 #include <panic.hpp>
-
-extern "C" void terminal_write_error(const char *data);
-
-extern "C" void os_hang();
+#include <terminal.hpp>
 
 extern "C" void KernelPanic(const char *msg) {
-    terminal_write_error(msg);
-    os_hang();
+    TerminalWriteError(msg);
+
+    asm volatile("cli");
+    while (1) {
+        asm volatile("hlt");
+    }
 }
