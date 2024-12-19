@@ -2,12 +2,7 @@
 #include <comp.h>
 #include <vga/vga.hpp>
 #include <constants.hpp>
-
-LINK_MULTITARGET_FUNC(void, serial_init, ());
-
-LINK_MULTITARGET_FUNC(void, serial_putchar, (char c));
-
-LINK_MULTITARGET_FUNC(void, serial_puts, (const char* s));
+#include <qemu_serial_port/qemu_serial_port.hpp>
 
 DEF_MULTITARGET_FUNC(void, TerminalInit, ()) {
     /* Initialize VGA terminal -> when multiboot allows: TODO */
@@ -15,17 +10,17 @@ DEF_MULTITARGET_FUNC(void, TerminalInit, ()) {
 
     if constexpr (kSerialPortTest) {
         /* Initialize serial port if in QEMU targeting build*/
-        MULTITARGET_FUNC(serial_init)();
+        MULTITARGET_FUNC(QemuSerialPortInit)();
     }
 }
 
-DEF_MULTITARGET_FUNC(void, TerminalPutChar, (char c)) {
+DEF_MULTITARGET_FUNC(void, TerminalPutChar, (const char c)) {
     /* Put character to VGA terminal -> when mutliboot allows: TODO */
     // MULTITARGET_FUNC(VgaTerminalPutChar())(c);
 
     if constexpr (kSerialPortTest) {
         /* Put character to serial port if in QEMU targeting build */
-        MULTITARGET_FUNC(serial_putchar)(c);
+        MULTITARGET_FUNC(QemuSerialPortPutChar)(c);
     }
 }
 
@@ -35,7 +30,7 @@ DEF_MULTITARGET_FUNC(void, TerminalWriteString, (const char* data)) {
 
     if constexpr (kSerialPortTest) {
         /* Write string to serial port if in QEMU targeting build */
-        MULTITARGET_FUNC(serial_puts)(data);
+        MULTITARGET_FUNC(QemuSerialPortPuts)(data);
     }
 }
 
@@ -45,6 +40,6 @@ DEF_MULTITARGET_FUNC(void, TerminalWriteError, (const char* data)) {
 
     if constexpr (kSerialPortTest) {
         /* Write error message to serial port if in QEMU targeting build */
-        MULTITARGET_FUNC(serial_puts)(data);
+        MULTITARGET_FUNC(QemuSerialPortPuts)(data);
     }
 }

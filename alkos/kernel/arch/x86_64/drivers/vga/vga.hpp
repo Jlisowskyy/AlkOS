@@ -1,7 +1,8 @@
 #ifndef KERNEL_ARCH_X86_64_DRIVERS_VGA_VGA_HPP_
 #define KERNEL_ARCH_X86_64_DRIVERS_VGA_VGA_HPP_
 
-#include <stdint.h>
+/* internal includes */
+#include <comp.h>
 
 DEF_MULTITARGET_FUNC(void, VgaTerminalInit, ());
 
@@ -13,8 +14,8 @@ DEF_MULTITARGET_FUNC(void, VgaTerminalPutChar, (char c));
 
 DEF_MULTITARGET_FUNC(void, VgaTerminalWrite, (const char *data, uint32_t size));
 
-DEF_MULTITARGET_FUNC(void, TerminalWriteString, (const char *data));
+DEF_MULTITARGET_FUNC(void, VgaTerminalWriteString, (const char *data));
 
-DEF_MULTITARGET_FUNC(void, TerminalWriteError, (const char *data));
+DEF_MULTITARGET_FUNC(void, VgaTerminalWriteError, (const char *data));
 
 #endif // KERNEL_ARCH_X86_64_DRIVERS_VGA_VGA_HPP_

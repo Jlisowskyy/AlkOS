@@ -11,22 +11,25 @@
  *         translation unit and are not visible outside).
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+
 #ifdef __i386__
+
+#define FUNC_SECTION __attribute__((section(".text32"))) __attribute__((optimize("align-functions=8")))
 
 #define MULTITARGET_FUNC(name) name##_32
 
-#define DEF_MULTITARGET_FUNC(type, name, signature) \
-    extern "C" __attribute__((section(".text32")))  type MULTITARGET_FUNC(name) signature
-
 #else
+
+#define FUNC_SECTION
 
 #define MULTITARGET_FUNC(name) name
 
-#define DEF_MULTITARGET_FUNC(type, name, signature) \
-    extern "C" type MULTITARGET_FUNC(name) signature
-
 #endif // __i386__
 
-#define LINK_MULTITARGET_FUNC(type, name, signature) extern "C" type MULTITARGET_FUNC(name) signature
+#define DEF_MULTITARGET_FUNC(type, name, signature) \
+    extern "C" FUNC_SECTION type MULTITARGET_FUNC(name) signature
 
 #endif // ARCH_X86_64_COMP_HPP_

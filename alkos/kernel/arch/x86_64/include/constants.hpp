@@ -7,4 +7,6 @@ static constexpr bool kSerialPortTest = true;
 static constexpr bool kSerialPortTest = false;
 #endif // __SERIAL_PORT_TEST__
 
+#define INLINE inline __attribute__((always_inline))
+
 #endif // KERNEL_ARCH_X86_64_INCLUDE_CONSTANTS_HPP_

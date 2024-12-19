@@ -10,6 +10,8 @@
 
           ; Terminal
           extern TerminalInit_32
+          extern QemuSerialPortInit_32
+          extern serial_init_32
 
           ; Error checking and handling
           extern check_multiboot
@@ -39,6 +41,8 @@
           ; Long mode
           extern enable_long_mode
 
+          extern XD
+
           ; Boot64 - entry point to 64-bit boot code - continuation of what is here
           extern boot64
 
@@ -53,6 +57,7 @@
 ; doesn't make sense to return from this function as the bootloader is gone.
           section   .text32
           global    _start
+          global    os_hang_32
 _start:
 boot32:
           ; The bootloader has loaded us into 32-bit protected mode on a x86
@@ -76,15 +81,24 @@ boot32:
           ; Set up base pointer
           mov ebp, esp
 
-          ; save Multiboot info
+          ; save Multiboot info as System V ABI allows eax to be modified
           push eax
 
+          ; ensure stack is 16-byte aligned
+          sub esp, 4
+
           call TerminalInit_32
+;       call serial_init_32
+
 
           trace_32 MESSAGE_INIT_ALKOS
+;          trace_32 XD
+       call os_hang_32
 
           ; reset Multiboot info to eax
-;          pop eax
+          pop eax
+          sub esp, 4
+
           call check_multiboot
           call handle_return_code
 
@@ -112,3 +126,8 @@ boot32:
           ; Jump to long mode
           lgdt [GDT64.Pointer]
           jmp GDT64.Code:boot64
+
+os_hang_32:
+    cli
+    hlt
+    jmp os_hang_32

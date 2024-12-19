@@ -33,14 +33,24 @@ file(GLOB_RECURSE ARCH_SOURCES_32
 )
 
 if(ARCH_SOURCES_32)
+    set(UNIFIED_32BIT_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/unified_32bit.cpp")
+
+    file(WRITE ${UNIFIED_32BIT_SOURCE} "// Auto-generated unified compilation file\n")
+    file(APPEND ${UNIFIED_32BIT_SOURCE} "#define UNIFIED_COMPILATION\n")
+
+    # Include all source files
+    foreach(SOURCE_FILE ${ARCH_SOURCES_32})
+        file(APPEND ${UNIFIED_32BIT_SOURCE} "#include \"${SOURCE_FILE}\"\n")
+    endforeach()
+
     add_library(alkos.kernel32 OBJECT
-            ${ARCH_SOURCES_32}
+            ${UNIFIED_32BIT_SOURCE}
     )
     target_include_directories(alkos.kernel32 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
     target_include_directories(alkos.kernel32 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/drivers)
 
     set_target_properties(alkos.kernel32 PROPERTIES
-            COMPILE_FLAGS "-m32"
+            COMPILE_FLAGS "-mx32"
     )
 
     target_compile_definitions(alkos.kernel32 PRIVATE
@@ -48,7 +58,6 @@ if(ARCH_SOURCES_32)
     )
 
     add_dependencies(alkos.kernel alkos.kernel32)
-
 
     set(ELF64_CONVERTER "${CMAKE_CURRENT_SOURCE_DIR}/convert_to_elf64.bash")
     set(POST_ARCH_ACTION ${ELF64_CONVERTER} ${CMAKE_OBJCOPY} \"$<TARGET_OBJECTS:alkos.kernel32>\" PARENT_SCOPE)

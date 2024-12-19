@@ -70,7 +70,7 @@ serial_init_32:
           ; Clear DLAB and set data bits (8 bits, no parity, one stop bit)
           ; LCR (COM1+3 = 0x3FB)
           mov     dx, COM1 + 3
-          mov     al, 0x03
+          mov     al, 0x3
           out     dx, al
 
           ; Enable FIFO, clear them, 14-byte threshold: FCR (COM1+2 = 0x3FA)
@@ -80,7 +80,7 @@ serial_init_32:
 
           ; Enable IRQs, RTS/DSR: MCR (COM1+4 = 0x3FC)
           mov     dx, COM1 + 4
-          mov     al, 0x0B
+          mov     al, 0xB
           out     dx, al
 
           pop     edx            ; Restore EDX
@@ -101,9 +101,6 @@ serial_putchar_32:
           mov     ebp, esp       ; Set up stack frame
           push    eax            ; Preserve EAX
           push    edx            ; Preserve EDX
-
-          ; Retrieve the character 'c' from [ebp+8]
-          mov     al, [ebp+8]
 
           ; Wait until the transmit buffer is empty
 .wait_ready:

@@ -1,6 +1,4 @@
-/* external includes */
-#include <stdint.h>
-#include <stddef.h>
+#include <vga/vga.hpp>
 
 /* internal includes */
 #include <comp.h>
