@@ -17,6 +17,9 @@ include_directories(test)
 # Additional test definitions - refer to test/tester.hpp file for value specifics
 # add_compile_definitions(ALKOS_TEST=1)
 
+add_compile_definitions(__ALKOS_KERNEL__=1)
+add_compile_definitions(__SERIAL_PORT_TEST__=1)
+
 # Add kernel sources
 # NOTE: kernel should not include any architecture specific code including assembly
 file(GLOB KERNEL_SOURCES
