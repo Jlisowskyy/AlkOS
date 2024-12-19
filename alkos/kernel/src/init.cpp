@@ -3,6 +3,7 @@
 /* internal includes */
 #include <libssp.hpp>
 #include <terminal.hpp>
+#include <debug.hpp>
 
 /* external init procedures */
 extern "C" void enable_osxsave();
@@ -19,13 +20,20 @@ extern "C" void PreKernelInit() {
      */
 
     TerminalInit();
-    TerminalWriteString("\t  In 64-bit mode\n");
+    TRACE_INFO("Starting pre-kernel initialization...");
     __stack_chk_init();
 
     /* NOTE: sequence is important */
+    TRACE_INFO("Starting to setup CPU features...");
+    TRACE_INFO("Setting up OS XSAVE...");
     enable_osxsave();
+    TRACE_INFO("Setting up SSE...");
     enable_sse();
+    TRACE_INFO("Setting up AVX...");
     enable_avx();
+    TRACE_INFO("Finished cpu features setup.");
+
+    TRACE_INFO("Pre-kernel initialization finished.");
 }
 
 void KernelInit() {
