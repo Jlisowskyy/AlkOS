@@ -2,8 +2,14 @@
           extern stack_bottom
           extern stack_top
 
+          ; Includes
+          %include "puts.nasm"
+
           ; GDT64
           extern GDT64.Data
+
+          ; Message
+          extern MESSAGE_INFO_IN_64
 
           ; Totally basic initialization that must be done before calling _init
           extern PreKernelInit
@@ -16,7 +22,6 @@
           extern KernelMain
 
           global boot64
-          global os_hang
           section .text
           bits 64
 boot64:
@@ -26,6 +31,8 @@ boot64:
           mov fs, ax
           mov gs, ax
           mov ss, ax
+
+          puts MESSAGE_INFO_IN_64
 
           sub rsp, 32 ; shadow space
 
@@ -45,4 +52,3 @@ boot64:
 os_hang:
           hlt
           jmp os_hang
-

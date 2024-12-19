@@ -8,15 +8,16 @@ source "${RUN_ALKOS_SCRIPT_SOURCE_DIR}/scripts/utils/helpers.bash"
 source "${RUN_ALKOS_SCRIPT_SOURCE_DIR}/scripts/utils/pretty_print.bash"
 
 RUN_ALKOS_SCRIPT_QEMU_COMMAND="qemu-system-x86_64"
+RUN_ALKOS_SCRIPT_QEMU_ARGS="-serial stdio"
 RUN_ALKOS_SCRIPT_GDB_ARGS="-s -S"
-RUN_ALKOS_SCRIPT_QEMU_ARGS="-enable-kvm -cpu host"
+RUN_ALKOS_SCRIPT_QEMU_ARGS="-serial stdio -enable-kvm -cpu host"
 help() {
-  echo "${RUN_ALKOS_SCRIPT_PATH} [alkos_iso_path] [--run | -r] [--install | -i] [--verbose | -v]"
+  echo "${RUN_ALKOS_SCRIPT_PATH} [alkos_iso_path] [--run | -r] [--verbose | -v]"
   echo "Where:"
   echo "alkos_iso_path - path to the .iso file"
   echo "--run     | -r - flag to run AlkOS in QEMU"
   echo "--verbose | -v - flag to enable verbose output"
-  echo "--"
+  echo "--gdb     | -g - flag to run AlkOS in QEMU with GDB"
 }
 
 parse_args() {

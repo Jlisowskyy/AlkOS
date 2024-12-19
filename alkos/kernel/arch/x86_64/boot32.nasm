@@ -1,17 +1,20 @@
           bits 32
 
-          ; Helper functions
-          extern vga_print
+          MULTI_BOOT_INFO_T_LOCATION equ stack_top - 4
+          FRAMEBUFFER_INFO_T_LOCATION equ stack_top - 8
+
+          ; Includes
+          %include "puts.nasm"
+          extern TerminalInit_32
 
           ; Error checking and handling
           extern check_multiboot
           extern check_cpuid
           extern check_long_mode
-          extern check_and_handle_errors
+          extern handle_return_code
 
-          extern MESSAGE_ERROR_NO_LONG_MODE
-          extern MESSAGE_ERROR_NO_CPUID
-          extern MESSAGE_ERROR_UNKNOWN
+          extern MESSAGE_INIT_ALKOS
+          extern MESSAGE_INFO_JUMPING_TO_64
 
           ; GDT64
           extern GDT64.Pointer
@@ -44,9 +47,10 @@
 ; The linker script specifies _start as the entry point to the kernel and the
 ; bootloader will jump to this position once the kernel has been loaded. It
 ; doesn't make sense to return from this function as the bootloader is gone.
-section   .text32
-global    _start
+          section   .text32
+          global    _start
 _start:
+boot32:
           ; The bootloader has loaded us into 32-bit protected mode on a x86
           ; machine. Interrupts are disabled. Paging is disabled. The processor
           ; state is as defined in the multiboot standard. The kernel has full
@@ -62,19 +66,40 @@ _start:
           ; stack (as it grows downwards on x86 systems). This is necessarily done
           ; in assembly as languages such as C cannot function without a stack.
           mov esp, stack_top
+          sub esp, 8; Reserve space for multiboot_info_t* and framebuffer_info_t*
+          mov [MULTI_BOOT_INFO_T_LOCATION], ebx ; Save multiboot_info_t*
 
-;          call check_multiboot
-;          call check_and_handle_errors
+          ; save multi boot info
+          push eax
+
+          call TerminalInit_32
+          puts_32 MESSAGE_INIT_ALKOS
+
+          ; restore multi boot info
+          pop eax
+          call check_multiboot
+          call handle_return_code
+
+          ; TODO: Implement framebuffer support
+          ; Use the multiboot information to locate the framebuffer
+;          push dword [MULTI_BOOT_INFO_T_LOCATION]
+;          call locate_framebuffer_tag
+;          add esp, 4
+;          mov [FRAMEBUFFER_INFO_T_LOCATION], eax ; Save multiboot_tag_framebuffer_t*
+
           call check_cpuid
-          call check_and_handle_errors
+          call handle_return_code
           call check_long_mode
-          call check_and_handle_errors
+          call handle_return_code
+
           call setup_page_tables
-          call check_and_handle_errors
+          call handle_return_code
           call enable_long_mode
-          call check_and_handle_errors
+          call handle_return_code
           call enable_paging
-          call check_and_handle_errors
+          call handle_return_code
+
+          puts_32 MESSAGE_INFO_JUMPING_TO_64
 
           ; Jump to long mode
           lgdt [GDT64.Pointer]

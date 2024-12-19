@@ -1,5 +1,5 @@
 #!/bin/bash
-BUILD_SCRIPT_CMAKE_TOOLCHAIN_FILE_NAME="x86_64-elf-toolchain.cmake"
+BUILD_SCRIPT_CMAKE_TOOLCHAIN_FILE_NAME="x86_64-toolchain.cmake"
 
 BUILD_SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 BUILD_SCRIPT_PATH="${BUILD_SCRIPT_DIR}/$(basename "$0")"

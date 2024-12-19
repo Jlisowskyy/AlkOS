@@ -1,5 +1,6 @@
           bits 32
-          %include "error_codes.nasm"
+
+          %include "return_codes.nasm"
 
           section .text32
           global check_cpuid
@@ -31,8 +32,8 @@ check_cpuid:
           ; If the bit was flipped, CPUID is supported
           xor eax, ecx
           jz .no_cpuid
-          mov al, NO_ERROR
+          mov eax, SUCCESS_CHECK_CPUID
           ret
 .no_cpuid:
-          mov al, ERROR_NO_CPUID
+          mov eax, ERROR_NO_CPUID
           ret
