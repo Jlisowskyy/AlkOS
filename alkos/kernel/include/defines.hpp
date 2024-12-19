@@ -5,6 +5,9 @@
 
 #define WRAP_CALL FORCE_INLINE
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
 #ifdef __SERIAL_PORT_TEST__
 static constexpr bool kSerialPortTest = true;
 #else
