@@ -1,14 +1,14 @@
 #ifndef KERNEL_INCLUDE_TEMP_HPP_
 #define KERNEL_INCLUDE_TEMP_HPP_
 
-/**
- * @brief collection of implementation details that must be removed in close future by replacing with real
- * implementation
- */
-
 #include <terminal.hpp>
 #include <types.hpp>
 #include <todo.hpp>
+
+/**
+ * @todo collection of implementation details that must be removed in close future by replacing with real
+ * implementation
+ */
 
 TODO_BY_THE_END_OF_MILESTONE0
 

@@ -115,4 +115,7 @@ static void IdtInit()
     __asm__ volatile("sti");                     // set the interrupt flag
 }
 
+/**
+ * @brief implementation of Hardware Abstraction Layer function
+ */
 void InitInterrupts() { IdtInit(); }
