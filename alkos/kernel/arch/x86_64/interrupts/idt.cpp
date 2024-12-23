@@ -1,8 +1,10 @@
 
 /* internal includes */
 #include <bit.hpp>
+#include <debug.hpp>
 #include <defines.hpp>
 #include <init.hpp>
+#include <kernel_assert.hpp>
 #include <panic.hpp>
 
 /* crucial defines */
@@ -10,9 +12,9 @@ static constexpr u32 kIdtEntries  = 256;
 static constexpr u8 kDefaultFlags = 0x8E;
 
 /* gdt kernel code offset */
-extern "C" u32 kKernelCodeOffset;
+extern "C" u64 kKernelCodeOffset;
 
-/* isr strub table initialized in nasm */
+/* isr stub table initialized in nasm */
 extern "C" u64 *IsrStubTable;
 
 // ------------------------------
@@ -40,9 +42,9 @@ struct PACK Idtr
 // Global data
 // ------------------------------
 
-alignas(32) static bool g_idtGuards[kIdtEntries];
-alignas(32) static IdtEntry g_idt[kIdtEntries];
-alignas(32) static Idtr g_idtr;
+alignas(16) static bool g_idtGuards[kIdtEntries];
+alignas(16) static IdtEntry g_idt[kIdtEntries];
+static Idtr g_idtr;
 
 // ------------------------------
 // Isrs
@@ -50,6 +52,7 @@ alignas(32) static Idtr g_idtr;
 
 extern "C" NO_RET void DefaultExceptionHandler()
 {
+    TRACE_INFO("Exception caught...");
     KernelPanic("Unknown Exception caught -> default handler invoked.");
 }
 
@@ -59,14 +62,17 @@ extern "C" NO_RET void DefaultExceptionHandler()
 
 static void IdtSetDescriptor(const u8 idx, const u64 isr, const u8 flags)
 {
+    ASSERT(kKernelCodeOffset < UINT16_MAX && "Kernel code offset out of range");
+    ASSERT_EQ(false, g_idtGuards[idx]);
+
     IdtEntry &entry = g_idt[idx];
 
-    entry.isr_low    = reinterpret_cast<uint64_t>(isr) & kBitMask16;
+    entry.isr_low    = reinterpret_cast<u64>(isr) & kBitMask16;
     entry.kernel_cs  = kKernelCodeOffset;
     entry.ist        = 0;
     entry.attributes = flags;
-    entry.isr_mid    = (reinterpret_cast<uint64_t>(isr) >> 16) & kBitMask16;
-    entry.isr_high   = (reinterpret_cast<uint64_t>(isr) >> 32) & kBitMask32;
+    entry.isr_mid    = (reinterpret_cast<u64>(isr) >> 16) & kBitMask16;
+    entry.isr_high   = (reinterpret_cast<u64>(isr) >> 32) & kBitMask32;
     entry.reserved   = 0;
 
     g_idtGuards[idx] = true;

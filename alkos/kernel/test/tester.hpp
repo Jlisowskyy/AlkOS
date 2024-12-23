@@ -2,11 +2,13 @@
 #define ALKOS_TEST_TESTER_HPP_
 
 #include <stdint.h>
+#include <defines.hpp>
 
 enum TestType: uint64_t {
     kStackSmashTest,
     kCppTest,
     kFloatExtensionTest,
+    kExceptionTest,
     kLastTest,
 };
 
@@ -17,9 +19,6 @@ enum TestType: uint64_t {
 #endif
 
 #endif
-
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
 
 #define VERIFY_TEST_TYPE(type)                                                \
 static_assert(type < TestType::kLastTest,                                     \

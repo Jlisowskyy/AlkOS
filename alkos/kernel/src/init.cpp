@@ -13,12 +13,6 @@ extern "C" void enable_sse();
 extern "C" void enable_avx();
 
 extern "C" void PreKernelInit() {
-    /**
-     * TODO:
-     * 1. Enable interrupts
-     * 2. GDT, IDT, TSS, etc.
-     */
-
     TerminalInit();
     TRACE_INFO("Starting pre-kernel initialization...");
 
