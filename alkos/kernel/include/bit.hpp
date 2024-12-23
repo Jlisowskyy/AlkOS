@@ -1,0 +1,6 @@
+#ifndef KERNEL_INCLUDE_BIT_HPP_
+#define KERNEL_INCLUDE_BIT_HPP_
+
+
+
+#endif // KERNEL_INCLUDE_BIT_HPP_

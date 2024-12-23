@@ -65,7 +65,8 @@ endif()
 ################################################################################
 
 set(SRTI_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cxx/crti.nasm")
-set(SRTN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cxx/crtn.nasm")
+set(SRTN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cxx/crtn.nasm"
+        interrupts/idt.cpp)
 
 add_library(alkos.kernel.crts OBJECT ${SRTI_FILE} ${SRTN_FILE})
 

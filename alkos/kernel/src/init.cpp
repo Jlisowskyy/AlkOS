@@ -21,7 +21,6 @@ extern "C" void PreKernelInit() {
 
     TerminalInit();
     TRACE_INFO("Starting pre-kernel initialization...");
-    __stack_chk_init();
 
     /* NOTE: sequence is important */
     TRACE_INFO("Starting to setup CPU features...");
@@ -33,8 +32,13 @@ extern "C" void PreKernelInit() {
     enable_avx();
     TRACE_INFO("Finished cpu features setup.");
 
+    TRACE_INFO("Setting up IDT...");
+    InitInterrupts();
+    TRACE_INFO("IDT setup done.");
+
     TRACE_INFO("Pre-kernel initialization finished.");
 }
 
 void KernelInit() {
+    __stack_chk_init();
 }
