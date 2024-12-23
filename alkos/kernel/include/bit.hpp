@@ -3,6 +3,7 @@
 
 #include <types.hpp>
 
+static constexpr u64 kBitMask4 = 0xF;
 static constexpr u64 kBitMask8 = 0xFF;
 static constexpr u64 kBitMask16 = kBitMask8 | (kBitMask8 << 8);
 static constexpr u64 kBitMask32 = kBitMask16 | (kBitMask16 << 16);

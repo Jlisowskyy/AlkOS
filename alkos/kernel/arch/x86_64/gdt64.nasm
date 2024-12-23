@@ -43,5 +43,5 @@ GDT64:
           global kKernelCodeOffset
           global kKernelDataOffset
 
-          kKernelCodeOffset dq GDT64.Code
-          kKernelDataOffset dq GDT64.Data
+          kKernelCodeOffset dd GDT64.Code
+          kKernelDataOffset dd GDT64.Data
