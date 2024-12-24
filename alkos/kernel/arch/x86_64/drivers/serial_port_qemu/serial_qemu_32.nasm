@@ -124,7 +124,7 @@ serial_putchar32:
           ret
 
 ; -----------------------------------------------------------------------------
-; Function: serial_puts
+; Function: serial_puts32
 ; Description:
 ;     Sends a null-terminated string to the serial port (COM1).
 ; Parameters:
