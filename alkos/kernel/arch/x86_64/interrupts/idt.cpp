@@ -2,11 +2,12 @@
 #include <bit.hpp>
 #include <debug.hpp>
 #include <defines.hpp>
-#include <init.hpp>
 #include <kernel_assert.hpp>
 #include <panic.hpp>
+#include <temp.hpp>
 
 TODO_BY_THE_END_OF_MILESTONE0
+TODO_WHEN_SNPRINTF_EXISTS
 /**
  * @todo Add various debug traces when snprintf available
  */
@@ -65,9 +66,11 @@ static Idtr g_idtr;
 // Isrs
 // ------------------------------
 
-extern "C" NO_RET void DefaultExceptionHandler()
+extern "C" NO_RET void DefaultExceptionHandler(const u8 exception_code)
 {
     TRACE_INFO("Exception caught...");
+
+    temp_DisplayNum(exception_code, "Received exception code");
     KernelPanic("Unknown Exception caught -> default handler invoked.");
 }
 
