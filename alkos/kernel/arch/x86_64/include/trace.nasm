@@ -1,5 +1,5 @@
 extern serial_puts32
-extern serial_puts
+extern QemuTerminalWriteString
 
 %ifdef __DEBUG_TERMINAL_TEST__
 
@@ -12,7 +12,7 @@ extern serial_puts
 %macro trace 1
     push rdi
     mov rdi, %1
-    call serial_puts
+    call QemuTerminalWriteString
     pop rdi
 %endmacro
 
