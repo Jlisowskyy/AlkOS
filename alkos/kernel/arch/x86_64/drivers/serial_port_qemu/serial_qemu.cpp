@@ -3,6 +3,7 @@
  */
 
 /* internal includes */
+#include <debug.hpp>
 #include <io.hpp>
 #include <kernel_assert.hpp>
 #include <serial_port_qemu/serial_qemu.hpp>
@@ -29,7 +30,7 @@ static constexpr byte kLineEmpty   = 0x20;
 // Local functions
 // ------------------------------
 
-WRAP_CALL bool SerialReceived() { return inb(kCom1Port + 5) & kReceivedBit; }
+WRAP_CALL bool SerialReceived() { return (inb(kReadLineStatusReg) & kReceivedBit) != 0; }
 
 WRAP_CALL bool IsLineEmpty() { return (inb(kReadLineStatusReg) & kLineEmpty) != 0; }
 
@@ -123,6 +124,8 @@ void QemuTerminalInit()
 
     /* finally load modem configuration */
     outb(kModemControlReg, kModemConfFlags);
+
+    TRACE_SUCCESS("QemuTerminalInit() returned with success");
 }
 
 void QemuTerminalPutChar(const char c)
