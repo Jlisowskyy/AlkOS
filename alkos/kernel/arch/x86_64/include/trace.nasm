@@ -1,7 +1,7 @@
 extern serial_puts32
 extern serial_puts
 
-%ifdef __SERIAL_PORT_TEST__
+%ifdef __DEBUG_TERMINAL_TEST__
 
 %macro trace_32 1
     push %1

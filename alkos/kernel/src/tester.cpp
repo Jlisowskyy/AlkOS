@@ -92,15 +92,18 @@ static void ExceptionTest()
 }
 
 // ------------------------------
+// SerialInTest
+// ------------------------------
+
+static void SerialInTest() {}
+
+// ------------------------------
 // Test table
 // ------------------------------
 
 using TestFuncType = void (*)();
 static TestFuncType TestTable[]{
-    StackSmashTest,
-    CppTest,
-    FloatExtensionTest,
-    ExceptionTest,
+    StackSmashTest, CppTest, FloatExtensionTest, ExceptionTest, SerialInTest,
 };
 
 static constexpr uint64_t kTestTableSize = sizeof(TestTable) == 0 ? 0 : sizeof(TestTable) / sizeof(TestTable[0]);
