@@ -4,9 +4,9 @@
 #include <defines.hpp>
 #include <types.hpp>
 
-WRAP_CALL u8 inb(const u16 port)
+WRAP_CALL byte inb(const u16 port)
 {
-    u8 v;
+    byte v;
     __asm__ volatile("inb %w1, %0" : "=a"(v) : "Nd"(port));
     return v;
 }
