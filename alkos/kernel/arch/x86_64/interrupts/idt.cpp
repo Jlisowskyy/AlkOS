@@ -92,7 +92,7 @@ static void IdtSetDescriptor(const u8 idx, const u64 isr, const u8 flags)
     g_idtGuards[idx] = true;
 }
 
-static void IdtInit()
+extern "C" void IdtInit()
 {
     ASSERT(kKernelCodeOffset < UINT16_MAX && "Kernel code offset out of range");
     ASSERT_NEQ(0, kKernelCodeOffset);
@@ -114,8 +114,3 @@ static void IdtInit()
     __asm__ volatile("lidt %0" : : "m"(g_idtr)); // load the new IDT
     __asm__ volatile("sti");                     // set the interrupt flag
 }
-
-/**
- * @brief implementation of Hardware Abstraction Layer function
- */
-void InitInterrupts() { IdtInit(); }
