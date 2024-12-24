@@ -3,12 +3,14 @@
 
 %macro isr_err_stub 1
 isr_stub_%+%1:
+    mov edi, %1
     call DefaultExceptionHandler
     iretq
 %endmacro
 
 %macro isr_no_err_stub 1
 isr_stub_%+%1:
+    mov edi, %1
     call DefaultExceptionHandler
     iretq
 %endmacro
