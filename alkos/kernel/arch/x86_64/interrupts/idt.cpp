@@ -50,6 +50,23 @@ struct PACK Idtr {
     u64 base;
 };
 
+enum IsrStackFrameDescriptors { kOldRsp, kRFlags, kOldCs, kOldRip, kIsrDescLast };
+
+enum IsrErrorStackFrameDescriptors {
+    kExceptionError = kIsrDescLast,
+    kIsrErrorDescLast,
+};
+
+enum RegStateDescriptors {
+    kRegStateSize,
+};
+
+template <u32 IsrCompSize, u32 RegStateSize>
+struct PACK IsrStackFrame {
+    u64 IsrComponents[IsrCompSize];
+    u64 GlobalRegState[RegStateSize];
+};
+
 // ------------------------------
 // Global data
 // ------------------------------

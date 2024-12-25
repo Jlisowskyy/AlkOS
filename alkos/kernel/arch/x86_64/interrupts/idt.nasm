@@ -8,27 +8,96 @@ isr_wrapper_%+%1:
     iretq
 %endmacro
 
+; register offsets on stack when saving the state
+_rax equ 0
+_rcx equ 8
+_rdx equ 16
+_rsi equ 24
+_rdi equ 32
+_r8  equ 40
+_r9  equ 48
+_r10 equ 56
+_r11 equ 64
+_rbp equ 72
+
+; size needed to save the registers on stack
+_reg_size equ 8*10
+
+; shadow space needed for C++ functions
+_shadow_space equ 8*4
+
+; full isr stack size needed
+_isr_stack_size equ _shadow_space + _reg_size
+
+; isr stack frame full regs offset without error
+_isr_stack_frame_full_regs_no_err equ 14 + 4
+
+; isr stack frame full regs offset with error
+_isr_stack_frame_full_regs_err equ _isr_stack_frame_full_regs_no_err + 1
+
+; We save only the registers which state is volatile in sysV ABI
+%macro push_regs 0
+    mov qword ptr [rsp + _rax], rax
+    mov qword ptr [rsp + _rcx], rcx
+    mov qword ptr [rsp + _rdx], rdx
+    mov qword ptr [rsp + _rsi], rsi
+    mov qword ptr [rsp + _rdi], rdi
+    mov qword ptr [rsp + _r8], r8
+    mov qword ptr [rsp + _r9], r9
+    mov qword ptr [rsp + _r10], r10
+    mov qword ptr [rsp + _r11], r11
+    mov qword ptr [rsp + _rbp], rbp
+%endmacro
+
+%macro pop_regs 0
+    mov rax, qword ptr [rsp + _rax]
+    mov rcx, qword ptr [rsp + _rcx]
+    mov rdx, qword ptr [rsp + _rdx]
+    mov rsi, qword ptr [rsp + _rsi]
+    mov rdi, qword ptr [rsp + _rdi]
+    mov r8, qword ptr [rsp + _r8]
+    mov r9, qword ptr [rsp + _r9]
+    mov r10, qword ptr [rsp + _r10]
+    mov r11, qword ptr [rsp + _r11]
+    mov rbp, qword ptr [rsp + _rbp]
+%endmacro
+
 ; Usual ISR wrappers used to save state and invoke relevant handlers
-%macro isr_wrapper_save_general_regs 1
+%macro isr_wrapper_save_general_regs 2
 isr_wrapper_%+%1:
-    ; TODO
-    mov edi, %1
+    sub rsp, _reg_size ; create space for the registers
+    push_regs
+
+    sub rsp, _shadow_space ; create space for shadow space
+    cld
+
+    lea edi, [rsp + 8*%2]
     call isr_%+%1
+
+    add rsp, _shadow_space ; free the shadow space
+
+    pop_regs
+    add rsp, _reg_size ; free registers space
+
     iretq
+%endmacro
+
+%macro isr_wrapper_save_general_regs_no_err 1
+    isr_wrapper_save_general_regs %1 _isr_stack_frame_full_regs_no_err
+%endmacro
+
+%macro isr_wrapper_save_general_regs_err 1
+    isr_wrapper_save_general_regs %1 _isr_stack_frame_full_regs_err
 %endmacro
 
 %macro isr_wrapper_save_all_regs 1
     ; TODO
-    mov edi, %1
-    call isr_%+%1
-    iretq
+    unsupported_isr %1
 %endmacro
 
 %macro isr_wrapper_no_save 1
     ; TODO
-    mov edi, %1
-    call isr_%+%1
-    iretq
+    unsupported_isr %1
 %endmacro
 
 bits 64
