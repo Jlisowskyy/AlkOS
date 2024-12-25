@@ -1,4 +1,5 @@
 /* internal includes */
+#include <memory.h>
 #include <bit.hpp>
 #include <debug.hpp>
 #include <defines.hpp>
@@ -13,8 +14,9 @@ TODO_WHEN_SNPRINTF_EXISTS
  */
 
 /* crucial defines */
-static constexpr u32 kIdtEntries  = 256;
-static constexpr u8 kDefaultFlags = 0x8E;
+static constexpr u32 kStubTableSize = 64;
+static constexpr u32 kIdtEntries    = 256;
+static constexpr u8 kDefaultFlags   = 0x8E;
 
 /* gdt kernel code offset */
 extern "C" u32 kKernelCodeOffset;
@@ -103,11 +105,12 @@ void IdtInit()
     g_idtr.limit = static_cast<u16>(sizeof(IdtEntry)) * kIdtEntries - 1;
 
     /* cleanup flag vector */
-    for (bool &g_idtGuard : g_idtGuards) {
-        g_idtGuard = false;
-    }
+    memset(g_idtGuards, 0, sizeof(g_idtGuards));
 
-    for (u8 idx = 0; idx < 32; ++idx) {
+    /* zero IDT */
+    memset(g_idt, 0, sizeof(g_idt));
+
+    for (u8 idx = 0; idx < kStubTableSize; ++idx) {
         IdtSetDescriptor(idx, reinterpret_cast<u64>(IsrStubTable[idx]), kDefaultFlags);
     }
 
