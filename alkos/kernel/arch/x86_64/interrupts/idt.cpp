@@ -50,23 +50,6 @@ struct PACK Idtr {
     u64 base;
 };
 
-enum IsrStackFrameDescriptors { kOldRsp, kRFlags, kOldCs, kOldRip, kIsrDescLast };
-
-enum IsrErrorStackFrameDescriptors {
-    kExceptionError = kIsrDescLast,
-    kIsrErrorDescLast,
-};
-
-enum RegStateDescriptors {
-    kRegStateSize,
-};
-
-template <u32 IsrCompSize, u32 RegStateSize>
-struct PACK IsrStackFrame {
-    u64 IsrComponents[IsrCompSize];
-    u64 GlobalRegState[RegStateSize];
-};
-
 // ------------------------------
 // Global data
 // ------------------------------
@@ -74,7 +57,7 @@ struct PACK IsrStackFrame {
 /* vector holding bool to detect double assignment */
 alignas(32) static bool g_idtGuards[kIdtEntries];
 
-/* global strcture defining isr specifics for each interrupt signal */
+/* global structure defining isr specifics for each interrupt signal */
 alignas(32) static IdtEntry g_idt[kIdtEntries];
 
 /* holds information about the idt position in memory */
@@ -90,7 +73,7 @@ extern "C" NO_RET void DefaultExceptionHandler(const u8 exception_code)
     KernelPanic("Unknown Exception caught -> default handler invoked.");
 }
 
-extern "C" void LogExceptionReceived(const u8 exception_code)
+extern "C" void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 exception_code)
 {
     temp_DisplayNum(exception_code, "Received exception code");
 }

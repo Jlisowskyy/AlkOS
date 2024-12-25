@@ -32,13 +32,7 @@ _reg_size equ 8*10
 _shadow_space equ 8*4
 
 ; full isr stack size needed
-_isr_stack_size equ _shadow_space + _reg_size
-
-; isr stack frame full regs offset without error
-_isr_stack_frame_full_regs_no_err equ 14 + 4
-
-; isr stack frame full regs offset with error
-_isr_stack_frame_full_regs_err equ _isr_stack_frame_full_regs_no_err + 1
+_isr_stack_frame_offset equ 14
 
 ; We save only the registers which state is volatile in sysV ABI
 %macro push_regs 0
@@ -68,7 +62,7 @@ _isr_stack_frame_full_regs_err equ _isr_stack_frame_full_regs_no_err + 1
 %endmacro
 
 ; Usual ISR wrappers used to save state and invoke relevant handlers
-%macro isr_wrapper_save_general_regs 2
+%macro isr_wrapper_save_general_regs 1
 extern isr_%+%1
 
 isr_wrapper_%+%1:
@@ -78,7 +72,8 @@ isr_wrapper_%+%1:
     sub rsp, _shadow_space ; create space for shadow space
     cld
 
-    lea edi, [rsp + 8*%2]
+    lea edi, [rsp + 8*_isr_stack_frame_offset]
+    mov rsi, %1
     call isr_%+%1
 
     add rsp, _shadow_space ; free the shadow space
@@ -87,14 +82,6 @@ isr_wrapper_%+%1:
     add rsp, _reg_size ; free registers space
 
     iretq
-%endmacro
-
-%macro isr_wrapper_save_general_regs_no_err 1
-    isr_wrapper_save_general_regs %1 _isr_stack_frame_full_regs_no_err
-%endmacro
-
-%macro isr_wrapper_save_general_regs_err 1
-    isr_wrapper_save_general_regs %1 _isr_stack_frame_full_regs_err
 %endmacro
 
 ; --------------------------------------
