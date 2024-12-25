@@ -31,7 +31,7 @@ double modf(double num, double *integralPart)
         return 0.0;
     }
 
-    uint64_t tmp   = *intdbl & ~mask;
+    uint64_t tmp  = *intdbl & ~mask;
     *integralPart = *reinterpret_cast<double *>(&tmp);
 
     return num - *integralPart;

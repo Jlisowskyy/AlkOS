@@ -6,4 +6,4 @@ bool isnan(double num);
 bool isinf(double num);
 double abs(double num);
 
-#endif //MATH_H_
+#endif // MATH_H_

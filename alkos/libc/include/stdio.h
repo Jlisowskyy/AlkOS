@@ -7,4 +7,4 @@
 int snprintf(char *str, size_t size, const char *format, ...);
 int vsnprintf(char *str, size_t size, const char *format, va_list va);
 
-#endif //STDIO_H_
+#endif // STDIO_H_
