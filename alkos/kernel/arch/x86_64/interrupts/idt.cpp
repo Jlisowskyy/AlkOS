@@ -69,10 +69,13 @@ static Idtr g_idtr;
 
 extern "C" NO_RET void DefaultExceptionHandler(const u8 exception_code)
 {
-    TRACE_INFO("Exception caught...");
-
     temp_DisplayNum(exception_code, "Received exception code");
     KernelPanic("Unknown Exception caught -> default handler invoked.");
+}
+
+extern "C" void LogExceptionReceived(const u8 exception_code)
+{
+    temp_DisplayNum(exception_code, "Received exception code");
 }
 
 // ------------------------------
