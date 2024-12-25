@@ -2,6 +2,7 @@
 /* internal includes */
 #include <pic8259/pic8259.hpp>
 #include <types.hpp>
+#include <debug.hpp>
 
 // ------------------------------
 // Crucial defines
@@ -71,4 +72,6 @@ void InitPic8259(const byte pic1_offset, const byte pic2_offset)
     /* restore saved masks */
     outb(kPic1Data, pic1Mask);
     outb(kPic2Data, pic2Mask);
+
+    TRACE_SUCCESS("PIC units correctly initialized...");
 }

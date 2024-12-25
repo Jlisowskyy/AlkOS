@@ -29,22 +29,21 @@ extern "C" void *IsrStubTable[];
 /**
  * @brief Data layout of x86_64 interrupt service routines, refer to intel manual for details
  */
-struct PACK IdtEntry
-{
-    u16 isr_low;   // The lower 16 bits of the ISR's address
-    u16 kernel_cs; // The GDT segment selector that the CPU will load into CS before calling the ISR
-    u8 ist;        // The IST in the TSS that the CPU will load into RSP; set to zero for now
-    u8 attributes; // Type and attributes; see the IDT page
-    u16 isr_mid;   // The higher 16 bits of the lower 32 bits of the ISR's address
-    u32 isr_high;  // The higher 32 bits of the ISR's address
-    u32 reserved;  // Set to zero
+struct PACK IdtEntry {
+    u16 isr_low;    // The lower 16 bits of the ISR's address
+    u16 kernel_cs;  // The GDT segment selector that the CPU will load into CS before calling the
+                    // ISR
+    u8 ist;         // The IST in the TSS that the CPU will load into RSP; set to zero for now
+    u8 attributes;  // Type and attributes; see the IDT page
+    u16 isr_mid;    // The higher 16 bits of the lower 32 bits of the ISR's address
+    u32 isr_high;   // The higher 32 bits of the ISR's address
+    u32 reserved;   // Set to zero
 };
 
 /**
  * @brief Structure describing Idt position in memory
  */
-struct PACK Idtr
-{
+struct PACK Idtr {
     u16 limit;
     u64 base;
 };
@@ -95,7 +94,7 @@ static void IdtSetDescriptor(const u8 idx, const u64 isr, const u8 flags)
     g_idtGuards[idx] = true;
 }
 
-extern "C" void IdtInit()
+void IdtInit()
 {
     ASSERT(kKernelCodeOffset < UINT16_MAX && "Kernel code offset out of range");
     ASSERT_NEQ(0, kKernelCodeOffset);
@@ -104,16 +103,16 @@ extern "C" void IdtInit()
     g_idtr.limit = static_cast<u16>(sizeof(IdtEntry)) * kIdtEntries - 1;
 
     /* cleanup flag vector */
-    for (bool &g_idtGuard : g_idtGuards)
-    {
+    for (bool &g_idtGuard : g_idtGuards) {
         g_idtGuard = false;
     }
 
-    for (u8 idx = 0; idx < 32; ++idx)
-    {
+    for (u8 idx = 0; idx < 32; ++idx) {
         IdtSetDescriptor(idx, reinterpret_cast<u64>(IsrStubTable[idx]), kDefaultFlags);
     }
 
-    __asm__ volatile("lidt %0" : : "m"(g_idtr)); // load the new IDT
-    __asm__ volatile("sti");                     // set the interrupt flag
+    __asm__ volatile("lidt %0" : : "m"(g_idtr));  // load the new IDT
+    __asm__ volatile("sti");                      // set the interrupt flag
+
+    TRACE_SUCCESS("IDT initialized");
 }

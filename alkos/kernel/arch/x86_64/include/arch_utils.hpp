@@ -1,5 +1,5 @@
-#ifndef ARCH_X86_64_ARCH_UTILS_HPP_
-#define ARCH_X86_64_ARCH_UTILS_HPP_
+#ifndef ARCH_X86_64_INCLUDE_ARCH_UTILS_HPP_
+#define ARCH_X86_64_INCLUDE_ARCH_UTILS_HPP_
 
 inline void OsHang() {
     asm volatile("cli");
@@ -8,4 +8,4 @@ inline void OsHang() {
     }
 }
 
-#endif // ARCH_X86_64_ARCH_UTILS_HPP_
+#endif // ARCH_X86_64_INCLUDE_ARCH_UTILS_HPP_
