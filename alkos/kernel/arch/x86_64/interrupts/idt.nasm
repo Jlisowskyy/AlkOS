@@ -36,29 +36,29 @@ _isr_stack_frame_offset equ 14
 
 ; We save only the registers which state is volatile in sysV ABI
 %macro push_regs 0
-    mov qword ptr [rsp + _rax], rax
-    mov qword ptr [rsp + _rcx], rcx
-    mov qword ptr [rsp + _rdx], rdx
-    mov qword ptr [rsp + _rsi], rsi
-    mov qword ptr [rsp + _rdi], rdi
-    mov qword ptr [rsp + _r8], r8
-    mov qword ptr [rsp + _r9], r9
-    mov qword ptr [rsp + _r10], r10
-    mov qword ptr [rsp + _r11], r11
-    mov qword ptr [rsp + _rbp], rbp
+    mov qword [rsp + _rax], rax
+    mov qword [rsp + _rcx], rcx
+    mov qword [rsp + _rdx], rdx
+    mov qword [rsp + _rsi], rsi
+    mov qword [rsp + _rdi], rdi
+    mov qword [rsp + _r8], r8
+    mov qword [rsp + _r9], r9
+    mov qword [rsp + _r10], r10
+    mov qword [rsp + _r11], r11
+    mov qword [rsp + _rbp], rbp
 %endmacro
 
 %macro pop_regs 0
-    mov rax, qword ptr [rsp + _rax]
-    mov rcx, qword ptr [rsp + _rcx]
-    mov rdx, qword ptr [rsp + _rdx]
-    mov rsi, qword ptr [rsp + _rsi]
-    mov rdi, qword ptr [rsp + _rdi]
-    mov r8, qword ptr [rsp + _r8]
-    mov r9, qword ptr [rsp + _r9]
-    mov r10, qword ptr [rsp + _r10]
-    mov r11, qword ptr [rsp + _r11]
-    mov rbp, qword ptr [rsp + _rbp]
+    mov rax, qword [rsp + _rax]
+    mov rcx, qword [rsp + _rcx]
+    mov rdx, qword [rsp + _rdx]
+    mov rsi, qword [rsp + _rsi]
+    mov rdi, qword [rsp + _rdi]
+    mov r8, qword [rsp + _r8]
+    mov r9, qword [rsp + _r9]
+    mov r10, qword [rsp + _r10]
+    mov r11, qword [rsp + _r11]
+    mov rbp, qword [rsp + _rbp]
 %endmacro
 
 ; Usual ISR wrappers used to save state and invoke relevant handlers
@@ -109,7 +109,6 @@ isr_wrapper_%+%1:
 bits 64
 
 extern DefaultExceptionHandler
-extern LogExceptionReceived
 
 section .text
 
@@ -148,19 +147,19 @@ unsupported_isr 30 ; Security Exception: Security-related error
 unsupported_isr 31 ; Reserved: Reserved by Intel
 
 ; IRQs for PICs
-unsupported_isr 32 ; IRQ0: System timer
-unsupported_isr 33 ; IRQ1: Keyboard
+isr_wrapper_save_general_regs 32 ; IRQ0: System timer
+isr_wrapper_save_general_regs 33 ; IRQ1: Keyboard
 unsupported_isr 34 ; IRQ2: Cascade (used by second PIC) this will (should) never come
-unsupported_isr 35 ; IRQ3: Serial port 2
-unsupported_isr 36 ; IRQ4: Serial port 1
+isr_wrapper_save_general_regs 35 ; IRQ3: Serial port 2
+isr_wrapper_save_general_regs 36 ; IRQ4: Serial port 1
 unsupported_isr 37 ; IRQ5: Parallel port 2 or sound card
 unsupported_isr 38 ; IRQ6: Floppy disk controller
 unsupported_isr 39 ; IRQ7: Parallel port 1
-unsupported_isr 40 ; IRQ8: Real-time clock
+isr_wrapper_save_general_regs 40 ; IRQ8: Real-time clock
 unsupported_isr 41 ; IRQ9: Free for peripherals / legacy SCSI / NIC
 unsupported_isr 42 ; IRQ10: Free for peripherals / SCSI / NIC
 unsupported_isr 43 ; IRQ11: Free for peripherals / SCSI / NIC
-unsupported_isr 44 ; IRQ12: Mouse
+isr_wrapper_save_general_regs 44 ; IRQ12: Mouse
 unsupported_isr 45 ; IRQ13: FPU (legacy)
 unsupported_isr 46 ; IRQ14: Primary ATA channel
 unsupported_isr 47 ; IRQ15: Secondary ATA channel

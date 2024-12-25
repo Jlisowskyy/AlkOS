@@ -73,7 +73,7 @@ extern "C" NO_RET void DefaultExceptionHandler(const u8 exception_code)
     KernelPanic("Unknown Exception caught -> default handler invoked.");
 }
 
-extern "C" void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 exception_code)
+void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 exception_code)
 {
     temp_DisplayNum(exception_code, "Received exception code");
 }

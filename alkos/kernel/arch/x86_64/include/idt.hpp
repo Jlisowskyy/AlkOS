@@ -1,6 +1,7 @@
 #ifndef ARCH_X86_64_INTERRUPTS_IDT_HPP_
 #define ARCH_X86_64_INTERRUPTS_IDT_HPP_
 
+#include <defines.hpp>
 #include <types.hpp>
 
 // ------------------------------
@@ -31,5 +32,7 @@ struct PACK IsrErrorStackFrame {
 // ------------------------------
 
 void IdtInit();
+
+void LogIrqReceived(void *stack_frame, u8 exception_code);
 
 #endif  // ARCH_X86_64_INTERRUPTS_IDT_HPP_
