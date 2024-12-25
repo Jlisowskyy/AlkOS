@@ -61,8 +61,7 @@ static void StackSmashTest()
 
     char buff[kStackSize];
 
-    for (size_t i = 0; i < kWriteSize; i++)
-    {
+    for (size_t i = 0; i < kWriteSize; i++) {
         buff[i] = 'A';
     }
 }
@@ -98,18 +97,21 @@ static void ExceptionTest()
 
 static void SerialInTest()
 {
+    static constexpr u32 retries        = 5;
     static constexpr uint64_t kBuffSize = 16;
     static char buff[kBuffSize];
 
-    TerminalWriteString("Provide input on serial port to proceed:\n");
+    for (u32 retry = 0; retry < retries; retry++) {
+        TerminalWriteString("Provide input on serial port to proceed:\n");
 
-    if (DebugTerminalReadLine(buff, kBuffSize) == kBuffSize)
-    {
-        TerminalWriteString("Buffer for SerialInTest fully filled!\n");
+        if (DebugTerminalReadLine(buff, kBuffSize) == kBuffSize) {
+            TerminalWriteString("Buffer for SerialInTest fully filled!\n");
+        }
+
+        TerminalWriteString("Received message from serial in:\n");
+        TerminalWriteString(buff);
+        TerminalPutChar('\n');
     }
-
-    TerminalWriteString("Received message from serial in:\n");
-    TerminalWriteString(buff);
 }
 
 // ------------------------------
@@ -121,7 +123,8 @@ static TestFuncType TestTable[]{
     StackSmashTest, CppTest, FloatExtensionTest, ExceptionTest, SerialInTest,
 };
 
-static constexpr uint64_t kTestTableSize = sizeof(TestTable) == 0 ? 0 : sizeof(TestTable) / sizeof(TestTable[0]);
+static constexpr uint64_t kTestTableSize =
+    sizeof(TestTable) == 0 ? 0 : sizeof(TestTable) / sizeof(TestTable[0]);
 static_assert(kTestTableSize == kLastTest, "TestTable does not contain all tests");
 
 void RunTest(const TestType type) { TestTable[static_cast<uint64_t>(type)](); }
