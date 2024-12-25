@@ -1,5 +1,6 @@
-; Scheme copied from osdev.org
-; Simplifies definition of idt
+; ------------------------------
+; Unsupported ISR
+; ------------------------------
 
 %macro unsupported_isr 1
 isr_wrapper_%+%1:
@@ -7,6 +8,10 @@ isr_wrapper_%+%1:
     call DefaultExceptionHandler
     iretq
 %endmacro
+
+; ------------------------------------
+; ISR with full gpr save/restore
+; ------------------------------------
 
 ; register offsets on stack when saving the state
 _rax equ 0
@@ -64,6 +69,8 @@ _isr_stack_frame_full_regs_err equ _isr_stack_frame_full_regs_no_err + 1
 
 ; Usual ISR wrappers used to save state and invoke relevant handlers
 %macro isr_wrapper_save_general_regs 2
+extern isr_%+%1
+
 isr_wrapper_%+%1:
     sub rsp, _reg_size ; create space for the registers
     push_regs
@@ -90,15 +97,27 @@ isr_wrapper_%+%1:
     isr_wrapper_save_general_regs %1 _isr_stack_frame_full_regs_err
 %endmacro
 
+; --------------------------------------
+; ISR with full state save/restore
+; --------------------------------------
+
 %macro isr_wrapper_save_all_regs 1
     ; TODO
     unsupported_isr %1
 %endmacro
 
+; ---------------------------------
+; ISR without any state saved
+; ---------------------------------
+
 %macro isr_wrapper_no_save 1
     ; TODO
     unsupported_isr %1
 %endmacro
+
+; ------------------------------
+; ISR wrappers definitions
+; ------------------------------
 
 bits 64
 
@@ -159,10 +178,14 @@ unsupported_isr 45 ; IRQ13: FPU (legacy)
 unsupported_isr 46 ; IRQ14: Primary ATA channel
 unsupported_isr 47 ; IRQ15: Secondary ATA channel
 
+; ----------------------------------
+; ISR wrapper table definition
+; ----------------------------------
+
 section .data
 
-global IsrStubTable
-IsrStubTable:
+global IsrWrapperTable
+IsrWrapperTable:
 %assign i 0
 %rep    48
     dq isr_wrapper_%+i

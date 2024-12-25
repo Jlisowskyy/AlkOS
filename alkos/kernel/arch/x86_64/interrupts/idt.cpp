@@ -22,7 +22,7 @@ static constexpr u8 kDefaultFlags   = 0x8E;
 extern "C" u32 kKernelCodeOffset;
 
 /* isr stub table initialized in nasm */
-extern "C" void *IsrStubTable[];
+extern "C" void *IsrWrapperTable[];
 
 // ------------------------------
 // Data layout
@@ -131,7 +131,7 @@ void IdtInit()
     memset(g_idt, 0, sizeof(g_idt));
 
     for (u8 idx = 0; idx < kStubTableSize; ++idx) {
-        IdtSetDescriptor(idx, reinterpret_cast<u64>(IsrStubTable[idx]), kDefaultFlags);
+        IdtSetDescriptor(idx, reinterpret_cast<u64>(IsrWrapperTable[idx]), kDefaultFlags);
     }
 
     __asm__ volatile("lidt %0" : : "m"(g_idtr));  // load the new IDT
