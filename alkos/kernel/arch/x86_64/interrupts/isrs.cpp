@@ -1,4 +1,5 @@
 #include <idt.hpp>
+#include <pic8259/pic8259.hpp>
 
 extern "C" {
 
@@ -6,37 +7,61 @@ extern "C" {
 // IRQ0: System timer
 // ------------------------------
 
-void isr_32(void *const stack_frame) { LogIrqReceived(stack_frame, 32); }
+void isr_32(void *const stack_frame)
+{
+    LogIrqReceived(stack_frame, 32);
+    Pic8259SendEOI(0);
+}
 
 // ------------------------------
 // IRQ1: keyboard
 // ------------------------------
 
-void isr_33(void *const stack_frame) { LogIrqReceived(stack_frame, 33); }
+void isr_33(void *const stack_frame)
+{
+    LogIrqReceived(stack_frame, 33);
+    Pic8259SendEOI(1);
+}
 
 // ------------------------------
 // IRQ3: COM2
 // ------------------------------
 
-void isr_35(void *const stack_frame) { LogIrqReceived(stack_frame, 35); }
+void isr_35(void *const stack_frame)
+{
+    LogIrqReceived(stack_frame, 35);
+    Pic8259SendEOI(3);
+}
 
 // ------------------------------
 // IRQ4: COM1
 // ------------------------------
 
-void isr_36(void *const stack_frame) { LogIrqReceived(stack_frame, 36); }
+void isr_36(void *const stack_frame)
+{
+    LogIrqReceived(stack_frame, 36);
+    Pic8259SendEOI(4);
+}
 
 // ------------------------------
 // IRQ8: real time clock
 // ------------------------------
 
-void isr_40(void *const stack_frame) { LogIrqReceived(stack_frame, 40); }
+void isr_40(void *const stack_frame)
+{
+    LogIrqReceived(stack_frame, 40);
+    Pic8259SendEOI(8);
+}
 
 // ------------------------------
 // IRQ12: mouse
 // ------------------------------
 
-void isr_44(void *const stack_frame) { LogIrqReceived(stack_frame, 44); }
+void isr_44(void *const stack_frame)
+{
+    LogIrqReceived(stack_frame, 44);
+    Pic8259SendEOI(12);
+}
 
 // ------------------------------
 // Test isr

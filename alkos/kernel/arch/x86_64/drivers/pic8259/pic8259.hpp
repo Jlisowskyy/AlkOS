@@ -8,6 +8,7 @@
 #include <defines.hpp>
 #include <io.hpp>
 #include <types.hpp>
+#include <debug.hpp>
 
 // ------------------------------
 // Crucial definitions
@@ -37,6 +38,8 @@ FAST_CALL void Pic8259SendEOI(const u8 irq)
     }
 
     outb(kPic1Command, kPicEOI);
+
+    TRACE_INFO("EOI sent to PIC...");
 }
 
 FAST_CALL void Pic8259SetIrqMaskValue(byte irq_line, const bool val)

@@ -15,7 +15,7 @@ include_directories(${SYSROOT}/usr/include)
 include_directories(test)
 
 # Additional test definitions - refer to test/tester.hpp file for value specifics
- add_compile_definitions(ALKOS_TEST=5)
+ add_compile_definitions(ALKOS_TEST=4)
 
 add_compile_definitions(__ALKOS_KERNEL__=1)
 
