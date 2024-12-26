@@ -118,7 +118,6 @@ void IdtInit()
     }
 
     __asm__ volatile("lidt %0" : : "m"(g_idtr));  // load the new IDT
-    __asm__ volatile("sti");                      // set the interrupt flag
 
     TRACE_SUCCESS("IDT initialized");
 }

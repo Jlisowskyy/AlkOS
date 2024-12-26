@@ -35,4 +35,6 @@ void KernelArchInit()
     InitPic8259(kIrq1Offset, kIrq2Offset);
     TRACE_INFO("Setting up IDT...");
     IdtInit();
+
+    EnableHardwareInterrupts();
 }
