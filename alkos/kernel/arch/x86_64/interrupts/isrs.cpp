@@ -9,7 +9,7 @@ extern "C" {
 
 void isr_32(void *const stack_frame)
 {
-    LogIrqReceived(stack_frame, 32);
+    // LogIrqReceived(stack_frame, 32);
     Pic8259SendEOI(0);
 }
 

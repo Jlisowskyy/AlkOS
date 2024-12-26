@@ -7,6 +7,7 @@
 #include <io.hpp>
 #include <kernel_assert.hpp>
 #include <serial_port_qemu/serial_qemu.hpp>
+#include <temp.hpp>
 
 // ------------------------------
 // Crucial defines
@@ -161,13 +162,12 @@ size_t QemuTerminalReadLine(char *buffer, const size_t size)
     for (size_t cur = 0; cur < size - 1; ++cur)
     {
         const char c = QemuTerminalGetChar();
-
-        if (c == '\n')
+        if (c == '\r')
         {
             buffer[cur] = '\0';
             return cur + 1;
         }
-
+        
         buffer[cur] = c;
     }
 
