@@ -41,3 +41,7 @@ build
 
 # tools
 tools
+
+# python
+.venv
+__pycache__
