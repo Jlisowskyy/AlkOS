@@ -72,8 +72,8 @@ isr_wrapper_%+%1:
     sub rsp, _shadow_space ; create space for shadow space
     cld
 
-    lea edi, [rsp + 8*_isr_stack_frame_offset]
-    mov rsi, %1
+    lea rdi, [rsp + 8*_isr_stack_frame_offset]
+    mov rsi, %1 ; TODO: temporary instruction for debug purposes
     call isr_%+%1
 
     add rsp, _shadow_space ; free the shadow space
@@ -164,6 +164,11 @@ unsupported_isr 45 ; IRQ13: FPU (legacy)
 unsupported_isr 46 ; IRQ14: Primary ATA channel
 unsupported_isr 47 ; IRQ15: Secondary ATA channel
 
+; test interrupt
+isr_wrapper_save_general_regs 48
+
+_num_isrs equ 49
+
 ; ----------------------------------
 ; ISR wrapper table definition
 ; ----------------------------------
@@ -173,7 +178,7 @@ section .data
 global IsrWrapperTable
 IsrWrapperTable:
 %assign i 0
-%rep    48
+%rep    _num_isrs
     dq isr_wrapper_%+i
 %assign i i+1
 %endrep

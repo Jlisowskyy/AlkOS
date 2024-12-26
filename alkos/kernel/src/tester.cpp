@@ -2,6 +2,8 @@
 #include <tester.hpp>
 
 /* external include */
+#include <memory.h>
+#include <arch_utils.hpp>
 #include <debug_terminal.hpp>
 #include <kernel_assert.hpp>
 #include <new.hpp>
@@ -115,13 +117,34 @@ static void SerialInTest()
 }
 
 // ------------------------------
+// Preserve cpu state test
+// ------------------------------
+
+static void PreserveCpuStateTest()
+{
+    /* current interrupt idx picked for testing */
+    static constexpr u8 kTestInterrupt = 48;
+
+    BlockHardwareInterrupts();
+
+    const auto initial_cpu_state = DumpCpuState();
+    initial_cpu_state.DumpStateDesc();
+
+    InvokeInterrupt(kTestInterrupt);
+
+    const auto final_cpu_state = DumpCpuState();
+    final_cpu_state.DumpStateDesc();
+
+    ASSERT_EQ(0, memcmp(&initial_cpu_state, &final_cpu_state, sizeof(CpuState)));
+}
+
+// ------------------------------
 // Test table
 // ------------------------------
 
 using TestFuncType = void (*)();
-static TestFuncType TestTable[]{
-    StackSmashTest, CppTest, FloatExtensionTest, ExceptionTest, SerialInTest,
-};
+static TestFuncType TestTable[]{StackSmashTest, CppTest,      FloatExtensionTest,
+                                ExceptionTest,  SerialInTest, PreserveCpuStateTest};
 
 static constexpr uint64_t kTestTableSize =
     sizeof(TestTable) == 0 ? 0 : sizeof(TestTable) / sizeof(TestTable[0]);
