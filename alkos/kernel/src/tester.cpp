@@ -2,13 +2,14 @@
 #include <tester.hpp>
 
 /* external include */
-#include <memory.h>
-#include <arch_utils.hpp>
+#include <bit.hpp>
 #include <debug_terminal.hpp>
 #include <kernel_assert.hpp>
 #include <new.hpp>
 #include <panic.hpp>
 #include <terminal.hpp>
+
+extern "C" void PreserveCpuStateTest();
 
 // ---------------------------------------
 // cpp compatibility test components
@@ -114,28 +115,6 @@ static void SerialInTest()
         TerminalWriteString(buff);
         TerminalPutChar('\n');
     }
-}
-
-// ------------------------------
-// Preserve cpu state test
-// ------------------------------
-
-static void PreserveCpuStateTest()
-{
-    /* current interrupt idx picked for testing */
-    static constexpr u8 kTestInterrupt = 48;
-
-    BlockHardwareInterrupts();
-
-    const auto initial_cpu_state = DumpCpuState();
-    initial_cpu_state.DumpStateDesc();
-
-    InvokeInterrupt(kTestInterrupt);
-
-    const auto final_cpu_state = DumpCpuState();
-    final_cpu_state.DumpStateDesc();
-
-    ASSERT_EQ(0, memcmp(&initial_cpu_state, &final_cpu_state, sizeof(CpuState)));
 }
 
 // ------------------------------

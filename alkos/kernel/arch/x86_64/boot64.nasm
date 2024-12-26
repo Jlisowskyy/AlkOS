@@ -50,4 +50,5 @@ boot64:
 
           ; Infinite loop
 os_hang:
+          hlt
           jmp os_hang
