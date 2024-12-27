@@ -1,5 +1,5 @@
 #ifdef ALKOS_TEST
-#include <test_framework.hpp>
+#include <test_module/test_module.hpp>
 #endif
 
 /* internal includes */
@@ -17,8 +17,8 @@ extern "C" void KernelMain()
 #ifdef ALKOS_TEST
 
     TRACE_INFO("Running tests...");
-    TestFramework test_framework{};
-    test_framework.RunTestModule();
+    test::TestModule test_module{};
+    test_module.RunTestModule();
 
 #endif
 

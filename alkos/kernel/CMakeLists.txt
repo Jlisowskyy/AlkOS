@@ -29,6 +29,10 @@ add_compile_definitions(__DEBUG_ENABLE_TRACES__=1)
 file(GLOB KERNEL_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+
+        # TODO: compile only when debug build
+        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"
 )
 
 # Build the kernel executable

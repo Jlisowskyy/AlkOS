@@ -9,8 +9,10 @@
 // Int type asserts
 // ------------------------------
 
-#define FAIL_KERNEL(expr)                                                                                              \
-    KernelPanic("Assertion failed: " TOSTRING(expr) " at file: " __FILE__ " and line: " TOSTRING(__LINE__));
+#define FAIL_KERNEL(expr)                                                                          \
+    KernelPanic(                                                                                   \
+        "Assertion failed: " TOSTRING(expr) " at file: " __FILE__ " and line: " TOSTRING(__LINE__) \
+    );
 
 /* c-like debug only assert */
 #ifdef NDEBUG
@@ -19,19 +21,17 @@
 
 #else
 
-#define ASSERT(expr)                                                                                                   \
-    if (!(expr))                                                                                                       \
-    {                                                                                                                  \
-        FAIL_KERNEL(expr);                                                                                             \
+#define ASSERT(expr)       \
+    if (!(expr)) {         \
+        FAIL_KERNEL(expr); \
     }
 
-#endif // NDEBUG
+#endif  // NDEBUG
 
 /* release assert */
-#define ASSERT_ALWAYS(expr)                                                                                            \
-    if (!(expr))                                                                                                       \
-    {                                                                                                                  \
-        FAIL_KERNEL(expr);                                                                                             \
+#define ASSERT_ALWAYS(expr) \
+    if (!(expr)) {          \
+        FAIL_KERNEL(expr);  \
     }
 
 // ------------------------------
@@ -59,24 +59,27 @@ TODO_BY_THE_END_OF_MILESTONE0
 TODO_WHEN_SNPRINTF_EXISTS
 TODO_WHEN_VMEM_WORKS
 
-#define ASSERT_EQ(expected, value)                                                                                     \
-    if (expected != value)                                                                                             \
-    {                                                                                                                  \
-        FAIL_KERNEL(expected != value);                                                                                \
+#define ASSERT_EQ(expected, value)      \
+    if (expected != value) {            \
+        FAIL_KERNEL(expected == value); \
     }
 
-#define ASSERT_NEQ(expected, value)                                                                                    \
-    if (expected == value)                                                                                             \
-    {                                                                                                                  \
-        FAIL_KERNEL(expected == value);                                                                                \
+#define ASSERT_NEQ(expected, value)     \
+    if (expected == value) {            \
+        FAIL_KERNEL(expected != value); \
     }
 
-#define ASSERT_TRUE(value)                                                                                             \
-    {                                                                                                                  \
-        if (value != true)                                                                                             \
-        {                                                                                                              \
-            FAIL_KERNEL(value != true);                                                                                \
-        }                                                                                                              \
+#define ASSERT_TRUE(value)              \
+    {                                   \
+        if (value != true) {            \
+            FAIL_KERNEL(value == true); \
+        }                               \
     };
 
-#endif // KERNEL_INCLUDE_ASSERT_HPP_
+#define ASSERT_NOT_NULL(value)             \
+    {                                      \
+        if (value == nullptr)              \
+            FAIL_KERNEL(value != nullptr); \
+    }
+
+#endif  // KERNEL_INCLUDE_ASSERT_HPP_
