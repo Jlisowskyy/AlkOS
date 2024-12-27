@@ -2,6 +2,7 @@
 #define ARCH_X86_64_INCLUDE_ARCH_UTILS_HPP_
 
 #include <defines.hpp>
+#include <io.hpp>
 #include <todo.hpp>
 #include <types.hpp>
 
@@ -26,6 +27,8 @@ FAST_CALL void OsHangNoInterrupts()
 
 FAST_CALL void InvokeInterrupt(const u8 idx) { __asm__ volatile("int %0" : : "N"(idx)); }
 
+FAST_CALL void QemuShutdown() { outw(0x604, 0x2000); }
+
 struct PACK CpuState final {
     enum GeneralPurposeRegisters {
         kRax,
@@ -49,10 +52,7 @@ struct PACK CpuState final {
 
     u64 general_purpose_registers[kGprLast];
 
-    void DumpStateDescStr(char* buf, size_t size)
-    {
-        TODO_BY_THE_END_OF_MILESTONE0
-    }
+    void DumpStateDescStr(char* buf, size_t size) { TODO_BY_THE_END_OF_MILESTONE0 }
 
     void DumpStateDesc() const;
 };

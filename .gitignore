@@ -45,3 +45,4 @@ tools
 # python
 .venv
 __pycache__
+logs

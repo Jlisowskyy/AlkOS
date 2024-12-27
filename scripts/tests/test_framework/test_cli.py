@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 from test_data import TestRunSpec
 
@@ -40,6 +41,12 @@ def parse_arguments(args: list[str]) -> argparse.Namespace:
 
     if not args.path:
         parser.error('The --path argument is required and cannot be empty')
+
+    if not Path(args.path).exists():
+        parser.error('The path specified does not exist')
+
+    if not Path(args.path).is_file():
+        parser.error('The path does not point to a file')
 
     return args
 
