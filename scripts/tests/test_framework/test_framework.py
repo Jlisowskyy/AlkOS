@@ -2,6 +2,7 @@ from test_data import TestRunSpec, TestInfo
 from test_parser import parse_tests
 from test_runner import run_test
 from test_log import TestLog
+from test_utils import print_red, print_green
 
 
 def _display_tests(tests: list[TestInfo]) -> None:
@@ -30,4 +31,9 @@ def test_framework_run(spec: TestRunSpec) -> None:
             failed_tests.append(test)
 
     if failed_tests:
-        pass  # display fail message
+        print_red(f"[FAILED] {len(failed_tests)} failed tests:")
+        for test in failed_tests:
+            print_red(f"  {test.test_name}")
+        exit(1)
+    else:
+        print_green("[PASSED] All tests passed")
