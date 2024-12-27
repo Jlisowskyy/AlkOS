@@ -1,4 +1,4 @@
-from test_data import TestRunSpec, TestInfo
+from test_data import TestRunSpec, TestInfo, MAX_ALKOS_BOOT_TIME, MAX_ALKOS_WAIT_SYNC_TIME
 from test_log import TestLog
 from test_commands import TEST_DISPLAY_STOP_COMMAND_IN, TEST_DISPLAY_STOP_COMMAND_OUT, TEST_COMMAND_SPECIFIER, \
     TEST_NAME_SPECIFIER
@@ -7,9 +7,6 @@ import subprocess
 import time
 import select
 import fnmatch
-
-MAX_ALKOS_TIME = 10
-MAX_ALKOS_WAIT_TIME = 10
 
 
 def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
@@ -31,7 +28,7 @@ def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
             reads = [alkos.stdout, alkos.stderr]
 
             curr_time = time.perf_counter_ns()
-            readable, _, _ = select.select(reads, [], [], MAX_ALKOS_TIME - (curr_time - start_time) * 1e-9)
+            readable, _, _ = select.select(reads, [], [], MAX_ALKOS_BOOT_TIME - (curr_time - start_time) * 1e-9)
 
             if not readable:
                 alkos.kill()
@@ -69,7 +66,7 @@ def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
         exit(1)
 
     try:
-        alkos.wait(MAX_ALKOS_WAIT_TIME)
+        alkos.wait(MAX_ALKOS_WAIT_SYNC_TIME)
         stdout, stderr = alkos.communicate()
 
         if stdout:

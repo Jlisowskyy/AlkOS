@@ -30,21 +30,21 @@ void TestFramework::RunTestModule()
     char buff[kInputBufferSize];
     TerminalWriteString("Provide test name for framework or simply type \"exit\" to quit...\n");
     if (TerminalReadLine(buff, kInputBufferSize) == kInputBufferSize) {
-        TerminalWriteError("[TEST] [FAIL] Too long input message...");
+        TerminalWriteError("[TEST] [FAIL] Too long input message...\n");
         QemuShutdown();
     }
 
     /* TODO: strcmp */
     TODO_BY_THE_END_OF_MILESTONE0
     if (strcmp(buff, "exit") == 0) {
-        TerminalWriteString("Kernel shutdown on test...");
+        TerminalWriteString("Kernel shutdown on test...\n");
         QemuShutdown();
     }
 
     const test_t test = FindTestFunction_(buff);
 
     if (test == nullptr) {
-        TerminalWriteError("[TEST] [FAIL] Test not found...");
+        TerminalWriteError("[TEST] [FAIL] Test not found...\n");
         QemuShutdown();
     }
 
@@ -55,11 +55,7 @@ void TestFramework::RunTestModule()
 TestFramework::test_t TestFramework::FindTestFunction_(const char *name)
 {
     TODO_BY_THE_END_OF_MILESTONE0
-    if (strcmp(name, "b") == 0) {
-        return reinterpret_cast<test_t>(0xDEAD);
-    }
-
-    return nullptr;
+    return reinterpret_cast<test_t>(0xDEAD);
 }
 
-void TestFramework::RunTest_(test_t test) { TerminalWriteString("[TEST] [SUCCESS]"); }
+void TestFramework::RunTest_(test_t test) { TerminalWriteString("[TEST] [SUCCESS]\n"); }

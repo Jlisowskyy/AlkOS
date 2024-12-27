@@ -25,7 +25,7 @@ def test_framework_run(spec: TestRunSpec) -> None:
 
     # Run the tests
     for test in tests_to_run:
-        result = run_test(test, file_logger)
+        result = run_test(spec.alkos_path, test, file_logger)
 
         if not result:
             failed_tests.append(test)
