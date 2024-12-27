@@ -26,4 +26,10 @@ static constexpr bool kDebugTracesEnabled = true;
 static constexpr bool kDebugTracesEnabled = false;
 #endif  // __DEBUG_ENABLE_TRACES__
 
+#ifdef __ALKOS_TEST__
+static constexpr bool kAlkosTestEnabled = true;
+#else
+static constexpr bool kAlkosTestEnabled = false;
+#endif  // __ALKOS_TEST__
+
 #endif  // KERNEL_INCLUDE_DEFINES_HPP_

@@ -14,27 +14,6 @@ static int strcmp(const char *str1, const char *str2)
     return s1[i] - s2[i];
 }
 
-TODO_BY_THE_END_OF_MILESTONE0
-static size_t strlen(const char *str)
-{
-    const char *s;
-    for (s = str; *s; ++s);
-    return s - str;
-}
-
-TODO_BY_THE_END_OF_MILESTONE0
-static char *strncat(char *dest, const char *src, size_t n)
-{
-    size_t i = 0, j = 0;
-    char *tmp = dest;
-    tmp += strlen(dest);
-    while (src[j] && j < n) {
-        tmp[i++] = src[j++];
-    }
-    tmp[i] = '\0';
-    return dest;
-}
-
 namespace test
 {
 
@@ -43,6 +22,7 @@ TestSpec g_tests[kMaxTests]{};
 u32 g_numTests{};
 bool g_expectFail{};
 bool g_testCheckFailed{};
+bool g_testStarted{};
 
 void TestModule::RunTestModule()
 {
@@ -107,6 +87,8 @@ void TestModule::RunTest_(const TestSpec *test)
     TestGroupBase *test_obj = test->factory(g_testMem);
     ASSERT_NOT_NULL(test_obj);
 
+    /* mark that the test is already started */
+    g_testStarted = true;
     test_obj->Run();
 
     if (g_expectFail) {
@@ -131,6 +113,25 @@ void AddTest(const char *name, const test_factory_t factory)
 
     pTestSpec->factory = factory;
     pTestSpec->name    = name;
+}
+
+void OnKernelPanic()
+{
+    if (!g_testStarted) {
+        /* test not started yet, but we received failure -> some critical bug -> abort execution */
+        TerminalWriteError("[TEST] [FAIL] Kernel panic received before test started...\n");
+        QemuShutdown();
+    }
+
+    if (g_expectFail) {
+        /* fail was expected we are goood af */
+        TerminalWriteString("[TEST] [SUCCESS] Test failed successfully...\n");
+        QemuShutdown();
+    }
+
+    /* ups... */
+    TerminalWriteError("[TEST] [FAIL] Test failed on kernel panic...\n");
+    QemuShutdown();
 }
 
 }  // namespace test

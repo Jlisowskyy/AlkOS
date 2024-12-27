@@ -8,6 +8,10 @@
 namespace test
 {
 
+// --------------------------------
+// Various defines and usings
+// --------------------------------
+
 /* Whole test framework should be reworked when threads are available */
 TODO_WHEN_MULTITHREADING
 
@@ -25,6 +29,10 @@ struct TestSpec {
     const char* name;
     test_factory_t factory;
 };
+
+// ------------------------------
+// Main Test module class
+// ------------------------------
 
 class TestModule final
 {
@@ -56,7 +64,17 @@ class TestModule final
     // ------------------------------
 };
 
+// ------------------------------
+// Various functions
+// ------------------------------
+
 void AddTest(const char* name, test_factory_t factory);
+
+void OnKernelPanic();
+
+// ------------------------------
+// Global objects
+// ------------------------------
 
 TODO_BY_THE_END_OF_MILESTONE0
 extern char g_testMem[kStubMemSize];
@@ -76,6 +94,9 @@ extern bool g_expectFail;
 
 /* this flag controls whether during the test execution some EXPECT_* check failed */
 extern bool g_testCheckFailed;
+
+/* this flag controls whether current test is already started */
+extern bool g_testStarted;
 
 }  // namespace test
 

@@ -14,7 +14,7 @@ include_directories(include)
 include_directories(${SYSROOT}/usr/include)
 include_directories(test)
 
-add_compile_definitions(ALKOS_TEST)
+add_compile_definitions(__ALKOS_TEST__=1)
 
 add_compile_definitions(__ALKOS_KERNEL__=1)
 
