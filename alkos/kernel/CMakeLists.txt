@@ -14,9 +14,10 @@ include_directories(include)
 include_directories(${SYSROOT}/usr/include)
 include_directories(test)
 
-add_compile_definitions(__ALKOS_TEST__=1)
-
 add_compile_definitions(__ALKOS_KERNEL__=1)
+
+# Uncomment to start test framework
+# add_compile_definitions(__ALKOS_TEST__=1)
 
 # Defining this macro enables debug terminal
 add_compile_definitions(__DEBUG_TERMINAL_TEST__=1)
