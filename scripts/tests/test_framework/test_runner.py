@@ -3,7 +3,7 @@ import subprocess
 import time
 from typing import TextIO
 
-from test_commands import TEST_COMMAND_SPECIFIER, TEST_SUCCESS_COMMAND, TEST_FAIL_COMMAND
+from test_commands import TEST_COMMAND_SPECIFIER, TEST_SUCCESS_COMMAND, TEST_FAIL_COMMAND, TEST_DISPLAY_STOP_COMMAND_IN
 from test_data import MAX_ALKOS_TEST_TIME, MAX_ALKOS_WAIT_SYNC_TIME, TestState
 from test_data import TestInfo
 from test_log import TestLog
@@ -47,10 +47,6 @@ def _run_test(path: str, info: TestInfo, log_file: TextIO) -> bool:
         )
         start_time = time.perf_counter_ns()
 
-        # Write test name on input and process the output
-        alkos.stdin.write(info.test_name + '\r')
-        alkos.stdin.flush()
-
         # Read lines
         while True:
             reads = [alkos.stdout, alkos.stderr]
@@ -80,6 +76,13 @@ def _run_test(path: str, info: TestInfo, log_file: TextIO) -> bool:
 
                 if TEST_COMMAND_SPECIFIER in line:
                     state = _process_test_state(state, line)
+
+                # After listend send the test name
+                if TEST_DISPLAY_STOP_COMMAND_IN in line:
+                    state = _process_test_state(state, line)
+
+                    alkos.stdin.write(info.test_name + '\r')
+                    alkos.stdin.flush()
 
                 log_file.write(line)
 

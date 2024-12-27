@@ -18,12 +18,12 @@
 static constexpr bool kDebugTerminalEnabled = true;
 #else
 static constexpr bool kDebugTerminalEnabled = false;
-#endif // __DEBUG_TERMINAL_TEST__
+#endif  // __DEBUG_TERMINAL_TEST__
 
 #ifdef __DEBUG_ENABLE_TRACES__
 static constexpr bool kDebugTracesEnabled = true;
 #else
 static constexpr bool kDebugTracesEnabled = false;
-#endif // __DEBUG_ENABLE_TRACES__
+#endif  // __DEBUG_ENABLE_TRACES__
 
-#endif // KERNEL_INCLUDE_DEFINES_HPP_
+#endif  // KERNEL_INCLUDE_DEFINES_HPP_

@@ -1,20 +1,17 @@
 #ifndef ALKOS_KERNEL_TEST_TEST_MODULE_MACROS_HPP_
 #define ALKOS_KERNEL_TEST_TEST_MODULE_MACROS_HPP_
 
+#include <defines.hpp>
 #include <new.hpp>
 #include <test_module/test_group_base.hpp>
 #include <test_module/test_module.hpp>
 
-// ------------------------------
-// Base macros
-// ------------------------------
-
 using namespace test;
 
-#define ___TEST_TEST_CLASS_NAME(fixture, test_name) ___test_test_obj_##fixture##_##test_name##
+#define ___TEST_TEST_CLASS_NAME(fixture, test_name) ___test_test_obj_##fixture##_##test_name
 
 #define ___TEST_TEST_FACTORY_NAME(fixture, test_name) \
-    ___TEST_TEST_CLASS_NAME(fixture, test_name)##_factory
+    ___test_test_obj_##fixture##_##test_name##_factory
 
 #define ___TEST_TEST_NAME(fixture, test_name) fixture##_##test_name
 

@@ -79,10 +79,12 @@ void TestModule::DisplayTests_()
 {
     TerminalWriteString("Displaying list of all tests:\n");
     for (size_t idx = 0; idx < g_numTests; ++idx) {
-        TerminalWriteString("\t");
+        TerminalWriteString("[TEST] [TESTNAME] ");
         TerminalWriteString(g_tests[idx].name);
         TerminalWriteString("\n");
     }
+
+    TerminalWriteString("[TEST] [LISTEND]\n");
 }
 
 TestSpec *TestModule::FindTestFunction_(const char *name)

@@ -13,7 +13,7 @@ TODO_WHEN_MULTITHREADING
 
 /* 64 MB memory for tests framework - used because of lack of vmem */
 TODO_WHEN_VMEM_WORKS
-static constexpr u32 kStubMemSize = 64 * 1024 * 1024;
+static constexpr u32 kStubMemSize = 1 * 1024 * 1024;
 
 /* size of test array  */
 static constexpr u32 kMaxTests = 4096;
