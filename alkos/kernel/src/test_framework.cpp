@@ -21,12 +21,14 @@ void TestFramework::RunTestModule()
     TerminalWriteString("Displaying list of all tests:\n");
 
     /* TODO */
-    TerminalWriteString("[TEST] a\n");
-    TerminalWriteString("[TEST] b\n");
-    TerminalWriteString("[TEST] c\n");
+    TerminalWriteString("[TEST] [TESTNAME] a\n");
+    TerminalWriteString("[TEST] [TESTNAME] b\n");
+    TerminalWriteString("[TEST] [TESTNAME] c\n");
+    TerminalWriteString("[TEST] [LISTEND]\n");
 
     /* read single line of input */
     char buff[kInputBufferSize];
+    TerminalWriteString("Provide test name for framework or simply type \"exit\" to quit...\n");
     if (TerminalReadLine(buff, kInputBufferSize) == kInputBufferSize) {
         TerminalWriteError("[TEST] [FAIL] Too long input message...");
         QemuShutdown();

@@ -5,4 +5,4 @@ CONF_PATH="${SCRIPT_DIR}/../../conf.bash"
 
 source "${CONF_PATH}"
 
-exec qemu-system-x86_64 ${ALKOS_QEMU_ARGS} -cdrom "${ALKOS_ISO_PATH}"
+exec qemu-system-x86_64 ${ALKOS_QEMU_ARGS} -display none -cdrom "${ALKOS_ISO_PATH}"

@@ -64,4 +64,6 @@ def process_args(args: list[str]) -> TestRunSpec:
     if raw_args.block:
         spec.blocks = [item.strip() for item in raw_args.block]
 
+    spec.display_tests_only = raw_args.display
+
     return spec
