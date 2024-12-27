@@ -1,3 +1,6 @@
 #include <test_module/test.hpp>
 
-// TEST()
+TEST(StackSmashTest)
+{
+
+}

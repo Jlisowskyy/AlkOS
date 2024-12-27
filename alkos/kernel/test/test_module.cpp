@@ -1,7 +1,7 @@
 /* internal includes */
-#include <arch_utils.hpp>
-#include <kernel_assert.hpp>
-#include <terminal.hpp>
+#include <../arch/x86_64/include/arch_utils.hpp>
+#include <../include/kernel_assert.hpp>
+#include <../include/terminal.hpp>
 #include <test_module/test_module.hpp>
 
 TODO_BY_THE_END_OF_MILESTONE0

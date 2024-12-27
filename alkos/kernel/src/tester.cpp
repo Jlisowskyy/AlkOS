@@ -117,16 +117,3 @@ static void SerialInTest()
     }
 }
 
-// ------------------------------
-// Test table
-// ------------------------------
-
-using TestFuncType = void (*)();
-static TestFuncType TestTable[]{StackSmashTest, CppTest,      FloatExtensionTest,
-                                ExceptionTest,  SerialInTest, PreserveCpuStateTest};
-
-static constexpr uint64_t kTestTableSize =
-    sizeof(TestTable) == 0 ? 0 : sizeof(TestTable) / sizeof(TestTable[0]);
-static_assert(kTestTableSize == kLastTest, "TestTable does not contain all tests");
-
-void RunTest(const TestType type) { TestTable[static_cast<uint64_t>(type)](); }

@@ -20,6 +20,7 @@ class TestGroupBase
 
     void Run()
     {
+        SetExpectFail_();
         Setup_();
         Run_();
         TearDown_();
@@ -29,6 +30,7 @@ class TestGroupBase
     virtual void Setup_() {}
     virtual void TearDown_() {}
     virtual void Run_() {}
+    virtual void SetExpectFail_() {}
 
     // ------------------------------
     // Class fields
