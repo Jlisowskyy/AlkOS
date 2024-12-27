@@ -9,6 +9,7 @@ extern "C" void KernelPanic(const char *msg)
 {
     TerminalWriteError("[ KERNEL PANIC ]\n");
     TerminalWriteError(msg);
+    TerminalWriteError("\n");
 
     if constexpr (kAlkosTestEnabled) {
         /* When running tests */

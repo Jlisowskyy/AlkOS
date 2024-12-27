@@ -1,6 +1,5 @@
-#!/bin/python
-
 import sys
+import traceback
 
 from test_cli import process_args
 from test_framework import test_framework_run
@@ -11,7 +10,8 @@ def main(args: list[str]) -> None:
         test_spec = process_args(args)
         test_framework_run(test_spec)
     except Exception as e:
-        print(f"Failed to run tests. Cause of the problem:\n{e}")
+        print("Failed to run tests. Cause of the problem:")
+        traceback.print_exc()
         sys.exit(1)
 
 

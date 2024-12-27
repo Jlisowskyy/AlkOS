@@ -6,7 +6,11 @@
 #include <test_module/test_group_base.hpp>
 #include <test_module/test_module.hpp>
 
-using namespace test;
+/* must be present here, we cannot use '::' operator because we use fixture name directly in the
+ * class name */
+using test::AddTest;
+using test::g_expectFail;
+using test::TestGroupBase;
 
 #define ___TEST_TEST_CLASS_NAME(fixture, test_name) ___test_test_obj_##fixture##_##test_name
 

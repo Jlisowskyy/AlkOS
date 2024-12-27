@@ -76,7 +76,7 @@ TEST(FloatOperationsTest) { FloatExtensionTest(); }
 
 // ------------------------------
 // Simple Exception test
-// --------1----------------------
+// ------------------------------
 
 /**
  *  @brief Test should simply drop 0 division exception

@@ -1,7 +1,7 @@
 /* internal includes */
-#include <../arch/x86_64/include/arch_utils.hpp>
-#include <../include/kernel_assert.hpp>
-#include <../include/terminal.hpp>
+#include <arch_utils.hpp>
+#include <kernel_assert.hpp>
+#include <terminal.hpp>
 #include <test_module/test_module.hpp>
 
 TODO_BY_THE_END_OF_MILESTONE0
@@ -44,7 +44,7 @@ void TestModule::RunTestModule()
         QemuShutdown();
     }
 
-    TestSpec *test = FindTestFunction_(buff);
+    TestSpec *test = FindTestFunction(buff);
 
     if (test == nullptr) {
         TerminalWriteError("[TEST] [FAIL] Test not found...\n");
@@ -67,7 +67,7 @@ void TestModule::DisplayTests_()
     TerminalWriteString("[TEST] [LISTEND]\n");
 }
 
-TestSpec *TestModule::FindTestFunction_(const char *name)
+TestSpec *TestModule::FindTestFunction(const char *name)
 {
     for (size_t idx = 0; idx < g_numTests; ++idx) {
         if (strcmp(name, g_tests[idx].name) == 0) {
@@ -109,6 +109,7 @@ void TestModule::RunTest_(const TestSpec *test)
 
 void AddTest(const char *name, const test_factory_t factory)
 {
+    ASSERT_NULL(TestModule::FindTestFunction(name));
     TestSpec *pTestSpec = &g_tests[g_numTests++];
 
     pTestSpec->factory = factory;

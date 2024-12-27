@@ -78,8 +78,16 @@ TODO_WHEN_VMEM_WORKS
 
 #define ASSERT_NOT_NULL(value)             \
     {                                      \
-        if (value == nullptr)              \
+        if (value == nullptr) {            \
             FAIL_KERNEL(value != nullptr); \
+        }                                  \
+    }
+
+#define ASSERT_NULL(value)                 \
+    {                                      \
+        if (value != nullptr) {            \
+            FAIL_KERNEL(value == nullptr); \
+        }                                  \
     }
 
 #endif  // KERNEL_INCLUDE_ASSERT_HPP_

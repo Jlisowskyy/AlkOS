@@ -49,6 +49,7 @@ class TestModule final
     // ------------------------------
 
     void RunTestModule();
+    static TestSpec* FindTestFunction(const char* name);
 
     // ------------------------------
     // Class private methods
@@ -56,7 +57,6 @@ class TestModule final
 
     private:
     static void DisplayTests_();
-    static TestSpec* FindTestFunction_(const char* name);
     static void RunTest_(const TestSpec* test);
 
     // ------------------------------
