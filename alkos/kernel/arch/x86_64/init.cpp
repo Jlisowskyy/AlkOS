@@ -7,6 +7,7 @@
 #endif
 
 /* internal includes */
+#include <arch_utils.hpp>
 #include <debug.hpp>
 #include <idt.hpp>
 #include <init.hpp>
@@ -21,6 +22,8 @@ extern "C" void enable_avx();
 
 void KernelArchInit()
 {
+    BlockHardwareInterrupts();
+
     /* NOTE: sequence is important */
     TRACE_INFO("Setting up OS XSAVE...");
     enable_osxsave();
@@ -28,8 +31,10 @@ void KernelArchInit()
     enable_sse();
     TRACE_INFO("Setting up AVX...");
     enable_avx();
-    TRACE_INFO("Setting up IDT...");
-    IdtInit();
     TRACE_INFO("Setting up PIC units...");
     InitPic8259(kIrq1Offset, kIrq2Offset);
+    TRACE_INFO("Setting up IDT...");
+    IdtInit();
+
+    EnableHardwareInterrupts();
 }

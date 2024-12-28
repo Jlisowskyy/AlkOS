@@ -22,7 +22,7 @@ static constexpr u8 kDefaultFlags   = 0x8E;
 extern "C" u32 kKernelCodeOffset;
 
 /* isr stub table initialized in nasm */
-extern "C" void *IsrStubTable[];
+extern "C" void *IsrWrapperTable[];
 
 // ------------------------------
 // Data layout
@@ -57,7 +57,7 @@ struct PACK Idtr {
 /* vector holding bool to detect double assignment */
 alignas(32) static bool g_idtGuards[kIdtEntries];
 
-/* global strcture defining isr specifics for each interrupt signal */
+/* global structure defining isr specifics for each interrupt signal */
 alignas(32) static IdtEntry g_idt[kIdtEntries];
 
 /* holds information about the idt position in memory */
@@ -69,10 +69,13 @@ static Idtr g_idtr;
 
 extern "C" NO_RET void DefaultExceptionHandler(const u8 exception_code)
 {
-    TRACE_INFO("Exception caught...");
-
     temp_DisplayNum(exception_code, "Received exception code");
     KernelPanic("Unknown Exception caught -> default handler invoked.");
+}
+
+void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 exception_code)
+{
+    temp_DisplayNum(exception_code, "Received interrupt with code");
 }
 
 // ------------------------------
@@ -111,11 +114,10 @@ void IdtInit()
     memset(g_idt, 0, sizeof(g_idt));
 
     for (u8 idx = 0; idx < kStubTableSize; ++idx) {
-        IdtSetDescriptor(idx, reinterpret_cast<u64>(IsrStubTable[idx]), kDefaultFlags);
+        IdtSetDescriptor(idx, reinterpret_cast<u64>(IsrWrapperTable[idx]), kDefaultFlags);
     }
 
     __asm__ volatile("lidt %0" : : "m"(g_idtr));  // load the new IDT
-    __asm__ volatile("sti");                      // set the interrupt flag
 
     TRACE_SUCCESS("IDT initialized");
 }

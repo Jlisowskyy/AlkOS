@@ -8,6 +8,7 @@
 #include <defines.hpp>
 #include <io.hpp>
 #include <types.hpp>
+#include <debug.hpp>
 
 // ------------------------------
 // Crucial definitions
