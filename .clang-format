@@ -1,8 +1,8 @@
-BasedOnStyle: LLVM
+BasedOnStyle: Google
 AccessModifierOffset: 0
 IndentWidth: 4
-ColumnLimit: 120
-BreakBeforeBraces: Allman
+ColumnLimit: 100
+BreakBeforeBraces: Linux
 BreakConstructorInitializersBeforeComma: false
 AllowShortIfStatementsOnASingleLine: false
 AllowShortBlocksOnASingleLine: Never

@@ -7,8 +7,10 @@
 #endif
 
 /* internal includes */
-#include <init.hpp>
 #include <debug.hpp>
+#include <idt.hpp>
+#include <init.hpp>
+#include <pic8259/pic8259.hpp>
 
 /* external init procedures */
 extern "C" void enable_osxsave();
@@ -16,8 +18,6 @@ extern "C" void enable_osxsave();
 extern "C" void enable_sse();
 
 extern "C" void enable_avx();
-
-extern "C" void IdtInit();
 
 void KernelArchInit()
 {
@@ -30,4 +30,6 @@ void KernelArchInit()
     enable_avx();
     TRACE_INFO("Setting up IDT...");
     IdtInit();
+    TRACE_INFO("Setting up PIC units...");
+    InitPic8259(kIrq1Offset, kIrq2Offset);
 }
