@@ -1,7 +1,13 @@
 #ifndef KERNEL_INCLUDE_TERMINA_HPP_
 #define KERNEL_INCLUDE_TERMINA_HPP_
 
-extern "C" {
+#include <todo.hpp>
+
+TODO_BY_THE_END_OF_MILESTONE0
+/* REWORK THAT */
+
+extern "C"
+{
     void TerminalInit();
 
     void TerminalPutChar(char c);

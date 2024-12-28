@@ -2,6 +2,7 @@
 #include <tester.hpp>
 
 /* external include */
+#include <debug_terminal.hpp>
 #include <kernel_assert.hpp>
 #include <new.hpp>
 #include <panic.hpp>
@@ -92,15 +93,32 @@ static void ExceptionTest()
 }
 
 // ------------------------------
+// SerialInTest
+// ------------------------------
+
+static void SerialInTest()
+{
+    static constexpr uint64_t kBuffSize = 16;
+    static char buff[kBuffSize];
+
+    TerminalWriteString("Provide input on serial port to proceed:\n");
+
+    if (DebugTerminalReadLine(buff, kBuffSize) == kBuffSize)
+    {
+        TerminalWriteString("Buffer for SerialInTest fully filled!\n");
+    }
+
+    TerminalWriteString("Received message from serial in:\n");
+    TerminalWriteString(buff);
+}
+
+// ------------------------------
 // Test table
 // ------------------------------
 
 using TestFuncType = void (*)();
 static TestFuncType TestTable[]{
-    StackSmashTest,
-    CppTest,
-    FloatExtensionTest,
-    ExceptionTest,
+    StackSmashTest, CppTest, FloatExtensionTest, ExceptionTest, SerialInTest,
 };
 
 static constexpr uint64_t kTestTableSize = sizeof(TestTable) == 0 ? 0 : sizeof(TestTable) / sizeof(TestTable[0]);
