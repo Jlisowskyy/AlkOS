@@ -49,6 +49,7 @@ boot64:
           call _fini
 
           ; Infinite loop
+          cli
 os_hang:
           hlt
           jmp os_hang
