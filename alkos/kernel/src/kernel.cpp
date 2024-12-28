@@ -8,7 +8,7 @@
 #include <debug.hpp>
 
 static void KernelRun() {
-    TerminalWriteString("Hello from AlkOS!");
+    TerminalWriteString("Hello from AlkOS!\n");
 }
 
 extern "C" void KernelMain() {

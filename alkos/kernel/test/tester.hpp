@@ -1,15 +1,16 @@
 #ifndef ALKOS_TEST_TESTER_HPP_
 #define ALKOS_TEST_TESTER_HPP_
 
-#include <stdint.h>
 #include <defines.hpp>
+#include <types.hpp>
 
-enum TestType: uint64_t {
+enum TestType : uint64_t {
     kStackSmashTest,
     kCppTest,
     kFloatExtensionTest,
     kExceptionTest,
     kSerialInTest,
+    kPreserveCpuStateTest,
     kLastTest,
 };
 
@@ -22,9 +23,11 @@ enum TestType: uint64_t {
 #endif
 
 #define VERIFY_TEST_TYPE(type)                                                \
-static_assert(type < TestType::kLastTest,                                     \
-    "Test type is invalid. File: " __FILE__ ", Line: " TOSTRING(__LINE__));
+    static_assert(                                                            \
+        type < TestType::kLastTest,                                           \
+        "Test type is invalid. File: " __FILE__ ", Line: " TOSTRING(__LINE__) \
+    );
 
 void RunTest(TestType type);
 
-#endif // ALKOS_TEST_TESTER_HPP_
+#endif  // ALKOS_TEST_TESTER_HPP_
