@@ -40,3 +40,8 @@ GDT64:
           global GDT64.Pointer
           global GDT64.Code
           global GDT64.Data
+          global kKernelCodeOffset
+          global kKernelDataOffset
+
+          kKernelCodeOffset dd GDT64.Code
+          kKernelDataOffset dd GDT64.Data
