@@ -9,6 +9,8 @@
 
 #define WRAP_CALL static FORCE_INLINE
 
+#define FAST_CALL static FORCE_INLINE
+
 #define STRINGIFY(x) #x
 #define TOSTRING(x)  STRINGIFY(x)
 

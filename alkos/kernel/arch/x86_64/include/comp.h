@@ -1,5 +1,5 @@
-#ifndef ARCH_X86_64_COMP_HPP_
-#define ARCH_X86_64_COMP_HPP_
+#ifndef ARCH_X86_64_INCLUDE_COMP_HPP_
+#define ARCH_X86_64_INCLUDE_COMP_HPP_
 
 /**
  *  @file comp.h
@@ -31,4 +31,4 @@
 
 #endif // __i386__
 
-#endif // ARCH_X86_64_COMP_HPP_
+#endif // ARCH_X86_64_INCLUDE_COMP_HPP_
