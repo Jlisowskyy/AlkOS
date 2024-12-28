@@ -54,6 +54,8 @@ FAIL_TEST_F(TestFrameworkObj, TestAccessMembersFail)
     c = 7;
 }
 
+MTEST(SimpleManualTest) {}
+
 // ------------------------------
 // Stack Smash Test
 // ------------------------------

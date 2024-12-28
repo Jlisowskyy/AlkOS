@@ -2,8 +2,6 @@
 #define ALKOS_KERNEL_TEST_TEST_MODULE_TEST_MODULE_HPP_
 
 #include <test_module/test_group_base.hpp>
-#include <todo.hpp>
-#include <types.hpp>
 
 namespace test
 {
@@ -11,16 +9,6 @@ namespace test
 // --------------------------------
 // Various defines and usings
 // --------------------------------
-
-/* Whole test framework should be reworked when threads are available */
-TODO_WHEN_MULTITHREADING
-
-/* 64 MB memory for tests framework - used because of lack of vmem */
-TODO_WHEN_VMEM_WORKS
-static constexpr u32 kStubMemSize = 1 * 1024 * 1024;
-
-/* size of test array  */
-static constexpr u32 kMaxTests = 4096;
 
 /* should use given memory to construct test object - used due to lack of vmem */
 using test_factory_t = TestGroupBase* (*)(void*);
@@ -70,23 +58,13 @@ class TestModule final
 
 void AddTest(const char* name, test_factory_t factory);
 
+void AddManualTest(const char* name, test_factory_t factory);
+
 void OnKernelPanic();
 
 // ------------------------------
 // Global objects
 // ------------------------------
-
-TODO_BY_THE_END_OF_MILESTONE0
-extern char g_testMem[kStubMemSize];
-
-TODO_BY_THE_END_OF_MILESTONE1
-/* TODO: replace with some handy structures */
-
-/* array of defined tests, each test should automatically add himself here */
-extern TestSpec g_tests[kMaxTests];
-
-/* counter of added tests */
-extern u32 g_numTests;
 
 /* this flag controls whether given test case should fail - in this case fail means total failure on
  * some assert */

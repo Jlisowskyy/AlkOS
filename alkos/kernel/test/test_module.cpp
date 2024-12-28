@@ -17,12 +17,44 @@ static int strcmp(const char *str1, const char *str2)
 namespace test
 {
 
-char g_testMem[kStubMemSize]{};
-TestSpec g_tests[kMaxTests]{};
-u32 g_numTests{};
+// --------------------------------
+// Various defines and usings
+// --------------------------------
+
+/* Whole test framework should be reworked when threads are available */
+TODO_WHEN_MULTITHREADING
+
+/* 64 MB memory for tests framework - used because of lack of vmem */
+TODO_WHEN_VMEM_WORKS
+static constexpr u32 kStubMemSize = 1 * 1024 * 1024;
+
+/* size of test array  */
+static constexpr u32 kMaxTests = 4096;
+
+/* size of manual test array */
+static constexpr u32 kMaxManualTests = 256;
+
+// ------------------------------------
+// Definition of global variables
+// ------------------------------------
+
 bool g_expectFail{};
 bool g_testCheckFailed{};
 bool g_testStarted{};
+
+// ------------------------------------
+// Definition of static variables
+// ------------------------------------
+
+static char g_testMem[kStubMemSize]{};
+static TestSpec g_tests[kMaxTests]{};
+static u32 g_numTests{};
+static TestSpec g_manualTests[kMaxManualTests]{};
+static u32 g_numManualTests{};
+
+// ------------------------------
+// Method implementations
+// ------------------------------
 
 void TestModule::RunTestModule()
 {
@@ -64,14 +96,29 @@ void TestModule::DisplayTests_()
         TerminalWriteString("\n");
     }
 
+    TerminalWriteString("Displaying list of all manual tests:\n");
+    for (size_t idx = 0; idx < g_numManualTests; ++idx) {
+        TerminalWriteString("[TEST] [MANUAL] [TESTNAME] ");
+        TerminalWriteString(g_manualTests[idx].name);
+        TerminalWriteString("\n");
+    }
+
     TerminalWriteString("[TEST] [LISTEND]\n");
 }
 
 TestSpec *TestModule::FindTestFunction(const char *name)
 {
+    /* Look for automatic tests, as they are more frequently used */
     for (size_t idx = 0; idx < g_numTests; ++idx) {
         if (strcmp(name, g_tests[idx].name) == 0) {
             return g_tests + idx;
+        }
+    }
+
+    /* finally check manual tests */
+    for (size_t idx = 0; idx < g_numManualTests; ++idx) {
+        if (strcmp(name, g_manualTests[idx].name) == 0) {
+            return g_manualTests + idx;
         }
     }
 
@@ -111,6 +158,15 @@ void AddTest(const char *name, const test_factory_t factory)
 {
     ASSERT_NULL(TestModule::FindTestFunction(name));
     TestSpec *pTestSpec = &g_tests[g_numTests++];
+
+    pTestSpec->factory = factory;
+    pTestSpec->name    = name;
+}
+
+void AddManualTest(const char *name, const test_factory_t factory)
+{
+    ASSERT_NULL(TestModule::FindTestFunction(name));
+    TestSpec *pTestSpec = &g_manualTests[g_numManualTests++];
 
     pTestSpec->factory = factory;
     pTestSpec->name    = name;

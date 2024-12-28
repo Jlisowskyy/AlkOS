@@ -123,7 +123,7 @@ def _run_test(path: str, info: TestInfo, log_file: TextIO) -> bool:
         exit(1)
 
     if state != TestState.SUCCESS and state != TestState.FAILURE:
-        print(f"[WARNING] Test failed with unexpected error: {str(state)}", file=stderr)
+        print(f"[WARNING] Test failed with unexpected error: {str(state)}")
 
     return state == TestState.SUCCESS
 

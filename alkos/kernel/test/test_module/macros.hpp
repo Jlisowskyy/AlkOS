@@ -8,6 +8,7 @@
 
 /* must be present here, we cannot use '::' operator because we use fixture name directly in the
  * class name */
+using test::AddManualTest;
 using test::AddTest;
 using test::g_expectFail;
 using test::TestGroupBase;
@@ -22,7 +23,7 @@ using test::TestGroupBase;
 
 #define ___TEST_TEST_NAME(fixture, test_name) fixture##_##test_name
 
-#define ___TEST_F(fixture, test_name, expect_fail)                                       \
+#define ___TEST_F(fixture, test_name, expect_fail, add_func)                             \
     class ___TEST_TEST_CLASS_NAME(fixture, test_name) final : public fixture             \
     {                                                                                    \
         public:                                                                          \
@@ -41,7 +42,7 @@ using test::TestGroupBase;
     }                                                                                    \
                                                                                          \
     const bool ___TEST_TEST_CLASS_NAME(fixture, test_name)::registered_ = []() -> bool { \
-        AddTest(                                                                         \
+        add_func(                                                                        \
             TOSTRING(___TEST_TEST_NAME(fixture, test_name)),                             \
             ___TEST_TEST_FACTORY_NAME(fixture, test_name)                                \
         );                                                                               \
@@ -50,16 +51,28 @@ using test::TestGroupBase;
                                                                                          \
     void ___TEST_TEST_CLASS_NAME(fixture, test_name)::Run_()
 
-// ------------------------------
-// User macros
-// ------------------------------
+// ------------------------------------
+// User macros - automatic tests
+// ------------------------------------
 
-#define TEST(test_name) ___TEST_F(TestGroupBase, test_name, false)
+#define TEST(test_name) ___TEST_F(TestGroupBase, test_name, false, AddTest)
 
-#define FAIL_TEST(test_name) ___TEST_F(TestGroupBase, test_name, true)
+#define FAIL_TEST(test_name) ___TEST_F(TestGroupBase, test_name, true, AddTest)
 
-#define TEST_F(fixture, test_name) ___TEST_F(fixture, test_name, false)
+#define TEST_F(fixture, test_name) ___TEST_F(fixture, test_name, false, AddTest)
 
-#define FAIL_TEST_F(fixture, test_name) ___TEST_F(fixture, test_name, true)
+#define FAIL_TEST_F(fixture, test_name) ___TEST_F(fixture, test_name, true, AddTest)
+
+// --------------------------------
+// User macros - manual tests
+// --------------------------------
+
+#define MTEST(test_name) ___TEST_F(TestGroupBase, test_name, false, AddManualTest)
+
+#define FAIL_MTEST(test_name) ___TEST_F(TestGroupBase, test_name, true, AddManualTest)
+
+#define MTEST_F(fixture, test_name) ___TEST_F(fixture, test_name, false, AddManualTest)
+
+#define FAIL_MTEST_F(fixture, test_name) ___TEST_F(fixture, test_name, true, AddManualTest)
 
 #endif  // ALKOS_KERNEL_TEST_TEST_MODULE_MACROS_HPP_
