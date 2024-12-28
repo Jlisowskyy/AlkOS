@@ -12,10 +12,13 @@ using test::AddTest;
 using test::g_expectFail;
 using test::TestGroupBase;
 
-#define ___TEST_TEST_CLASS_NAME(fixture, test_name) ___test_test_obj_##fixture##_##test_name
+/* Ensure "Uniqueness" for names */
+#define ___TEST_TEST_CLASS_NAME(fixture, test_name) \
+    ___test_test_obj_##fixture##_##test_name##_74645678651
 
+/* Ensure "Uniqueness" for names */
 #define ___TEST_TEST_FACTORY_NAME(fixture, test_name) \
-    ___test_test_obj_##fixture##_##test_name##_factory
+    ___test_test_obj_##fixture##_##test_name##_74645678651_factory
 
 #define ___TEST_TEST_NAME(fixture, test_name) fixture##_##test_name
 

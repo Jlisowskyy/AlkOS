@@ -27,8 +27,11 @@ class TestGroupBase
     }
 
     protected:
+    /* to be overridden by user */
     virtual void Setup_() {}
     virtual void TearDown_() {}
+
+    /* internal methods to run tests */
     virtual void Run_() {}
     virtual void SetExpectFail_() {}
 
