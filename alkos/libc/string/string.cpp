@@ -18,7 +18,7 @@ char *strncpy(char *dest, const char *src, size_t n)
 {
     size_t i  = 0;
     char *tmp = dest;
-    while (i != n && ((*tmp++ = *src++))) i++;
+    while (i != n && (*tmp++ = *src++)) i++;
     for (; i < n; ++i) *tmp++ = '\0';
     return dest;
 }
@@ -43,12 +43,13 @@ int strncmp(const char *str1, const char *str2, size_t n)
 
 char *strcat(char *dest, const char *src)
 {
-    size_t i = 0, j = 0;
+    size_t i = 0;
     char *tmp = dest;
     tmp += strlen(dest);
-    while (src[j])
+    while (src[i])
     {
-        tmp[i++] = src[j++];
+        tmp[i] = src[i];
+        i++;
     }
     tmp[i] = '\0';
     return dest;
@@ -56,40 +57,41 @@ char *strcat(char *dest, const char *src)
 
 char *strncat(char *dest, const char *src, size_t n)
 {
-    size_t i = 0, j = 0;
+    size_t i = 0;
     char *tmp = dest;
     tmp += strlen(dest);
-    while (src[j] && j < n)
+    while (src[i] && i < n)
     {
-        tmp[i++] = src[j++];
+        tmp[i] = src[i];
+        i++;
     }
     tmp[i] = '\0';
     return dest;
 }
 
-char *strchr(const char *s, int c)
+char *strchr(const char *str, int c)
 {
-    while (*s)
+    while (*str)
     {
-        if (*s == c)
+        if (*str == c)
         {
-            return const_cast<char *>(s);
+            return const_cast<char *>(str);
         }
-        s++;
+        str++;
     }
     return nullptr;
 }
 
-char *strrchr(const char *s, int c)
+char *strrchr(const char *str, int c)
 {
     const char *last = nullptr;
-    while (*s)
+    while (*str)
     {
-        if (*s == c)
+        if (*str == c)
         {
-            last = s;
+            last = str;
         }
-        s++;
+        str++;
     }
     return const_cast<char *>(last);
 }

@@ -1,3 +1,4 @@
+#include "defines.hpp"
 #include "math.h"
 #include "stdio.h"
 #include "string.h"
@@ -5,8 +6,8 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-static size_t GetDecimal(char **s);
-static void ReverseString(char *s, size_t len);
+static size_t GetDecimal(char **str);
+static void ReverseString(char *str, size_t len);
 static size_t RemoveTrailingZeros(char *str);
 static void ShiftStringRight(char *str);
 static int RoundFormattedDoubleDecimal(char *str, bool scientific);
@@ -15,10 +16,10 @@ static bool RoundFormattedDoubleHex(char *str, char lower);
 static double ipow(unsigned int base, int n);
 static int ilog(double num, unsigned int base);
 static bool IsNegative(double num);
-static bool IsSubNormal(double num);
+static bool IsSubnormal(double num);
 
-static char *FormatHex(uintmax_t num, char *str, int lower, bool prefix, int precision, bool zero_padding, int width);
-static char *FormatOct(uintmax_t num, char *str, bool prefix, int precision, bool zero_padding, int width);
+static char *FormatHex(uintmax_t num, char *str, int lower, bool prefix, int precision, bool zeroPadding, int width);
+static char *FormatOct(uintmax_t num, char *str, bool prefix, int precision, bool zeroPadding, int width);
 static char *FormatUInt(uintmax_t num, char *str);
 
 template <bool scientific>
@@ -27,11 +28,12 @@ static char *FormatDouble(
     bool significantDigits = false
 );
 static char *FormatDoubleHex(
-    double num, char *str, int precision, char lower, bool trailZeros, bool hashForm, bool zero_padding, int width
+    double num, char *str, int precision, char lower, bool trailZeros, bool hashForm, bool zeroPadding, int width
 );
 
 // ------------------------------------------------------------------------------------
 
+static constexpr int IS_LOWER                 = 0x20; // If char is lowercase the 0x20 bit is set
 static constexpr int BUFFER_SIZE              = 1024;
 static constexpr int DOUBLE_PRECISION_DIG     = 6;
 static constexpr int DOUBLE_HEX_PRECISION_DIG = 13;
@@ -48,27 +50,15 @@ enum class LengthModifier
     z    = 'z'  // z
 };
 
-#define SETCHAR(c)                                                                                                     \
-    do                                                                                                                 \
-    {                                                                                                                  \
-        if (size > 0)                                                                                                  \
-        {                                                                                                              \
-            str[i < static_cast<int>(size) ? i : size - 1] = (c);                                                      \
-            ++i;                                                                                                       \
-        }                                                                                                              \
-    } while (0)
+FAST_CALL static void PutChar(char *str, int &i, size_t size, char c)
+{
+    if (size > 0)
+    {
+        str[i < static_cast<int>(size) ? i : size - 1] = c;
+        ++i;
+    }
+}
 
-/**
- * Implementation of snprintf with support for various format specifiers
- *
- * This implementation provides formatting support for:
- * - Integers (d, i, u)
- * - Hexadecimal (x, X, p)
- * - Octal (o)
- * - Floating point (f, F, e, E, g, G, a, A)
- * - Strings (s)
- * - Characters (c)
- */
 int snprintf(char *str, size_t size, const char *format, ...)
 {
     va_list args;
@@ -85,9 +75,9 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
     const char *prefix;
     char *data;
     int width, precision;
-    size_t conversion_length = 0;
-    bool reverse_padding = false, zero_padding = false, isHash = false, isSpace = false, isPlus = false;
-    auto length_modifier = LengthModifier::None;
+    size_t conversionLength = 0;
+    bool reversePadding = false, zeroPadding = false, isHash = false, isSpace = false, isPlus = false;
+    auto lengthModifier = LengthModifier::None;
 
     // Iterate over the format string
     for (auto iter = const_cast<char *>(format);; ++iter)
@@ -101,20 +91,20 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
 
         if (*iter != '%')
         {
-            SETCHAR(*iter);
+            PutChar(str, i, size, *iter);
             continue;
         }
 
-        width           = -1;
-        precision       = -1;
-        prefix          = "";
-        reverse_padding = false;
-        zero_padding    = false;
-        isHash          = false;
-        isSpace         = false;
-        isPlus          = false;
-        length_modifier = LengthModifier::None;
-        data            = buf;
+        width          = -1;
+        precision      = -1;
+        prefix         = "";
+        reversePadding = false;
+        zeroPadding    = false;
+        isHash         = false;
+        isSpace        = false;
+        isPlus         = false;
+        lengthModifier = LengthModifier::None;
+        data           = buf;
 
         ++iter;
 
@@ -131,7 +121,7 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
                 break;
 
             case '-':
-                reverse_padding = true;
+                reversePadding = true;
                 ++iter;
                 continue;
 
@@ -141,13 +131,13 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
                 continue;
 
             case '0':
-                if (width < 0 && precision < 0 && !zero_padding && !reverse_padding)
+                if (width < 0 && precision < 0 && !zeroPadding && !reversePadding)
                 {
-                    zero_padding = true;
+                    zeroPadding = true;
                     ++iter;
                     continue;
                 }
-                // fall through
+                [[fallthrough]];
             case '1':
             case '2':
             case '3':
@@ -175,7 +165,7 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
                     if (width < 0)
                     {
                         width *= -1;
-                        reverse_padding = true;
+                        reversePadding = true;
                     }
                 }
                 ++iter;
@@ -200,24 +190,22 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
             case 'h':
             case 'l':
             case 'z':
-            case 'Z':
-                if (static_cast<LengthModifier>(*iter) == LengthModifier::h && length_modifier == LengthModifier::h)
+                if (static_cast<LengthModifier>(*iter) == LengthModifier::h && lengthModifier == LengthModifier::h)
                 {
-                    length_modifier = LengthModifier::H;
+                    lengthModifier = LengthModifier::H;
                 }
-                else if (static_cast<LengthModifier>(*iter) == LengthModifier::l &&
-                         length_modifier == LengthModifier::l)
+                else if (static_cast<LengthModifier>(*iter) == LengthModifier::l && lengthModifier == LengthModifier::l)
                 {
-                    length_modifier = LengthModifier::L;
+                    lengthModifier = LengthModifier::L;
                 }
-                else if (length_modifier == LengthModifier::None)
+                else if (lengthModifier == LengthModifier::None)
                 {
-                    length_modifier = static_cast<LengthModifier>((*iter & 0x20) ? *iter : *iter + 32);
+                    lengthModifier = static_cast<LengthModifier>(*iter);
                 }
                 else
                 {
-                    SETCHAR('%');
-                    SETCHAR(*iter);
+                    PutChar(str, i, size, '%');
+                    PutChar(str, i, size, *iter);
                     break;
                 }
                 ++iter;
@@ -229,35 +217,35 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
             {
                 uintmax_t d;
 
-                if (length_modifier == LengthModifier::z)
+                if (lengthModifier == LengthModifier::z)
                 {
                     if (*iter == 'u')
                         d = va_arg(va, uintmax_t);
                     else
                         d = va_arg(va, intmax_t);
                 }
-                else if (length_modifier == LengthModifier::L)
+                else if (lengthModifier == LengthModifier::L)
                 {
                     if (*iter == 'u')
                         d = va_arg(va, unsigned long long);
                     else
                         d = va_arg(va, long long);
                 }
-                else if (length_modifier == LengthModifier::l)
+                else if (lengthModifier == LengthModifier::l)
                 {
                     if (*iter == 'u')
                         d = va_arg(va, unsigned long);
                     else
                         d = va_arg(va, long);
                 }
-                else if (length_modifier == LengthModifier::h)
+                else if (lengthModifier == LengthModifier::h)
                 {
                     if (*iter == 'u')
                         d = static_cast<unsigned short>(va_arg(va, unsigned int));
                     else
                         d = static_cast<short>(va_arg(va, int));
                 }
-                else if (length_modifier == LengthModifier::H)
+                else if (lengthModifier == LengthModifier::H)
                 {
                     if (*iter == 'u')
                         d = static_cast<unsigned char>(va_arg(va, unsigned int));
@@ -291,7 +279,7 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
                 }
 
                 FormatUInt(d, data);
-                conversion_length = strlen(data);
+                conversionLength = strlen(data);
 
                 break;
             }
@@ -308,26 +296,26 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
                     if (x == 0)
                     {
                         strcpy(data, "(nil)");
-                        conversion_length = 5;
-                        zero_padding      = false;
-                        precision         = 0;
+                        conversionLength = 5;
+                        zeroPadding      = false;
+                        precision        = 0;
                         break;
                     }
                     isHash = true;
                 }
-                else if (length_modifier == LengthModifier::L)
+                else if (lengthModifier == LengthModifier::L)
                 {
                     x = va_arg(va, unsigned long long);
                 }
-                else if (length_modifier == LengthModifier::l)
+                else if (lengthModifier == LengthModifier::l)
                 {
                     x = va_arg(va, unsigned long);
                 }
-                else if (length_modifier == LengthModifier::h)
+                else if (lengthModifier == LengthModifier::h)
                 {
                     x = static_cast<unsigned short>(va_arg(va, unsigned int));
                 }
-                else if (length_modifier == LengthModifier::H)
+                else if (lengthModifier == LengthModifier::H)
                 {
                     x = static_cast<unsigned char>(va_arg(va, unsigned int));
                 }
@@ -338,19 +326,19 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
 
                 if (precision >= 0)
                 {
-                    FormatHex(x, data, *iter & 0x20, isHash, precision, true, -1);
-                    zero_padding = false;
+                    FormatHex(x, data, *iter & IS_LOWER, isHash, precision, true, -1);
+                    zeroPadding = false;
                 }
-                else if (zero_padding)
+                else if (zeroPadding)
                 {
-                    FormatHex(x, data, *iter & 0x20, isHash, -1, zero_padding, width);
+                    FormatHex(x, data, *iter & IS_LOWER, isHash, -1, zeroPadding, width);
                     if (x != 0)
-                        zero_padding = false;
+                        zeroPadding = false;
                 }
                 else
-                    FormatHex(x, data, *iter & 0x20, isHash, -1, false, -1);
+                    FormatHex(x, data, *iter & IS_LOWER, isHash, -1, false, -1);
 
-                conversion_length = strlen(data);
+                conversionLength = strlen(data);
 
                 break;
             }
@@ -359,19 +347,19 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
             {
                 uintmax_t x;
 
-                if (length_modifier == LengthModifier::L)
+                if (lengthModifier == LengthModifier::L)
                 {
                     x = va_arg(va, unsigned long long);
                 }
-                else if (length_modifier == LengthModifier::l)
+                else if (lengthModifier == LengthModifier::l)
                 {
                     x = va_arg(va, unsigned long);
                 }
-                else if (length_modifier == LengthModifier::h)
+                else if (lengthModifier == LengthModifier::h)
                 {
                     x = static_cast<unsigned short>(va_arg(va, unsigned int));
                 }
-                else if (length_modifier == LengthModifier::H)
+                else if (lengthModifier == LengthModifier::H)
                 {
                     x = static_cast<unsigned char>(va_arg(va, unsigned int));
                 }
@@ -383,18 +371,18 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
                 if (precision >= 0)
                 {
                     FormatOct(x, data, isHash, precision, true, -1);
-                    zero_padding = false;
+                    zeroPadding = false;
                 }
-                else if (zero_padding)
+                else if (zeroPadding)
                 {
-                    FormatOct(x, data, isHash, -1, zero_padding, width);
+                    FormatOct(x, data, isHash, -1, zeroPadding, width);
                     if (x != 0)
-                        zero_padding = false;
+                        zeroPadding = false;
                 }
                 else
                     FormatOct(x, data, isHash, -1, false, -1);
 
-                conversion_length = strlen(data);
+                conversionLength = strlen(data);
 
                 break;
             }
@@ -430,33 +418,33 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
 
                 if (isnan(f))
                 {
-                    for (size_t j = 0; j < 3; ++j) data[j] = "NAN"[j] | (*iter & 0x20);
-                    conversion_length = 3;
-                    zero_padding      = false;
-                    precision         = 0;
+                    for (size_t j = 0; j < 3; ++j) data[j] = "NAN"[j] | (*iter & IS_LOWER);
+                    conversionLength = 3;
+                    zeroPadding      = false;
+                    precision        = 0;
                     break;
                 }
 
                 if (isinf(f))
                 {
-                    for (size_t j = 0; j < 3; ++j) data[j] = "INF"[j] | (*iter & 0x20);
-                    conversion_length = 3;
-                    zero_padding      = false;
-                    precision         = 0;
+                    for (size_t j = 0; j < 3; ++j) data[j] = "INF"[j] | (*iter & IS_LOWER);
+                    conversionLength = 3;
+                    zeroPadding      = false;
+                    precision        = 0;
                     break;
                 }
 
-                switch (*iter | 0x20)
+                switch (*iter | IS_LOWER)
                 {
                 case 'f':
                     FormatDouble<false>(
-                        f, data, precision >= 0 ? precision : DOUBLE_PRECISION_DIG, *iter & 0x20, false, isHash
+                        f, data, precision >= 0 ? precision : DOUBLE_PRECISION_DIG, *iter & IS_LOWER, false, isHash
                     );
                     break;
 
                 case 'e':
                     FormatDouble<true>(
-                        f, data, precision >= 0 ? precision : DOUBLE_PRECISION_DIG, *iter & 0x20, false, isHash
+                        f, data, precision >= 0 ? precision : DOUBLE_PRECISION_DIG, *iter & IS_LOWER, false, isHash
                     );
                     break;
 
@@ -465,11 +453,11 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
                     int e             = ilog(f, 10);
                     int num_precision = precision >= 0 ? precision : DOUBLE_PRECISION_DIG;
                     if ((e >= num_precision || e < -4) && (e != num_precision || e != 0))
-                        FormatDouble<true>(f, data, num_precision, *iter & 0x20, true, isHash, true);
+                        FormatDouble<true>(f, data, num_precision, *iter & IS_LOWER, true, isHash, true);
                     else
                     {
-                        FormatDouble<false>(f, data, num_precision, *iter & 0x20, true, isHash, true);
-                        if (zero_padding)
+                        FormatDouble<false>(f, data, num_precision, *iter & IS_LOWER, true, isHash, true);
+                        if (zeroPadding)
                             precision = width;
                         else
                             precision = 0;
@@ -479,11 +467,11 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
                 }
 
                 case 'a':
-                    FormatDoubleHex(f, data, precision, *iter & 0x20, precision == -1, isHash, zero_padding, width);
+                    FormatDoubleHex(f, data, precision, *iter & IS_LOWER, precision == -1, isHash, zeroPadding, width);
                     break;
                 }
 
-                conversion_length = strlen(data);
+                conversionLength = strlen(data);
 
                 break;
             }
@@ -495,16 +483,16 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
                 if (s == nullptr)
                 {
                     strcpy(data, "(null)");
-                    conversion_length = 6;
-                    zero_padding      = false;
-                    precision         = 0;
+                    conversionLength = 6;
+                    zeroPadding      = false;
+                    precision        = 0;
                     break;
                 }
 
-                conversion_length = strlen(data);
-                if (precision >= 0 && conversion_length > static_cast<size_t>(precision))
+                conversionLength = strlen(data);
+                if (precision >= 0 && conversionLength > static_cast<size_t>(precision))
                 {
-                    conversion_length = precision;
+                    conversionLength = precision;
                 }
 
                 break;
@@ -514,57 +502,58 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
             {
                 char c = va_arg(va, int);
 
-                buf[0]            = c;
-                conversion_length = 1;
+                buf[0]           = c;
+                conversionLength = 1;
                 break;
             }
 
             default:
-                SETCHAR('%');
-                SETCHAR(*iter);
+                PutChar(str, i, size, '%');
+                PutChar(str, i, size, *iter);
                 break;
-            }
 
-            // Add padding and width with formatted data to the output buffer
-
-            if (precision < 0 && zero_padding)
-                precision = width;
-
-            width -= conversion_length;
-            precision -= conversion_length;
-
-            if (precision > 0)
-                width -= precision;
-
-            if (!reverse_padding && !zero_padding)
-            {
-                while (width-- > 0)
-                {
-                    SETCHAR(' ');
-                }
-            }
-
-            while (*prefix)
-            {
-                SETCHAR(*prefix++);
-            }
-
-            while (precision-- > 0)
-            {
-                SETCHAR('0');
-            }
-
-            while (conversion_length-- > 0)
-            {
-                SETCHAR(*data++);
-            }
-
-            while (width-- > 0)
-            {
-                SETCHAR(' ');
-            }
+            } // switch
 
             break;
+        }
+
+        // Add padding and width with formatted data to the output buffer
+
+        if (precision < 0 && zeroPadding)
+            precision = width;
+
+        width -= conversionLength;
+        precision -= conversionLength;
+
+        if (precision > 0)
+            width -= precision;
+
+        if (!reversePadding && !zeroPadding)
+        {
+            while (width-- > 0)
+            {
+                PutChar(str, i, size, ' ');
+            }
+        }
+
+        while (*prefix)
+        {
+            PutChar(str, i, size, *prefix++);
+        }
+
+        while (precision-- > 0)
+        {
+            PutChar(str, i, size, '0');
+        }
+
+        while (conversionLength-- > 0)
+        {
+            PutChar(str, i, size, *data++);
+        }
+
+        while (width-- > 0)
+        {
+            PutChar(str, i, size, ' ');
         }
     }
 }
@@ -573,27 +562,27 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va)
  *  String utilities
  */
 
-static size_t GetDecimal(char **s)
+static size_t GetDecimal(char **str)
 {
     int i = 0;
-    while (**s >= '0' && **s <= '9') i = i * 10 + *(*s)++ - '0';
+    while (**str >= '0' && **str <= '9') i = i * 10 + *(*str)++ - '0';
     return i;
 }
 
-static void ReverseString(char *s, size_t len)
+static void ReverseString(char *str, size_t len)
 {
     if (!len)
         return;
 
     for (size_t i = 0, j = len - 1; i < j; i++, j--)
     {
-        char tmp = s[i];
-        s[i]     = s[j];
-        s[j]     = tmp;
+        char tmp = str[i];
+        str[i]   = str[j];
+        str[j]   = tmp;
     }
 }
 
-static inline void ShiftStringRight(char *str)
+static void ShiftStringRight(char *str)
 {
     size_t len = strlen(str);
     for (size_t i = len + 1; i > 0; --i)
@@ -747,41 +736,25 @@ static int ilog(double num, unsigned int base)
     return res;
 }
 
-static inline bool IsNegative(double num)
+FAST_CALL static bool IsNegative(double num)
 {
     auto intdbl = reinterpret_cast<uint64_t *>(&num);
     return (*intdbl & (1ULL << 63)) != 0;
 }
 
-static bool IsSubNormal(double num)
+FAST_CALL static bool IsSubnormal(double num)
 {
     auto intdbl         = reinterpret_cast<uint64_t *>(&num);
     const auto exponent = static_cast<short>(*intdbl >> 52 & 0x7FF);
     const auto mantisa  = *intdbl & (-1ULL >> 12);
-
-    if (exponent == 0)
-    {
-        if (mantisa == 0)
-            return false; // zero
-        else
-            return true; // subnormal
-    }
-    else if (exponent == 2047)
-    {
-        if (mantisa == 0)
-            return false; // inf
-        else
-            return false; // nan
-    }
-
-    return false; // normal
+    return exponent == 0 && mantisa != 0;
 }
 
 /**
  *  Integer formatting utilities
  */
 
-static char *FormatHex(uintmax_t num, char *str, int lower, bool prefix, int precision, bool zero_padding, int width)
+static char *FormatHex(uintmax_t num, char *str, int lower, bool prefix, int precision, bool zeroPadding, int width)
 {
     int i = 0;
 
@@ -800,7 +773,7 @@ static char *FormatHex(uintmax_t num, char *str, int lower, bool prefix, int pre
 
     for (; num; num >>= 4) str[i++] = "0123456789ABCDEF"[num & 15] | lower;
 
-    if (zero_padding)
+    if (zeroPadding)
     {
         int zeros = 0;
         if (precision != -1)
@@ -824,7 +797,7 @@ static char *FormatHex(uintmax_t num, char *str, int lower, bool prefix, int pre
     return str;
 }
 
-static char *FormatOct(uintmax_t num, char *str, bool prefix, int precision, bool zero_padding, int width)
+static char *FormatOct(uintmax_t num, char *str, bool prefix, int precision, bool zeroPadding, int width)
 {
     int i = 0;
 
@@ -843,7 +816,7 @@ static char *FormatOct(uintmax_t num, char *str, bool prefix, int precision, boo
 
     for (; num; num >>= 3) str[i++] = '0' + (num & 7);
 
-    if (zero_padding)
+    if (zeroPadding)
     {
         int zeros = 0;
         if (precision != -1)
@@ -908,7 +881,7 @@ static char *FormatDouble(
     // Normalize
     if (scientific)
     {
-        if (IsSubNormal(num))
+        if (IsSubnormal(num))
         {
             subnormalCorrection = -(ilog(num, 10) + 308);
             num *= ipow(10, subnormalCorrection);
@@ -1045,7 +1018,7 @@ static char *FormatDouble(
 }
 
 static char *FormatDoubleHex(
-    double num, char *str, int precision, char lower, bool trailZeros, bool hashForm, bool zero_padding, int width
+    double num, char *str, int precision, char lower, bool trailZeros, bool hashForm, bool zeroPadding, int width
 )
 {
     size_t i = 0;
@@ -1131,7 +1104,7 @@ static char *FormatDoubleHex(
     // Add zero padding
     {
         size_t j;
-        for (j = 2; zero_padding && j < width - i - len; ++j) str[j] = '0';
+        for (j = 2; zeroPadding && j < width - i - len; ++j) str[j] = '0';
 
         strcpy(str + j, temp);
     }

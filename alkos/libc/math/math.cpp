@@ -49,7 +49,7 @@ bool isinf(double num)
     return ((*intdbl >> 52 & 0x7FF) == 0x7FF) && ((*intdbl & (-1ULL >> 12)) == 0);
 }
 
-double abs(double num)
+double fabs(double num)
 {
     auto intdbl = reinterpret_cast<uint64_t *>(&num);
     *intdbl &= ~(1ULL << 63);
