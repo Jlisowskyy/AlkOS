@@ -4,6 +4,7 @@
 #include <terminal.hpp>
 #include <types.hpp>
 #include <todo.hpp>
+#include <bit.hpp>
 
 /**
  * @todo collection of implementation details that must be removed in close future by replacing with real
@@ -11,6 +12,7 @@
  */
 
 TODO_BY_THE_END_OF_MILESTONE0
+TODO_WHEN_SNPRINTF_EXISTS
 
 inline const char *temp_ToStringHex(const u64 x)
 {

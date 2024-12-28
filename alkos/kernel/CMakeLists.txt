@@ -15,10 +15,15 @@ include_directories(${SYSROOT}/usr/include)
 include_directories(test)
 
 # Additional test definitions - refer to test/tester.hpp file for value specifics
-# add_compile_definitions(ALKOS_TEST=1)
+ add_compile_definitions(ALKOS_TEST=4)
 
 add_compile_definitions(__ALKOS_KERNEL__=1)
-add_compile_definitions(__SERIAL_PORT_TEST__=1)
+
+# Defining this macro enables debug terminal
+add_compile_definitions(__DEBUG_TERMINAL_TEST__=1)
+
+# Controls whether various traces should be printed to debug terminal
+add_compile_definitions(__DEBUG_ENABLE_TRACES__=1)
 
 # Add kernel sources
 # NOTE: kernel should not include any architecture specific code including assembly

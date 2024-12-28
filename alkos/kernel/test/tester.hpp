@@ -9,6 +9,7 @@ enum TestType: uint64_t {
     kCppTest,
     kFloatExtensionTest,
     kExceptionTest,
+    kSerialInTest,
     kLastTest,
 };
 

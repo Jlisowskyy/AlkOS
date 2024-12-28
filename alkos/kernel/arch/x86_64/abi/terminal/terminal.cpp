@@ -2,9 +2,9 @@
 #include <terminal.hpp>
 #include <defines.hpp>
 
-#ifdef __SERIAL_PORT_TEST__
+#ifdef __DEBUG_TERMINAL_TEST__
 #include <serial_port_qemu/serial_qemu.hpp>
-#endif // __SERIAL_PORT_TEST__
+#endif // __DEBUG_TERMINAL_TEST__
 
 #include <vga/vga.hpp>
 
@@ -13,7 +13,7 @@ extern "C" {
         /* Initialize VGA terminal -> when multiboot allows: TODO */
         // VgaTerminalInit();
 
-        if constexpr (kSerialPortTest) {
+        if constexpr (kDebugTerminalEnabled) {
             QemuTerminalInit();
         }
     }
@@ -22,7 +22,7 @@ extern "C" {
         /* Put char to VGA terminal -> when multiboot allows: TODO */
         // VgaTerminalPutChar(c);
 
-        if constexpr (kSerialPortTest) {
+        if constexpr (kDebugTerminalEnabled) {
             QemuTerminalPutChar(c);
         }
     }
@@ -31,7 +31,7 @@ extern "C" {
         /* Write string to VGA terminal -> when multiboot allows: TODO */
         // VgaTerminalWriteString(data);
 
-        if constexpr (kSerialPortTest) {
+        if constexpr (kDebugTerminalEnabled) {
             QemuTerminalWriteString(data);
         }
     }
@@ -40,7 +40,7 @@ extern "C" {
         /* Write error string to VGA terminal -> when multiboot allows: TODO */
         // VgaTerminalWriteError(data);
 
-        if constexpr (kSerialPortTest) {
+        if constexpr (kDebugTerminalEnabled) {
             QemuTerminalWriteString(data);
         }
     }

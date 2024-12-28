@@ -56,6 +56,8 @@
  */
 
 TODO_BY_THE_END_OF_MILESTONE0
+TODO_WHEN_SNPRINTF_EXISTS
+TODO_WHEN_VMEM_WORKS
 
 #define ASSERT_EQ(expected, value)                                                                                     \
     if (expected != value)                                                                                             \
@@ -68,5 +70,13 @@ TODO_BY_THE_END_OF_MILESTONE0
     {                                                                                                                  \
         FAIL_KERNEL(expected == value);                                                                                \
     }
+
+#define ASSERT_TRUE(value)                                                                                             \
+    {                                                                                                                  \
+        if (value != true)                                                                                             \
+        {                                                                                                              \
+            FAIL_KERNEL(value != true);                                                                                \
+        }                                                                                                              \
+    };
 
 #endif // KERNEL_INCLUDE_ASSERT_HPP_
