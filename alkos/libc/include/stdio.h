@@ -1,5 +1,5 @@
-#ifndef STDIO_H_
-#define STDIO_H_
+#ifndef LIBC_INCLUDE_STDIO_H_
+#define LIBC_INCLUDE_STDIO_H_
 
 #include <stdarg.h>
 #include <stddef.h>
@@ -14,4 +14,4 @@ int snprintf(char *str, size_t size, const char *format, ...);
  */
 int vsnprintf(char *str, size_t size, const char *format, va_list va);
 
-#endif // STDIO_H_
+#endif // LIBC_INCLUDE_STDIO_H_

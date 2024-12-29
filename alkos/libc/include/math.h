@@ -1,5 +1,5 @@
-#ifndef MATH_H_
-#define MATH_H_
+#ifndef LIBC_INCLUDE_MATH_H_
+#define LIBC_INCLUDE_MATH_H_
 
 /**********************************************
  * Constants
@@ -28,4 +28,4 @@ bool isnan(double num);
 bool isinf(double num);
 double fabs(double num);
 
-#endif // MATH_H_
+#endif // LIBC_INCLUDE_MATH_H_

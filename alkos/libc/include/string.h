@@ -1,5 +1,5 @@
-#ifndef STRING_H_
-#define STRING_H_
+#ifndef LIBC_INCLUDE_STRING_H_
+#define LIBC_INCLUDE_STRING_H_
 
 #include <stddef.h>
 
@@ -51,4 +51,4 @@ char *strchr(const char *str, int c);
  */
 char *strrchr(const char *str, int c);
 
-#endif // STRING_H_
+#endif // LIBC_INCLUDE_STRING_H_
