@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "defines.hpp"
+#include "types.h"
 #include "math.h"
 #include "string.h"
 
@@ -39,11 +40,14 @@ static constexpr double kFactorialPrecision = 1e-16;
 
 enum class LengthModifier {
     None = '\0',
-    H = 'H',  // hh
     h = 'h',  // h
-    L = 'L',  // ll
+    hh,       // hh
     l = 'l',  // l
-    z = 'z'   // z
+    ll,       // ll
+    j = 'j',  // j
+    z = 'z',  // z
+    t = 't',  // t
+    L = 'L',  // L
 };
 
 FAST_CALL static void PutChar(char *str, int &i, size_t size, char c) {
@@ -64,10 +68,10 @@ int snprintf(char *str, size_t size, const char *format, ...) {
 int vsnprintf(char *str, size_t size, const char *format, va_list va) {
     int i = 0;
     char buf[kBufferSize];  // TODO: Calculate buffer size
-    char prefix;
     char *data;
+    size_t conversion_length = 0;
+    char prefix;
     int width, precision;
-    size_t conversion_length;
     bool reverse_padding, zero_padding, is_hash, is_space, is_plus;
     LengthModifier length_modifier;
 
@@ -113,7 +117,6 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va) {
                 }
                 case '.': {
                     precision = 0;
-                    zero_padding = false;
                     ++iter;
                     continue;
                 }
@@ -171,12 +174,14 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va) {
                 }
                 case 'h':
                 case 'l':
-                case 'z': {
+                case 'j':
+                case 'z':
+                case 't': {
                     auto modifier = static_cast<LengthModifier>(*iter);
                     if (modifier == LengthModifier::h && length_modifier == LengthModifier::h) {
-                        length_modifier = LengthModifier::H;
+                        length_modifier = LengthModifier::hh;
                     } else if (modifier == LengthModifier::l && length_modifier == LengthModifier::l) {
-                        length_modifier = LengthModifier::L;
+                        length_modifier = LengthModifier::ll;
                     } else if (length_modifier == LengthModifier::None) {
                         length_modifier = modifier;
                     } else {
@@ -192,13 +197,25 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va) {
                 case 'u': {
                     uintmax_t d;
 
-                    if (length_modifier == LengthModifier::z) {
+                    if (length_modifier == LengthModifier::j) {
                         if (*iter == 'u') {
                             d = va_arg(va, uintmax_t);
                         } else {
                             d = va_arg(va, intmax_t);
                         }
-                    } else if (length_modifier == LengthModifier::L) {
+                    } else if (length_modifier == LengthModifier::z) {
+                        if (*iter == 'u') {
+                            d = static_cast<size_t>(va_arg(va, uintmax_t));
+                        } else {
+                            d = static_cast<ssize_t>(va_arg(va, intmax_t));
+                        }
+                    } else if (length_modifier == LengthModifier::t) {
+                        if (*iter == 'u') {
+                            d = static_cast<uptrdiff_t>(va_arg(va, uintmax_t));
+                        } else {
+                            d = static_cast<ptrdiff_t>(va_arg(va, intmax_t));
+                        }
+                    } else if (length_modifier == LengthModifier::ll) {
                         if (*iter == 'u') {
                             d = va_arg(va, unsigned long long);
                         } else {
@@ -216,7 +233,7 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va) {
                         } else {
                             d = static_cast<short>(va_arg(va, int));
                         }
-                    } else if (length_modifier == LengthModifier::H) {
+                    } else if (length_modifier == LengthModifier::hh) {
                         if (*iter == 'u') {
                             d = static_cast<unsigned char>(va_arg(va, unsigned int));
                         } else {
@@ -243,6 +260,10 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va) {
                     FormatUInt(d, data);
                     conversion_length = strlen(data);
 
+                    if (precision != -1) {
+                        zero_padding = false;
+                    }
+
                     break;
                 }
                 case 'p':
@@ -260,13 +281,19 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va) {
                             break;
                         }
                         is_hash = true;
-                    } else if (length_modifier == LengthModifier::L) {
+                    } else if (length_modifier == LengthModifier::j) {
+                        x = va_arg(va, uintmax_t);
+                    } else if (length_modifier == LengthModifier::z) {
+                        x = static_cast<size_t>(va_arg(va, uintmax_t));
+                    } else if (length_modifier == LengthModifier::t) {
+                        x = static_cast<uptrdiff_t>(va_arg(va, uintmax_t));
+                    } else if (length_modifier == LengthModifier::ll) {
                         x = va_arg(va, unsigned long long);
                     } else if (length_modifier == LengthModifier::l) {
                         x = va_arg(va, unsigned long);
                     } else if (length_modifier == LengthModifier::h) {
                         x = static_cast<unsigned short>(va_arg(va, unsigned int));
-                    } else if (length_modifier == LengthModifier::H) {
+                    } else if (length_modifier == LengthModifier::hh) {
                         x = static_cast<unsigned char>(va_arg(va, unsigned int));
                     } else {
                         x = va_arg(va, unsigned int);
@@ -291,13 +318,19 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va) {
                 case 'o': {
                     uintmax_t x;
 
-                    if (length_modifier == LengthModifier::L) {
+                    if (length_modifier == LengthModifier::j) {
+                        x = va_arg(va, uintmax_t);
+                    } else if (length_modifier == LengthModifier::z) {
+                        x = static_cast<size_t>(va_arg(va, uintmax_t));
+                    } else if (length_modifier == LengthModifier::t) {
+                        x = static_cast<uptrdiff_t>(va_arg(va, uintmax_t));
+                    } else if (length_modifier == LengthModifier::ll) {
                         x = va_arg(va, unsigned long long);
                     } else if (length_modifier == LengthModifier::l) {
                         x = va_arg(va, unsigned long);
                     } else if (length_modifier == LengthModifier::h) {
                         x = static_cast<unsigned short>(va_arg(va, unsigned int));
-                    } else if (length_modifier == LengthModifier::H) {
+                    } else if (length_modifier == LengthModifier::hh) {
                         x = static_cast<unsigned char>(va_arg(va, unsigned int));
                     } else {
                         x = va_arg(va, unsigned int);
@@ -394,7 +427,10 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va) {
                     }
 
                     conversion_length = strlen(data);
-                    precision = width;
+
+                    if (zero_padding) {
+                        precision = width;
+                    }
 
                     break;
                 }
@@ -409,10 +445,13 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va) {
                         break;
                     }
 
+                    data = s;
                     conversion_length = strlen(data);
                     if (precision >= 0 && conversion_length > static_cast<size_t>(precision)) {
                         conversion_length = precision;
                     }
+
+                    zero_padding = false;
 
                     break;
                 }
@@ -421,6 +460,13 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va) {
 
                     buf[0] = c;
                     conversion_length = 1;
+                    precision = -1;
+                    zero_padding = false;
+                    break;
+                }
+                case 'n': {
+                    int *n = va_arg(va, int *);
+                    *n = i;
                     break;
                 }
                 default: {
@@ -460,8 +506,9 @@ int vsnprintf(char *str, size_t size, const char *format, va_list va) {
             PutChar(str, i, size, '0');
         }
 
-        while (conversion_length-- > 0) {
+        while (conversion_length > 0) {
             PutChar(str, i, size, *data++);
+            --conversion_length;
         }
 
         while (width-- > 0) {
@@ -565,7 +612,7 @@ static int RoundFormattedDoubleHex(char *str, char lower) {
 static size_t RemoveTrailingZeros(char *str) {
     size_t i = 0;
     char *end = str + strlen(str) - 1;
-    while (end > str && *end-- == '0') { ++i; }
+    while (end > str && *end == '0') { --end; ++i; }
     *(end + 1) = '\0';
     return i;
 }
