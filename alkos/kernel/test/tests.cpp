@@ -75,6 +75,8 @@ FAIL_TEST(StackSmashTest)
     }
 }
 
+extern "C" void PreserveCpuStateTest();
+
 // ---------------------------------------
 // cpp compatibility test components
 // ---------------------------------------
