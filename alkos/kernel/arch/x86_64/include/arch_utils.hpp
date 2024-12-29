@@ -27,7 +27,11 @@ FAST_CALL void OsHangNoInterrupts()
 
 FAST_CALL void InvokeInterrupt(const u8 idx) { __asm__ volatile("int %0" : : "N"(idx)); }
 
-FAST_CALL void QemuShutdown() { outw(0x604, 0x2000); }
+FAST_CALL void QemuShutdown()
+{
+    outw(0x604, 0x2000);
+    OsHang();
+}
 
 struct PACK CpuState final {
     enum GeneralPurposeRegisters {
