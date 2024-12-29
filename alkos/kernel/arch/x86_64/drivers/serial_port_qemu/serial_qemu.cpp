@@ -54,7 +54,8 @@ void QemuTerminalInit()
      * 0xC=0b1100, 0x7=0b0111, 0xC7=0b1100'0111
      *
      * This flags states that:
-     * - set up that after received 14 bytes in the FIFO interrupt will be triggered (bits [6-7] set to 11)
+     * - set up that after received 14 bytes in the FIFO interrupt will be triggered (bits [6-7] set
+     * to 11)
      * - clears transmit FIFO (bit 2)
      * - clears receive FIFO (bit 1)
      * - enables FIFO based communication (bit 0)
@@ -131,8 +132,7 @@ void QemuTerminalInit()
 
 void QemuTerminalPutChar(const char c)
 {
-    while (!IsLineEmpty())
-    {
+    while (!IsLineEmpty()) {
     }
 
     outb(kCom1Port, c);
@@ -140,8 +140,7 @@ void QemuTerminalPutChar(const char c)
 
 void QemuTerminalWriteString(const char *s)
 {
-    while (*s)
-    {
+    while (*s) {
         QemuTerminalPutChar(*s);
         ++s;
     }
@@ -150,8 +149,7 @@ void QemuTerminalWriteString(const char *s)
 char QemuTerminalGetChar()
 {
     /* wait for payload */
-    while (!SerialReceived())
-    {
+    while (!SerialReceived()) {
     }
 
     return static_cast<char>(inb(kCom1Port));
@@ -159,15 +157,14 @@ char QemuTerminalGetChar()
 
 size_t QemuTerminalReadLine(char *buffer, const size_t size)
 {
-    for (size_t cur = 0; cur < size - 1; ++cur)
-    {
+    for (size_t cur = 0; cur < size - 1; ++cur) {
         const char c = QemuTerminalGetChar();
-        if (c == '\r')
-        {
+
+        if (c == '\r') {
             buffer[cur] = '\0';
             return cur + 1;
         }
-        
+
         buffer[cur] = c;
     }
 

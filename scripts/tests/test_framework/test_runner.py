@@ -2,8 +2,9 @@ import select
 import subprocess
 import time
 from typing import TextIO
+import logging
 
-from test_commands import TEST_COMMAND_SPECIFIER, TEST_SUCCESS_COMMAND, TEST_FAIL_COMMAND
+from test_commands import TEST_COMMAND_SPECIFIER, TEST_SUCCESS_COMMAND, TEST_FAIL_COMMAND, TEST_DISPLAY_STOP_COMMAND_IN
 from test_data import MAX_ALKOS_TEST_TIME, MAX_ALKOS_WAIT_SYNC_TIME, TestState
 from test_data import TestInfo
 from test_log import TestLog
@@ -36,6 +37,7 @@ def _process_test_state(test_state: TestState, line: str) -> TestState:
 
 def _run_test(path: str, info: TestInfo, log_file: TextIO) -> bool:
     state = TestState.UNKNOWN
+    should_process = True
 
     try:
         alkos = subprocess.Popen(
@@ -45,23 +47,23 @@ def _run_test(path: str, info: TestInfo, log_file: TextIO) -> bool:
             stderr=subprocess.PIPE,
             text=True,
         )
+        logging.info("AlkOS started for test run...")
         start_time = time.perf_counter_ns()
 
-        # Write test name on input and process the output
-        alkos.stdin.write(info.test_name + '\r')
-        alkos.stdin.flush()
-
         # Read lines
-        while True:
+        while should_process:
             reads = [alkos.stdout, alkos.stderr]
 
             curr_time = time.perf_counter_ns()
             readable, _, _ = select.select(reads, [], [], MAX_ALKOS_TEST_TIME - (curr_time - start_time) * 1e-9)
 
             if not readable:
+                logging.ERROR("Select returned not readable...")
+
                 alkos.kill()
                 alkos.wait()
 
+                logging.info("AlkOS killed and waited...")
                 stdout, stderr = alkos.communicate()
 
                 if stdout:
@@ -76,23 +78,37 @@ def _run_test(path: str, info: TestInfo, log_file: TextIO) -> bool:
                 line = stream.readline()
 
                 if not line:
+                    logging.warn("Stream returned None on parsing, gentle abort...")
+                    should_process = False
                     break
 
                 if TEST_COMMAND_SPECIFIER in line:
                     state = _process_test_state(state, line)
 
+                # After "LISTEND" send the test name
+                if TEST_DISPLAY_STOP_COMMAND_IN in line:
+                    state = _process_test_state(state, line)
+
+                    logging.info("Test name send...")
+                    alkos.stdin.write(info.test_name + '\r')
+                    alkos.stdin.flush()
+
                 log_file.write(line)
 
             if alkos.poll() is not None:
+                logging.info("AlkOS dead -> detected on poll -> stopping...")
                 break
 
     except Exception as e:
+        logging.ERROR(f"Failed to run the test ({info.test_name}): {e}")
+
         print(f"[ERROR] Unexpected error running alkos: {e}")
         exit(1)
 
     try:
         alkos.wait(MAX_ALKOS_WAIT_SYNC_TIME)
         stdout, stderr = alkos.communicate()
+        logging.info("AlkOS killed and waited on cleanup...")
 
         if stdout:
             log_file.write(stdout)
@@ -101,13 +117,16 @@ def _run_test(path: str, info: TestInfo, log_file: TextIO) -> bool:
             log_file.write(stderr)
 
     except Exception as e:
+        logging.ERROR(f"Unexpected error occurred when waiting for AlkOS: {e}...")
+
         print(f"[ERROR] Unexpected error waiting for alkos: {e}")
         exit(1)
 
     if state != TestState.SUCCESS and state != TestState.FAILURE:
-        print(f"[WARNING] Test failed with unexpected error: {str(state)}", file=stderr)
+        print(f"[WARNING] Test failed with unexpected error: {str(state)}")
 
     return state == TestState.SUCCESS
+
 
 def run_test(path: str, info: TestInfo, logger: TestLog) -> bool:
     with logger.save_log_with_context(info) as log_file:

@@ -2,15 +2,16 @@ from contextlib import contextmanager
 from pathlib import Path
 from datetime import datetime
 from test_data import TestInfo
+import logging
 
-current_directory = Path(__file__).parent.resolve()
+SCRIPT_DIRECTORY = Path(__file__).parent.resolve()
 
 
 class TestLog:
     def __init__(self) -> None:
         current_time = datetime.now()
 
-        self._dir = current_directory / "logs" / current_time.strftime("%Y_%m_%d_%H_%M_%S")
+        self._dir = SCRIPT_DIRECTORY / "logs" / current_time.strftime("%Y_%m_%d_%H_%M_%S")
         self._dir.mkdir(parents=True, exist_ok=True)
         self._rep = 0
 
@@ -34,3 +35,7 @@ class TestLog:
         finally:
             self._rep += 1
             file.close()
+
+    def setup_logging(self) -> None:
+        logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s",
+                            filename=self._dir / 'exec_log.log', )

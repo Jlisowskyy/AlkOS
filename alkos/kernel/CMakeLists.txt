@@ -14,9 +14,10 @@ include_directories(include)
 include_directories(${SYSROOT}/usr/include)
 include_directories(test)
 
-add_compile_definitions(ALKOS_TEST)
-
 add_compile_definitions(__ALKOS_KERNEL__=1)
+
+# Uncomment to start test framework
+# add_compile_definitions(__ALKOS_TEST__=1)
 
 # Defining this macro enables debug terminal
 add_compile_definitions(__DEBUG_TERMINAL_TEST__=1)
@@ -29,6 +30,10 @@ add_compile_definitions(__DEBUG_ENABLE_TRACES__=1)
 file(GLOB KERNEL_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+
+        # TODO: compile only when debug build
+        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"
 )
 
 # Build the kernel executable
@@ -72,7 +77,7 @@ if (NOT DEFINED CRTI_OBJ OR NOT DEFINED CRTBEGIN_OBJ OR NOT DEFINED CRTEND_OBJ O
 endif ()
 
 set(CMAKE_CXX_LINK_EXECUTABLE
-    "${CMAKE_CXX_COMPILER} <CMAKE_C_LINK_FLAGS> <FLAGS> <LINK_FLAGS>\
+        "${CMAKE_CXX_COMPILER} <CMAKE_C_LINK_FLAGS> <FLAGS> <LINK_FLAGS>\
     ${CRTI_OBJ} ${CRTBEGIN_OBJ} <OBJECTS> ${CRTEND_OBJ} ${CRTN_OBJ} \
     -o <TARGET> <LINK_LIBRARIES>"
 )

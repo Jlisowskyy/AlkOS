@@ -7,6 +7,7 @@ import subprocess
 import time
 import select
 import fnmatch
+import logging
 
 
 def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
@@ -21,6 +22,8 @@ def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
             stderr=subprocess.PIPE,
             text=True,
         )
+        logging.info("AlkOS process started for parsing")
+
         start_time = time.perf_counter_ns()
 
         # Read lines
@@ -31,8 +34,12 @@ def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
             readable, _, _ = select.select(reads, [], [], MAX_ALKOS_BOOT_TIME - (curr_time - start_time) * 1e-9)
 
             if not readable:
+                logging.ERROR("Select returned not readable...")
+
                 alkos.kill()
                 alkos.wait()
+
+                logging.info("AlkOS killed and waited...")
 
                 stdout, stderr = alkos.communicate()
 
@@ -48,26 +55,33 @@ def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
                 line = stream.readline()
 
                 if not line:
+                    logging.ERROR("Stream returned None on parsing...")
                     raise Exception("Read failed...")
 
                 buf += line
 
                 if line == TEST_DISPLAY_STOP_COMMAND_IN:
+                    logging.info("Stop command send...")
+
                     alkos.stdin.write(TEST_DISPLAY_STOP_COMMAND_OUT)
                     alkos.stdin.flush()
                     should_process = False
 
             if alkos.poll() is not None:
+                logging.info("AlkOS dead -> detected on poll -> stopping...")
                 break
 
     except Exception as e:
-        print(f"[ERROR] Unexpected error running alkos: {e}")
+        logging.ERROR(f"Failed to parse AlkOS tests: {e}")
+
+        print(f"[ERROR] Unexpected error when parsing tests from AlkOS: {e}")
         logger.save_init_log(buf)
         exit(1)
 
     try:
         alkos.wait(MAX_ALKOS_WAIT_SYNC_TIME)
         stdout, stderr = alkos.communicate()
+        logging.info("AlkOS killed and waited on cleanup...")
 
         if stdout:
             buf += f"\n{stdout}\n"
@@ -76,11 +90,14 @@ def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
             buf += f"\n{stderr}\n"
 
     except Exception as e:
-        print(f"[ERROR] Unexpected error waiting for alkos: {e}")
+        logging.ERROR(f"Unexpected error occurred when waiting for AlkOS: {e}...")
+
+        print(f"[ERROR] Unexpected error waiting for AlkOS: {e}")
         exit(1)
     finally:
         logger.save_init_log(buf)
 
+    logging.info(f"AlkOS test parsing finished successfully")
     return buf
 
 
@@ -151,10 +168,14 @@ def _filter_tests(tests: list[TestInfo], filters: list[str], blocks: list[str]) 
 
 
 def parse_tests(spec: TestRunSpec, logger: TestLog) -> list[TestInfo]:
+    logging.info("Parsing AlkOS tests...")
     output = _run_alkos_and_get_output(spec.alkos_path, logger)
 
+    logging.info("Collecting test commands from output...")
     messages = _parse_test_relevant_messages(output)
 
+    logging.info("Parsing test infos from output...")
     tests = _parse_test_info(messages)
 
+    logging.info("Applying filters and blocks on tests...")
     return _filter_tests(tests, spec.filters, spec.blocks)
