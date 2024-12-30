@@ -69,26 +69,38 @@ static Idtr g_idtr;
 // Isrs
 // ------------------------------
 
-extern "C" NO_RET void DefaultExceptionHandler(const u8 exception_code)
+/**
+ * @brief This handler is called when an unknown exception occurs.
+ * Executes KernelPanic.
+ *
+ * @param idt_idx index of interrupt triggered.
+ */
+extern "C" NO_RET void DefaultExceptionHandler(const u8 idt_idx)
 {
     static constexpr size_t kBuffSize = 128;
     char buff[kBuffSize];
 
     R_ASSERT_NEQ(
-        kBuffSize, snprintf(buff, kBuffSize, "Received exception with code: %hhu", exception_code)
+        kBuffSize, snprintf(buff, kBuffSize, "Received exception with code: %hhu\n", idt_idx)
     );
     TerminalWriteString(buff);
 
     KernelPanic("Unknown Exception caught -> default handler invoked.");
 }
 
-void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 exception_code)
+/**
+ * @brief Logs the received interrupt.
+ *
+ * @param stack_frame Pointer to the ISR stack frame.
+ * @param idt_idx index of interrupt triggered.
+ */
+void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 idt_idx)
 {
     static constexpr size_t kBuffSize = 128;
     char buff[kBuffSize];
 
     R_ASSERT_NEQ(
-        kBuffSize, snprintf(buff, kBuffSize, "Received interrupt with code: %hhu", exception_code)
+        kBuffSize, snprintf(buff, kBuffSize, "Received interrupt with code: %hhu\n", idt_idx)
     );
     TerminalWriteString(buff);
 }
@@ -132,7 +144,8 @@ void IdtInit()
         IdtSetDescriptor(idx, reinterpret_cast<u64>(IsrWrapperTable[idx]), kDefaultFlags);
     }
 
-    __asm__ volatile("lidt %0" : : "m"(g_idtr));  // load the new IDT
+    /* load the new IDT */
+    __asm__ volatile("lidt %0" : : "m"(g_idtr));
 
     TRACE_SUCCESS("IDT initialized");
 }

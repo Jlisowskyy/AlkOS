@@ -7,7 +7,7 @@ extern "C" {
 // IRQ0: System timer
 // ------------------------------
 
-void isr_32(void *const stack_frame)
+void isr_32([[maybe_unused]] void *const stack_frame)
 {
     // LogIrqReceived(stack_frame, 32);
     Pic8259SendEOI(0);

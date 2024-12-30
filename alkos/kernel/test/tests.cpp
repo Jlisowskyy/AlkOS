@@ -24,9 +24,9 @@ class TestFrameworkObj : public TestGroupBase
 
     void TearDown_() override
     {
-        ASSERT_EQ(4, a);
-        ASSERT_EQ(4, b);
-        ASSERT_EQ(4, c);
+        R_ASSERT_EQ(4, a);
+        R_ASSERT_EQ(4, b);
+        R_ASSERT_EQ(4, c);
     }
 
     int a = 1;
@@ -44,7 +44,7 @@ FAIL_TEST_F(TestFrameworkObj, TestFrameworkTestFail) { ASSERT(false && "TestFram
 TEST_F(TestFrameworkObj, TestAccessMembers)
 {
     const int sum = a + b + c;
-    ASSERT_EQ(12, sum);
+    R_ASSERT_EQ(12, sum);
 }
 
 FAIL_TEST_F(TestFrameworkObj, TestAccessMembersFail)
@@ -114,7 +114,7 @@ TEST(CppTest)
     test4->m_a++;
 
     /* test global object */
-    ASSERT_EQ(12, g_GlobalTestClass.m_b);
+    R_ASSERT_EQ(12, g_GlobalTestClass.m_b);
 }
 
 // ------------------------------

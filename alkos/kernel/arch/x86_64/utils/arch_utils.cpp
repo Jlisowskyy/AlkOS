@@ -4,6 +4,11 @@
 #include <kernel_assert.hpp>
 #include <terminal.hpp>
 
+/**
+ * @brief Capture current CPU register state
+ *
+ * @return CpuState structure containing current register values
+ */
 CpuState DumpCpuState()
 {
     CpuState cpu_state{};
@@ -28,6 +33,12 @@ CpuState DumpCpuState()
     return cpu_state;
 }
 
+/**
+ * @brief Print formatted dump of CPU register state
+ *
+ * Outputs current values of all general-purpose registers
+ * to the terminal in a human-readable format.
+ */
 void CpuState::DumpStateDesc() const
 {
     static constexpr size_t kSizeBuff = 2048;
