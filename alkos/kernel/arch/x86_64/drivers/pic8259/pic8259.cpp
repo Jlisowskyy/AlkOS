@@ -1,8 +1,8 @@
 
 /* internal includes */
+#include <debug.hpp>
 #include <pic8259/pic8259.hpp>
 #include <types.hpp>
-#include <debug.hpp>
 
 /**
  * @file pic8259.cpp
@@ -23,11 +23,11 @@
  * @{
  */
 
-static constexpr byte kIcw1Icw4 = 0x01; ///< Indicates ICW4 will be present
-static constexpr byte kIcw1Init = 0x10; ///< Initialization command bit
+static constexpr byte kIcw1Icw4 = 0x01;  ///< Indicates ICW4 will be present
+static constexpr byte kIcw1Init = 0x10;  ///< Initialization command bit
 
-static constexpr byte kIcw3Irq2Slave = 0b100;  ///< Master PIC: IRQ2 has a slave
-static constexpr byte kIcw3SlavePicCascadeIdent = 0b10;  ///< Slave PIC: Connected to IRQ2
+static constexpr byte kIcw3Irq2Slave            = 0b100;  ///< Master PIC: IRQ2 has a slave
+static constexpr byte kIcw3SlavePicCascadeIdent = 0b10;   ///< Slave PIC: Connected to IRQ2
 
 static constexpr byte kIcw4_8086 = 0x01;  ///< Configure for 8086/88 mode
 /** @} */
@@ -36,6 +36,15 @@ static constexpr byte kIcw4_8086 = 0x01;  ///< Configure for 8086/88 mode
 // Implementations
 // ------------------------------
 
+/**
+ * @brief Initialize both PICs with specified interrupt offsets
+ *
+ * @param pic1_offset The interrupt vector offset for the master PIC
+ * @param pic2_offset The interrupt vector offset for the slave PIC
+ *
+ * Configures both PICs in cascade mode and sets up their respective
+ * interrupt vector offsets in the IDT. Each expects exactly 8 free isrs at the offset.
+ */
 void InitPic8259(const byte pic1_offset, const byte pic2_offset)
 {
     // Cache current interrupt masks to restore them after initialization

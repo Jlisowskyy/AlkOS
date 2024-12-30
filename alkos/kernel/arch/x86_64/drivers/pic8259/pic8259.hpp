@@ -31,15 +31,7 @@ static constexpr u16 kPic2Data    = kPic2Addr + 1; ///< Data port for slave PIC
 // Functions
 // ------------------------------
 
-/**
- * @brief Initialize both PICs with specified interrupt offsets
- *
- * @param pic1_offset The interrupt vector offset for the master PIC
- * @param pic2_offset The interrupt vector offset for the slave PIC
- *
- * Configures both PICs in cascade mode and sets up their respective
- * interrupt vector offsets in the IDT. Each expects exactly 8 free isrs at the offset.
- */
+
 void InitPic8259(byte pic1_offset, byte pic2_offset);
 
 /**

@@ -32,15 +32,35 @@ static constexpr byte kLineEmpty = 0x20; /* Indicates transmit buffer is empty *
 // Local Helper Functions
 // ------------------------------
 
-WRAP_CALL bool SerialReceived() { return (inb(kReadLineStatusReg) & kReceivedBit) != 0; }
+/**
+ * @brief Check if data is available to be read
+ * @return true if data is available, false otherwise
+ */
+FAST_CALL bool SerialReceived() { return (inb(kReadLineStatusReg) & kReceivedBit) != 0; }
 
-WRAP_CALL bool IsLineEmpty() { return (inb(kReadLineStatusReg) & kLineEmpty) != 0; }
+/**
+ * @brief Check if the transmission line is empty
+ * @return true if the line is empty and ready for transmission, false otherwise
+ */
+FAST_CALL bool IsLineEmpty() { return (inb(kReadLineStatusReg) & kLineEmpty) != 0; }
 
 // ------------------------------
 // Global Interface Functions
 // ------------------------------
 
 extern "C" {
+
+/**
+ * @brief Initialize the QEMU serial port terminal
+ *
+ * Configures COM1 port with the following settings:
+ * - Baud rate: 38400
+ * - Data bits: 8
+ * - Stop bits: 1
+ * - No parity
+ * - FIFO enabled
+ * Performs a loopback test to verify the configuration.
+ */
 void QemuTerminalInit()
 {
     /**
@@ -126,6 +146,13 @@ void QemuTerminalInit()
     TRACE_SUCCESS("QemuTerminalInit() returned with success");
 }
 
+/**
+ * @brief Send a single character through the serial port
+ *
+ * @param c The character to transmit
+ *
+ * Blocks until the transmission line is empty before sending.
+ */
 void QemuTerminalPutChar(const char c)
 {
     while (!IsLineEmpty()) {
@@ -134,6 +161,14 @@ void QemuTerminalPutChar(const char c)
     outb(kCom1Port, c);
 }
 
+/**
+ * @brief Send a null-terminated string through the serial port
+ *
+ * @param s Pointer to the null-terminated string to transmit
+ *
+ * Transmits each character in the string sequentially,
+ * blocking until each character is sent.
+ */
 void QemuTerminalWriteString(const char *s)
 {
     while (*s) {
@@ -142,6 +177,13 @@ void QemuTerminalWriteString(const char *s)
     }
 }
 
+/**
+ * @brief Receive a single character from the serial port
+ *
+ * @return The received character
+ *
+ * Blocks until a character is received from the serial port.
+ */
 char QemuTerminalGetChar()
 {
     /* Wait until data is available to read */
@@ -151,6 +193,17 @@ char QemuTerminalGetChar()
     return static_cast<char>(inb(kCom1Port));
 }
 
+/**
+ * @brief Read a line of text from the serial port
+ *
+ * @param buffer Destination buffer for the received line
+ * @param size Maximum number of characters to read (including null terminator)
+ * @return Number of characters read (including null terminator)
+ *
+ * Reads characters until either a carriage return ('\r', used by qemu) is received
+ * or the buffer is full. The resulting string is null-terminated.
+ * The returned size includes the null terminator.
+ */
 size_t QemuTerminalReadLine(char *buffer, const size_t size)
 {
     for (size_t cur = 0; cur < size - 1; ++cur) {
