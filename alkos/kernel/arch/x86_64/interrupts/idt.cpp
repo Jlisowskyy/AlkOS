@@ -18,7 +18,17 @@ TODO_WHEN_SNPRINTF_EXISTS
 /* crucial defines */
 static constexpr u32 kStubTableSize = 64;
 static constexpr u32 kIdtEntries    = 256;
-static constexpr u8 kDefaultFlags   = 0x8E;
+
+TODO_BY_THE_END_OF_MILESTONE0
+/**
+ * Flags for ISRs (Interrupt Service Routines):
+ * - 0xE: 64-bit Interrupt Gate (0xF for 64-bit Trap Gate)
+ * - Bit 4: Reserved (must always be 0)
+ * - Bits 5-6: 2-bit value defining the allowed CPU Privilege Levels (CPL)
+ *   that can access this interrupt via the INT instruction. Hardware interrupts ignore this.
+ * - Bit 7: Present bit (must be set to 1 for the descriptor to be valid).
+ */
+static constexpr u8 kDefaultFlags = 0x8E;
 
 /* gdt kernel code offset */
 extern "C" u32 kKernelCodeOffset;
