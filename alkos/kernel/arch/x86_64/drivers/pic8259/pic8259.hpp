@@ -2,32 +2,55 @@
 #define KERNEL_ARCH_X86_64_DRIVERS_PIC8259_PIC8259_HPP_
 
 /* internal includes */
-#include "pic8259.hpp"
-
 #include <bit.hpp>
 #include <defines.hpp>
 #include <io.hpp>
 #include <types.hpp>
-#include <debug.hpp>
 
-// ------------------------------
-// Crucial definitions
-// ------------------------------
+/**
+ * @file pic8259.hpp
+ * @brief Driver interface for the 8259 Programmable Interrupt Controller (PIC)
+ *
+ * This header provides the interface for initializing and controlling the 8259 PIC,
+ * which is responsible for handling hardware interrupts in x86 systems.
+ */
 
-static constexpr u16 kPic1Addr    = 0x20;
-static constexpr u16 kPic2Addr    = 0xA0;
-static constexpr u16 kPic1Command = kPic1Addr;
-static constexpr u16 kPic1Data    = kPic1Addr + 1;
-static constexpr u16 kPic2Command = kPic2Addr;
-static constexpr u16 kPic2Data    = kPic2Addr + 1;
+/** @name PIC I/O Ports
+ * Base I/O port addresses and command/data port offsets for both PICs
+ * @{
+ */
+static constexpr u16 kPic1Addr    = 0x20;  ///< Base address for master PIC
+static constexpr u16 kPic2Addr    = 0xA0;  ///< Base address for slave PIC
+static constexpr u16 kPic1Command = kPic1Addr;     ///< Command port for master PIC
+static constexpr u16 kPic1Data    = kPic1Addr + 1; ///< Data port for master PIC
+static constexpr u16 kPic2Command = kPic2Addr;     ///< Command port for slave PIC
+static constexpr u16 kPic2Data    = kPic2Addr + 1; ///< Data port for slave PIC
+/** @} */
 
 // ------------------------------
 // Functions
 // ------------------------------
 
+/**
+ * @brief Initialize both PICs with specified interrupt offsets
+ *
+ * @param pic1_offset The interrupt vector offset for the master PIC
+ * @param pic2_offset The interrupt vector offset for the slave PIC
+ *
+ * Configures both PICs in cascade mode and sets up their respective
+ * interrupt vector offsets in the IDT. Each expects exactly 8 free isrs at the offset.
+ */
 void InitPic8259(byte pic1_offset, byte pic2_offset);
 
-/* Acknowledge PIC about end of interrupt */
+/**
+ * @brief Send End of Interrupt (EOI) signal to appropriate PIC(s)
+ *
+ * @param irq The IRQ number that has been serviced (0-15)
+ *
+ * Signals the end of interrupt processing to the PIC(s). For IRQs 8-15,
+ * EOI must be sent to both the slave and master PICs. For IRQs 0-7,
+ * EOI is sent only to the master PIC.
+ */
 FAST_CALL void Pic8259SendEOI(const u8 irq)
 {
     /* code for End Of Interrupt */
@@ -40,6 +63,16 @@ FAST_CALL void Pic8259SendEOI(const u8 irq)
     outb(kPic1Command, kPicEOI);
 }
 
+
+/**
+ * @brief Set or clear a specific IRQ bit for pic mask
+ *
+ * @param irq_line The IRQ line to modify (0-15)
+ * @param val true to mask (disable) the IRQ, false to unmask (enable)
+ *
+ * Modifies the mask for a specific IRQ line. Masked interrupts are ignored
+ * by the PIC and will not be forwarded to the CPU.
+ */
 FAST_CALL void Pic8259SetIrqMaskValue(byte irq_line, const bool val)
 {
     u16 port;
@@ -56,6 +89,12 @@ FAST_CALL void Pic8259SetIrqMaskValue(byte irq_line, const bool val)
     outb(port, mask);
 }
 
+/**
+ * @brief Disable all interrupts on both PICs
+ *
+ * Masks all IRQ lines on both the master and slave PICs, effectively
+ * disabling all hardware interrupts they control.
+ */
 FAST_CALL void Pic8259Disable()
 {
     /* mask all interrupts possible */
