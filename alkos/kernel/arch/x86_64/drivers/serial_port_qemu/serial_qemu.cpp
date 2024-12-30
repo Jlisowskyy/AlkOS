@@ -7,7 +7,6 @@
 #include <io.hpp>
 #include <kernel_assert.hpp>
 #include <serial_port_qemu/serial_qemu.hpp>
-#include <temp.hpp>
 
 // ------------------------------
 // Crucial defines

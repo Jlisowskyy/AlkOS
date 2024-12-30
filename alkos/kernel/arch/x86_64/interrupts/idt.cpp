@@ -1,11 +1,13 @@
 /* internal includes */
 #include <memory.h>
+#include <stdio.h>
 #include <bit.hpp>
 #include <debug.hpp>
 #include <defines.hpp>
 #include <kernel_assert.hpp>
 #include <panic.hpp>
-#include <temp.hpp>
+
+#include <terminal.hpp>
 
 TODO_BY_THE_END_OF_MILESTONE0
 TODO_WHEN_SNPRINTF_EXISTS
@@ -69,13 +71,26 @@ static Idtr g_idtr;
 
 extern "C" NO_RET void DefaultExceptionHandler(const u8 exception_code)
 {
-    temp_DisplayNum(exception_code, "Received exception code");
+    static constexpr size_t kBuffSize = 128;
+    char buff[kBuffSize];
+
+    ASSERT_NEQ(
+        kBuffSize, snprintf(buff, kBuffSize, "Received exception with code: %hhu", exception_code)
+    );
+    TerminalWriteString(buff);
+
     KernelPanic("Unknown Exception caught -> default handler invoked.");
 }
 
 void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 exception_code)
 {
-    temp_DisplayNum(exception_code, "Received interrupt with code");
+    static constexpr size_t kBuffSize = 128;
+    char buff[kBuffSize];
+
+    ASSERT_NEQ(
+        kBuffSize, snprintf(buff, kBuffSize, "Received interrupt with code: %hhu", exception_code)
+    );
+    TerminalWriteString(buff);
 }
 
 // ------------------------------

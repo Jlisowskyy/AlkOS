@@ -75,8 +75,6 @@ FAIL_TEST(StackSmashTest)
     }
 }
 
-extern "C" void PreserveCpuStateTest();
-
 // ---------------------------------------
 // cpp compatibility test components
 // ---------------------------------------
@@ -150,4 +148,4 @@ FAIL_TEST(SimpleExceptionTest) { int a = 9 / 0; }
  * any ones in the registers after returning from interrupt.
  */
 extern "C" void PreserveCpuStateTest();
-TEST(PreserceCpuStateTest) { PreserveCpuStateTest(); }
+TEST(PreserveCpuStateTest) { PreserveCpuStateTest(); }
