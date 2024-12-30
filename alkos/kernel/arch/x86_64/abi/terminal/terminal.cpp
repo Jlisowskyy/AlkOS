@@ -4,6 +4,7 @@
 
 #include <serial_port_qemu/serial_qemu.hpp>
 #include <vga/vga.hpp>
+#include <todo.hpp>
 
 extern "C" {
 void TerminalInit()
@@ -52,7 +53,7 @@ char TerminalGetChar()
         return QemuTerminalGetChar();
     }
 
-    /* TODO */
+    TODO_BY_THE_END_OF_MILESTONE0
     return 'x';
 }
 
@@ -62,7 +63,7 @@ size_t TerminalReadLine(char *buffer, const size_t size)
         return QemuTerminalReadLine(buffer, size);
     }
 
-    /* TODO */
+    TODO_BY_THE_END_OF_MILESTONE0
     return 0;
 }
 }
