@@ -10,7 +10,7 @@
 // ------------------------------
 
 /**
- * @brief TRACE - simple macro for debugging purposes, works only when __DEBUG_TERMINAL_TEST__ and
+ * @brief TRACE - simple macro for debugging purposes, works only when __USE_DEBUG_OUTPUT__ and
  * __DEBUG_ENABLE_TRACES__ are defined
  *
  * @note Currently supports using only compiled time strings

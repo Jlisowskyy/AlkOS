@@ -13,7 +13,7 @@ extern "C"
 
 WRAP_CALL void DebugTerminalWrite(const char *str)
 {
-    if constexpr (kDebugTerminalEnabled)
+    if constexpr (kUseDebugOutput)
     {
         DebugTerminalWriteArch_(str);
     }
@@ -21,7 +21,7 @@ WRAP_CALL void DebugTerminalWrite(const char *str)
 
 WRAP_CALL size_t DebugTerminalReadLine(char *const buffer, const size_t buffer_size)
 {
-    if constexpr (kDebugTerminalEnabled)
+    if constexpr (kUseDebugOutput)
     {
         return DebugTerminalReadLineArch_(buffer, buffer_size);
     }

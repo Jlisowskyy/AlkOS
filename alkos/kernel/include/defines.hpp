@@ -14,11 +14,11 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x)  STRINGIFY(x)
 
-#ifdef __DEBUG_TERMINAL_TEST__
-static constexpr bool kDebugTerminalEnabled = true;
+#ifdef __USE_DEBUG_OUTPUT__
+static constexpr bool kUseDebugOutput = true;
 #else
-static constexpr bool kDebugTerminalEnabled = false;
-#endif  // __DEBUG_TERMINAL_TEST__
+static constexpr bool kUseDebugOutput = false;
+#endif  // __USE_DEBUG_OUTPUT__
 
 #ifdef __DEBUG_ENABLE_TRACES__
 static constexpr bool kDebugTracesEnabled = true;
@@ -26,10 +26,10 @@ static constexpr bool kDebugTracesEnabled = true;
 static constexpr bool kDebugTracesEnabled = false;
 #endif  // __DEBUG_ENABLE_TRACES__
 
-#ifdef __ALKOS_TEST__
-static constexpr bool kAlkosTestEnabled = true;
+#ifdef __ALKOS_TESTS_BUILD__
+static constexpr bool kIsAlkosTestBuild = true;
 #else
-static constexpr bool kAlkosTestEnabled = false;
-#endif  // __ALKOS_TEST__
+static constexpr bool kIsAlkosTestBuild = false;
+#endif  // __ALKOS_TESTS_BUILD__
 
 #endif  // KERNEL_INCLUDE_DEFINES_HPP_

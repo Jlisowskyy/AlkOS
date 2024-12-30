@@ -13,14 +13,15 @@ endif ()
 include_directories(include)
 include_directories(${SYSROOT}/usr/include)
 include_directories(test)
+include_directories(abi)
 
 add_compile_definitions(__ALKOS_KERNEL__=1)
 
 # Uncomment to start test framework
-# add_compile_definitions(__ALKOS_TEST__=1)
+add_compile_definitions(__ALKOS_TESTS_BUILD__=1)
 
 # Defining this macro enables debug terminal
-add_compile_definitions(__DEBUG_TERMINAL_TEST__=1)
+add_compile_definitions(__USE_DEBUG_OUTPUT__=1)
 
 # Controls whether various traces should be printed to debug terminal
 add_compile_definitions(__DEBUG_ENABLE_TRACES__=1)
