@@ -3,9 +3,6 @@
 
 #include <pre_kernel_init.hpp>
 
-/**
- *
- */
 void KernelInit();
 
 #endif  // ALKOS_INCLUDE_INIT_HPP_
