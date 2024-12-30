@@ -20,11 +20,11 @@ static constexpr bool kUseDebugOutput = true;
 static constexpr bool kUseDebugOutput = false;
 #endif  // __USE_DEBUG_OUTPUT__
 
-#ifdef __DEBUG_ENABLE_TRACES__
-static constexpr bool kDebugTracesEnabled = true;
+#ifdef __USE_DEBUG_TRACES__
+static constexpr bool kUseDebugTraces = true;
 #else
-static constexpr bool kDebugTracesEnabled = false;
-#endif  // __DEBUG_ENABLE_TRACES__
+static constexpr bool kUseDebugTraces = false;
+#endif  // __USE_DEBUG_TRACES__
 
 #ifdef __ALKOS_TESTS_BUILD__
 static constexpr bool kIsAlkosTestBuild = true;
