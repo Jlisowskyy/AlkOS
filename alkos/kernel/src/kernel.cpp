@@ -17,7 +17,7 @@ extern "C" void KernelMain()
         TRACE_INFO("Running tests...");
         test::TestModule test_module{};
         test_module.RunTestModule();
-        ASSERT_ALWAYS(false && "Test module should never exit!");
+        R_ASSERT(false && "Test module should never exit!");
     }
 
     TRACE_INFO("Proceeding to KernelRun...");

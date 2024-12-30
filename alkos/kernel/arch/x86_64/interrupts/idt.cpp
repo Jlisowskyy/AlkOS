@@ -74,7 +74,7 @@ extern "C" NO_RET void DefaultExceptionHandler(const u8 exception_code)
     static constexpr size_t kBuffSize = 128;
     char buff[kBuffSize];
 
-    ASSERT_NEQ(
+    R_ASSERT_NEQ(
         kBuffSize, snprintf(buff, kBuffSize, "Received exception with code: %hhu", exception_code)
     );
     TerminalWriteString(buff);
@@ -87,7 +87,7 @@ void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 exception_code)
     static constexpr size_t kBuffSize = 128;
     char buff[kBuffSize];
 
-    ASSERT_NEQ(
+    R_ASSERT_NEQ(
         kBuffSize, snprintf(buff, kBuffSize, "Received interrupt with code: %hhu", exception_code)
     );
     TerminalWriteString(buff);
@@ -99,7 +99,7 @@ void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 exception_code)
 
 static void IdtSetDescriptor(const u8 idx, const u64 isr, const u8 flags)
 {
-    ASSERT_EQ(false, g_idtGuards[idx]);
+    R_ASSERT_EQ(false, g_idtGuards[idx]);
 
     IdtEntry &entry = g_idt[idx];
 
@@ -117,7 +117,7 @@ static void IdtSetDescriptor(const u8 idx, const u64 isr, const u8 flags)
 void IdtInit()
 {
     ASSERT(kKernelCodeOffset < UINT16_MAX && "Kernel code offset out of range");
-    ASSERT_NEQ(0, kKernelCodeOffset);
+    R_ASSERT_NEQ(0, kKernelCodeOffset);
 
     g_idtr.base  = reinterpret_cast<uintptr_t>(g_idt);
     g_idtr.limit = static_cast<u16>(sizeof(IdtEntry)) * kIdtEntries - 1;

@@ -119,7 +119,7 @@ void QemuTerminalInit()
     outb(kCom1Port, kTestByte);
 
     /* received and verify payload */
-    ASSERT_EQ(kTestByte, inb(kCom1Port));
+    R_ASSERT_EQ(kTestByte, inb(kCom1Port));
 
     /* -------------------------------------------------------------- */
 

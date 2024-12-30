@@ -123,7 +123,7 @@ void TestModule::RunTest_(const TestSpec *test)
     TerminalWriteString("\n");
 
     TestGroupBase *test_obj = test->factory(g_testMem);
-    ASSERT_NOT_NULL(test_obj);
+    R_ASSERT_NOT_NULL(test_obj);
 
     /* mark that the test is already started */
     g_testStarted = true;
@@ -147,7 +147,7 @@ void TestModule::RunTest_(const TestSpec *test)
 
 void AddTest(const char *name, const test_factory_t factory)
 {
-    ASSERT_NULL(TestModule::FindTestFunction(name));
+    R_ASSERT_NULL(TestModule::FindTestFunction(name));
     TestSpec *pTestSpec = &g_tests[g_numTests++];
 
     pTestSpec->factory = factory;
@@ -156,7 +156,7 @@ void AddTest(const char *name, const test_factory_t factory)
 
 void AddManualTest(const char *name, const test_factory_t factory)
 {
-    ASSERT_NULL(TestModule::FindTestFunction(name));
+    R_ASSERT_NULL(TestModule::FindTestFunction(name));
     TestSpec *pTestSpec = &g_manualTests[g_numManualTests++];
 
     pTestSpec->factory = factory;

@@ -47,7 +47,7 @@ void CpuState::DumpStateDesc() const
         );
 
         offset += written;
-        ASSERT_NEQ(offset, kSizeBuff);
+        R_ASSERT_NEQ(offset, kSizeBuff);
     }
 
     TerminalWriteString(buff);
