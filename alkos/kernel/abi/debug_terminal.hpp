@@ -1,5 +1,5 @@
-#ifndef KERNEL_INCLUDE_DEBUG_TERMINAL_HPP_
-#define KERNEL_INCLUDE_DEBUG_TERMINAL_HPP_
+#ifndef KERNEL_ABI_DEBUG_TERMINAL_HPP_
+#define KERNEL_ABI_DEBUG_TERMINAL_HPP_
 
 #include <defines.hpp>
 #include <types.hpp>
@@ -29,4 +29,4 @@ WRAP_CALL size_t DebugTerminalReadLine(char *const buffer, const size_t buffer_s
     return 0;
 }
 
-#endif // KERNEL_INCLUDE_DEBUG_TERMINAL_HPP_
+#endif // KERNEL_ABI_DEBUG_TERMINAL_HPP_

@@ -3,16 +3,7 @@
 #include <kernel_assert.hpp>
 #include <terminal.hpp>
 #include <test_module/test_module.hpp>
-
-TODO_BY_THE_END_OF_MILESTONE0
-static int strcmp(const char *str1, const char *str2)
-{
-    size_t i       = 0;
-    const auto *s1 = reinterpret_cast<const unsigned char *>(str1);
-    const auto *s2 = reinterpret_cast<const unsigned char *>(str2);
-    while (s1[i] == s2[i] && s1[i]) i++;
-    return s1[i] - s2[i];
-}
+#include <string.h>
 
 namespace test
 {

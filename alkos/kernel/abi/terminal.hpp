@@ -1,5 +1,5 @@
-#ifndef KERNEL_INCLUDE_TERMINA_HPP_
-#define KERNEL_INCLUDE_TERMINA_HPP_
+#ifndef KERNEL_ABI_TERMINA_HPP_
+#define KERNEL_ABI_TERMINA_HPP_
 
 #include <todo.hpp>
 #include <types.hpp>
@@ -21,4 +21,4 @@ char TerminalGetChar();
 size_t TerminalReadLine(char *buffer, size_t size);
 }
 
-#endif  // KERNEL_INCLUDE_TERMINA_HPP_
+#endif  // KERNEL_ABI_TERMINA_HPP_
