@@ -3,11 +3,11 @@
 MAKE_ISO_SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 MAKE_ISO_SCRIPT_PATH="${MAKE_ISO_SCRIPT_DIR}/$(basename "$0")"
 
-MAKE_ISO_SCRIPT_GRUB_CONTENTS="
+MAKE_ISO_SCRIPT_GRUB_CONTENTS_TEMPLATE="
 set timeout=0
 set default=0
 menuentry \"AlkOS\" {
-  multiboot2 /boot/alkos.kernel
+  multiboot2 /boot/PLACEHOLDER.kernel
   boot
 }
 "
@@ -18,11 +18,13 @@ source "${MAKE_ISO_SCRIPT_DIR}/../utils/helpers.bash"
 source "${MAKE_ISO_SCRIPT_DIR}/../utils/pretty_print.bash"
 
 help() {
-  echo "${MAKE_ISO_SCRIPT_PATH} [target] [source] [--run | -r] [--verbose | -v]"
+  echo "${MAKE_ISO_SCRIPT_PATH} [target] [source] [executable_name]
+   [--run | -r] [--verbose | -v]"
   echo "Creates a .iso for alkOS from the sysroot directory"
   echo "Where:"
   echo "target - path to the .iso file to create"
   echo "source - path to the sysroot directory of alkOS"
+  echo "executable_name - name of the kernel executable in the sysroot directory"
   echo "--run     | -r - flag to run make_iso.sh"
   echo "--verbose | -v - flag to enable verbose output"
 }
@@ -30,6 +32,7 @@ help() {
 parse_args() {
   MAKE_ISO_SCRIPT_RUN=false
   MAKE_ISO_SCRIPT_VERBOSE=false
+  MAKE_ISO_SCRIPT_EXECUTABLE_NAME=""
   while [[ $# -gt 0 ]]; do
     case $1 in
       -h|--help)
@@ -49,6 +52,9 @@ parse_args() {
           MAKE_ISO_SCRIPT_TARGET="$1"
         elif [ -z "$MAKE_ISO_SCRIPT_SOURCE" ]; then
           MAKE_ISO_SCRIPT_SOURCE="$1"
+        elif [ -z "$MAKE_ISO_SCRIPT_EXECUTABLE_NAME" ]; then
+          MAKE_ISO_SCRIPT_EXECUTABLE_NAME="$1"
+          MAKE_ISO_SCRIPT_GRUB_CONTENTS="${MAKE_ISO_SCRIPT_GRUB_CONTENTS_TEMPLATE//PLACEHOLDER.kernel/${MAKE_ISO_SCRIPT_EXECUTABLE_NAME}}"
         else
           echo "Unknown argument: $1"
           exit 1
@@ -67,6 +73,11 @@ process_args() {
 
   if [ "$MAKE_ISO_SCRIPT_RUN" = false ] ; then
     dump_error "--run flag was not provided!"
+    exit 1
+  fi
+
+  if [ -z "$MAKE_ISO_SCRIPT_EXECUTABLE_NAME" ]; then
+    dump_error "Executable name must be provided!"
     exit 1
   fi
 }

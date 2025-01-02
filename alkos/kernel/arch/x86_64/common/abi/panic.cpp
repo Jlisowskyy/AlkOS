@@ -11,12 +11,17 @@ extern "C" void KernelPanic(const char *msg)
     TerminalWriteError(msg);
     TerminalWriteError("\n");
 
-    if constexpr (kIsAlkosTestBuild) {
-        /* When running tests */
-        test::OnKernelPanic();
-    } else {
-        /* Usual situation */
-
-        OsHang();
-    }
+// #TODO
+//#ifdef __x86_64__
+//    if constexpr (kIsAlkosTestBuild) {
+//        /* When running tests */
+//        test::OnKernelPanic();
+//    } else {
+//        /* Usual situation */
+//
+//        OsHang();
+//    }
+//#else
+//    OsHang();
+//#endif
 }

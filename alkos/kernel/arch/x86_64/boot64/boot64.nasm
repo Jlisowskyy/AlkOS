@@ -53,3 +53,33 @@ boot64:
 os_hang:
           hlt
           jmp os_hang
+
+; # TODO TEMP
+          section .data
+          GDT64:
+          .Null:
+          dq 0
+          .Code: equ $ - GDT64
+          dw 0x0000
+          dw 0x0000
+          db 0x00
+          db 0x9A        ; Access byte
+          db 0x20        ; Flags
+          db 0x00
+          .Data: equ $ - GDT64
+          dw 0x0000
+          dw 0x0000
+          db 0x00
+          db 0x92        ; Access byte
+          db 0x00        ; Flags
+          db 0x00
+          .End:
+          .Pointer:
+          dw .End - GDT64 - 1 ;
+          dq GDT64
+
+          global kKernelCodeOffset
+          global kKernelDataOffset
+
+          kKernelCodeOffset dd GDT64.Code
+          kKernelDataOffset dd GDT64.Data

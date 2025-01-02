@@ -1,9 +1,8 @@
-extern TerminalWriteString_32
 extern TerminalWriteString
 
 %macro puts_32 1
     push %1
-    call TerminalWriteString_32
+    call TerminalWriteString
     add esp, 4
 %endmacro
 

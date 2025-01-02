@@ -1,4 +1,4 @@
-project(kernel LANGUAGES C CXX ASM_NASM)
+project(kernecommonl LANGUAGES C CXX ASM_NASM)
 
 if (NOT DEFINED SYSROOT)
     message(FATAL_ERROR "SYSROOT is not defined")
@@ -8,6 +8,9 @@ if (NOT DEFINED ARCH)
     message(FATAL_ERROR "ARCH is not defined")
 endif ()
 
+# Arch has the option to define multiple kernel executables (like boot32, and main kernel)
+# This is the boot executable that will be run by the bootloader
+set(BOOTABLE_KERNEL_EXECUTABLE alkos.kernel)
 
 # Base include directories
 include_directories(include)
@@ -44,21 +47,30 @@ add_executable(alkos.kernel
 
 # Include the architecture specific CMakeLists.txt file
 add_subdirectory(arch/${ARCH})
+if (NOT DEFINED KERNEL_EXECUTABLES)
+    message(FATAL_ERROR "No kernel executables defined in arch/${ARCH}")
+endif ()
+
+if (NOT DEFINED BOOTABLE_KERNEL_EXECUTABLE)
+    message(FATAL_ERROR "No primary kernel executable defined")
+endif ()
 
 # Link against libk and gcc
-target_link_libraries(alkos.kernel PRIVATE
-        ${SYSROOT}/usr/lib/libk.a
-        gcc
-)
+foreach (KERNEL_EXECUTABLE ${KERNEL_EXECUTABLES})
+    target_link_libraries(${KERNEL_EXECUTABLE} PRIVATE ${SYSROOT}/usr/lib/libk.a gcc)
+endforeach ()
+
 
 # Ensure sysroot/boot directory exists
 file(MAKE_DIRECTORY ${SYSROOT}/boot)
 
-# Place the kernel in the sysroot/boot directory
-set_target_properties(alkos.kernel PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${SYSROOT}/boot
-        OUTPUT_NAME "alkos.kernel"
-)
+# Place each executable in the boot directory
+foreach (KERNEL_EXECUTABLE ${KERNEL_EXECUTABLES})
+    set_target_properties(${KERNEL_EXECUTABLE} PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY ${SYSROOT}/boot
+            OUTPUT_NAME ${KERNEL_EXECUTABLE}
+    )
+endforeach ()
 
 # Note: architecture file have a possibility to define custom command to run before linking
 if (DEFINED POST_ARCH_ACTION)
@@ -82,3 +94,5 @@ set(CMAKE_CXX_LINK_EXECUTABLE
     ${CRTI_OBJ} ${CRTBEGIN_OBJ} <OBJECTS> ${CRTEND_OBJ} ${CRTN_OBJ} \
     -o <TARGET> <LINK_LIBRARIES>"
 )
+
+set(BOOTABLE_KERNEL_EXECUTABLE ${BOOTABLE_KERNEL_EXECUTABLE} PARENT_SCOPE) # Export the bootable kernel executable

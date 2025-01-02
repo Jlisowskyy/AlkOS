@@ -5,7 +5,7 @@
 
           ; Includes
           %include "puts.nasm"
-          extern TerminalInit_32
+          extern TerminalInit
 
           ; Error checking and handling
           extern check_multiboot
@@ -36,7 +36,7 @@
           extern enable_long_mode
 
           ; Boot64 - entry point to 64-bit boot code - continuation of what is here
-          extern boot64
+;          extern boot64
 
 ; The multiboot standard does not define the value of the stack pointer register.
 ; The stack on x86 must be 16-byte aligned according to the
@@ -69,11 +69,16 @@ boot32:
           sub esp, 8; Reserve space for multiboot_info_t* and framebuffer_info_t*
           mov [MULTI_BOOT_INFO_T_LOCATION], ebx ; Save multiboot_info_t*
 
+
           ; save multi boot info
           push eax
 
-          call TerminalInit_32
+hang:
+          cli
+          jmp hang
+          call TerminalInit
           puts_32 MESSAGE_INIT_ALKOS
+
 
           ; restore multi boot info
           pop eax
@@ -101,6 +106,7 @@ boot32:
 
           puts_32 MESSAGE_INFO_JUMPING_TO_64
 
+
           ; Jump to long mode
-          lgdt [GDT64.Pointer]
-          jmp GDT64.Code:boot64
+;          lgdt [GDT64.Pointer]
+;          jmp GDT64.Code:boot64

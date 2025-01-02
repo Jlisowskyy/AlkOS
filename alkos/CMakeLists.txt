@@ -48,6 +48,9 @@ set(SYSTEM_LIB_TYPE k)
 # Add the subdirectories
 add_subdirectory(libc)
 add_subdirectory(kernel)
+if (NOT DEFINED BOOTABLE_KERNEL_EXECUTABLE)
+    message(FATAL_ERROR "No primary kernel executable defined")
+endif()
 
 ################################################################################
 #                                Custom Targets                                #
@@ -70,8 +73,8 @@ message(STATUS "Using make_iso script: ${MAKE_ISO_SCRIPT_PATH}")
 message(STATUS "Using run_alkos script: ${RUN_ALKOS_SCRIPT_PATH}")
 
 add_custom_target(iso
-        COMMAND ${MAKE_ISO_SCRIPT_PATH} ${ALKOS_ISO_PATH} ${SYSROOT} -v -r
-        DEPENDS alkos.kernel
+        COMMAND ${MAKE_ISO_SCRIPT_PATH} ${ALKOS_ISO_PATH} ${SYSROOT} -v -r ${BOOTABLE_KERNEL_EXECUTABLE}
+        DEPENDS ${BOOTABLE_KERNEL_EXECUTABLE}
         DEPENDS libk
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
