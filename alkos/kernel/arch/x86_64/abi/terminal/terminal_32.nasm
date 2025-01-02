@@ -12,7 +12,7 @@
     extern vga_print
 
 TerminalInit_32:
-%ifdef __DEBUG_TERMINAL_TEST__
+%ifdef __USE_DEBUG_OUTPUT__
     call serial_init32
 %endif
 
@@ -23,7 +23,7 @@ TerminalPutChar_32:
     push ebp
     mov ebp, esp
 
-%ifdef __DEBUG_TERMINAL_TEST__
+%ifdef __USE_DEBUG_OUTPUT__
     push dword [ebp + 8]
     call serial_putchar32
     add esp, 4
@@ -45,7 +45,7 @@ TerminalWriteString_32:
     push ebp
     mov ebp, esp
 
-%ifdef __DEBUG_TERMINAL_TEST__
+%ifdef __USE_DEBUG_OUTPUT__
     push dword [ebp + 8]
     call serial_puts32
     add esp, 4

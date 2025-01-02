@@ -1,6 +1,4 @@
-#ifdef __ALKOS_TEST__
 #include <test_module/test_module.hpp>
-#endif
 
 /* internal includes */
 #include <debug.hpp>
@@ -15,14 +13,12 @@ extern "C" void KernelMain()
     TRACE_INFO("Running kernel initialization...");
     KernelInit();
 
-#ifdef __ALKOS_TEST__
-
-    TRACE_INFO("Running tests...");
-    test::TestModule test_module{};
-    test_module.RunTestModule();
-    ASSERT_ALWAYS(false && "Test module should never exit!");
-
-#endif
+    if constexpr (kIsAlkosTestBuild) {
+        TRACE_INFO("Running tests...");
+        test::TestModule test_module{};
+        test_module.RunTestModule();
+        R_ASSERT(false && "Test module should never exit!");
+    }
 
     TRACE_INFO("Proceeding to KernelRun...");
     KernelRun();

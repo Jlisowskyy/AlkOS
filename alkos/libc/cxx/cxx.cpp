@@ -5,7 +5,7 @@
 #include <defines.hpp>
 
 #ifdef __ALKOS_KERNEL__
-#include "../../kernel/include/panic.hpp"
+#include "../../kernel/abi/panic.hpp"
 #endif
 
 // -------------------------------------------

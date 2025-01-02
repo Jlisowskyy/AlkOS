@@ -1,21 +1,12 @@
 #include <init.hpp>
 
-/* internal includes */
+/* Internal includes */
 #include <libssp.hpp>
-#include <terminal.hpp>
-#include <debug.hpp>
 
-extern "C" void PreKernelInit() {
-    TerminalInit();
-    TRACE_INFO("Starting pre-kernel initialization...");
-
-    TRACE_INFO("Starting to setup CPU features...");
-    KernelArchInit();
-    TRACE_INFO("Finished cpu features setup.");
-
-    TRACE_INFO("Pre-kernel initialization finished.");
-}
-
+/**
+ * @brief Performs all high-level initialization not related to architecture
+ * @note  MUST ALWAYS be invoked after the PreKernelInit function
+ */
 void KernelInit() {
     __stack_chk_init();
 }

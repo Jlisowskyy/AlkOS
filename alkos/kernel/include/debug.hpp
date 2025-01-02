@@ -10,8 +10,8 @@
 // ------------------------------
 
 /**
- * @brief TRACE - simple macro for debugging purposes, works only when __DEBUG_TERMINAL_TEST__ and
- * __DEBUG_ENABLE_TRACES__ are defined
+ * @brief TRACE - simple macro for debugging purposes, works only when __USE_DEBUG_OUTPUT__ and
+ * __USE_DEBUG_TRACES__ are defined
  *
  * @note Currently supports using only compiled time strings
  *
@@ -20,7 +20,7 @@
 
 TODO_WHEN_SNPRINTF_EXISTS
 
-#ifdef __DEBUG_ENABLE_TRACES__
+#ifdef __USE_DEBUG_TRACES__
 
 #define TRACE(message) DebugTerminalWrite(message)
 
@@ -28,7 +28,7 @@ TODO_WHEN_SNPRINTF_EXISTS
 
 #define TRACE(message)
 
-#endif // __DEBUG_ENABLE_TRACES__
+#endif // __USE_DEBUG_TRACES__
 
 #define TRACE_FORMAT_LOCATION(message) __FILE__ " " TOSTRING(__LINE__) " " message "\n"
 #define TRACE_FORMAT_ERROR(message)    "[ERROR] " TRACE_FORMAT_LOCATION(message)

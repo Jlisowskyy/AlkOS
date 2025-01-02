@@ -31,6 +31,13 @@ FAST_CALL void outw(const u16 port, const u16 v) { __asm__ volatile("outw %w0, %
 
 FAST_CALL void outl(const u16 port, const u32 v) { __asm__ volatile("outl %0, %w1" : : "a"(v), "Nd"(port)); }
 
+/**
+ * @brief Hardware delay using I/O port
+ *
+ * Performs a write to unused port 0x80, typically causing a 1-4μs delay.
+ * Primarily used for PIC remapping on old hardware or when precise timing
+ * is not required.
+ */
 FAST_CALL void IoWait()
 {
     outb(0x80, 0);

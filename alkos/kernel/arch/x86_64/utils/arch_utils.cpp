@@ -1,7 +1,14 @@
 /* internal includes */
+#include <stdio.h>
 #include <arch_utils.hpp>
-#include <temp.hpp>
+#include <kernel_assert.hpp>
+#include <terminal.hpp>
 
+/**
+ * @brief Capture current CPU register state
+ *
+ * @return CpuState structure containing current register values
+ */
 CpuState DumpCpuState()
 {
     CpuState cpu_state{};
@@ -26,26 +33,33 @@ CpuState DumpCpuState()
     return cpu_state;
 }
 
+/**
+ * @brief Print formatted dump of CPU register state
+ *
+ * Outputs current values of all general-purpose registers
+ * to the terminal in a human-readable format.
+ */
 void CpuState::DumpStateDesc() const
 {
-    TODO_BY_THE_END_OF_MILESTONE0
+    static constexpr size_t kSizeBuff = 2048;
 
-    TerminalWriteString("Dumping current cpu state:\n");
-    temp_DisplayHex(general_purpose_registers[kRax], "rax: ");
-    temp_DisplayHex(general_purpose_registers[kRbx], "rbx: ");
-    temp_DisplayHex(general_purpose_registers[kRcx], "rcx: ");
-    temp_DisplayHex(general_purpose_registers[kRdx], "rdx: ");
-    temp_DisplayHex(general_purpose_registers[kRsi], "rsi: ");
-    temp_DisplayHex(general_purpose_registers[kRdi], "rdi: ");
-    temp_DisplayHex(general_purpose_registers[kRbp], "rbp: ");
-    temp_DisplayHex(general_purpose_registers[kRsp], "rsp: ");
-    temp_DisplayHex(general_purpose_registers[kR8],  "r8:  ");
-    temp_DisplayHex(general_purpose_registers[kR9],  "r9:  ");
-    temp_DisplayHex(general_purpose_registers[kR10], "r10: ");
-    temp_DisplayHex(general_purpose_registers[kR11], "r11: ");
-    temp_DisplayHex(general_purpose_registers[kR12], "r12: ");
-    temp_DisplayHex(general_purpose_registers[kR13], "r13: ");
-    temp_DisplayHex(general_purpose_registers[kR14], "r14: ");
-    temp_DisplayHex(general_purpose_registers[kR15], "r15: ");
+    static constexpr const char* kRegNames[]{"rax", "rbx", "rcx", "rdx", "rsi", "rdi",
+                                             "rbp", "rsp", "r8",  "r9",  "r10", "r11",
+                                             "r12", "r13", "r14", "r15"};
+
+    char buff[kSizeBuff];
+
+    size_t offset = 0;
+
+    for (int i = 0; i < kGprLast && offset < kSizeBuff; ++i) {
+        int written = snprintf(
+            buff + offset, kSizeBuff - offset, "%s: 0x%016llx\n", kRegNames[i],
+            general_purpose_registers[i]
+        );
+
+        offset += written;
+        R_ASSERT_NEQ(offset, kSizeBuff);
+    }
+
+    TerminalWriteString(buff);
 }
-

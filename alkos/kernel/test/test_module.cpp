@@ -3,16 +3,7 @@
 #include <kernel_assert.hpp>
 #include <terminal.hpp>
 #include <test_module/test_module.hpp>
-
-TODO_BY_THE_END_OF_MILESTONE0
-static int strcmp(const char *str1, const char *str2)
-{
-    size_t i       = 0;
-    const auto *s1 = reinterpret_cast<const unsigned char *>(str1);
-    const auto *s2 = reinterpret_cast<const unsigned char *>(str2);
-    while (s1[i] == s2[i] && s1[i]) i++;
-    return s1[i] - s2[i];
-}
+#include <string.h>
 
 namespace test
 {
@@ -132,7 +123,7 @@ void TestModule::RunTest_(const TestSpec *test)
     TerminalWriteString("\n");
 
     TestGroupBase *test_obj = test->factory(g_testMem);
-    ASSERT_NOT_NULL(test_obj);
+    R_ASSERT_NOT_NULL(test_obj);
 
     /* mark that the test is already started */
     g_testStarted = true;
@@ -156,7 +147,7 @@ void TestModule::RunTest_(const TestSpec *test)
 
 void AddTest(const char *name, const test_factory_t factory)
 {
-    ASSERT_NULL(TestModule::FindTestFunction(name));
+    R_ASSERT_NULL(TestModule::FindTestFunction(name));
     TestSpec *pTestSpec = &g_tests[g_numTests++];
 
     pTestSpec->factory = factory;
@@ -165,7 +156,7 @@ void AddTest(const char *name, const test_factory_t factory)
 
 void AddManualTest(const char *name, const test_factory_t factory)
 {
-    ASSERT_NULL(TestModule::FindTestFunction(name));
+    R_ASSERT_NULL(TestModule::FindTestFunction(name));
     TestSpec *pTestSpec = &g_manualTests[g_numManualTests++];
 
     pTestSpec->factory = factory;

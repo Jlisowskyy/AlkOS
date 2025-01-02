@@ -23,6 +23,6 @@ extern "C" void PreserveCpuStateTest()
     final_cpu_state.DumpStateDesc();
 
     for (const u64 &cpu_state : final_cpu_state.general_purpose_registers) {
-        ASSERT_NEQ(kBitMask64, cpu_state);
+        R_ASSERT_NEQ(kBitMask64, cpu_state);
     }
 }

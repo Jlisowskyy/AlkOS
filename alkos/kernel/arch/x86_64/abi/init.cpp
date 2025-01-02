@@ -12,6 +12,7 @@
 #include <idt.hpp>
 #include <init.hpp>
 #include <pic8259/pic8259.hpp>
+#include <terminal.hpp>
 
 /* external init procedures */
 extern "C" void enable_osxsave();
@@ -20,8 +21,12 @@ extern "C" void enable_sse();
 
 extern "C" void enable_avx();
 
-void KernelArchInit()
+extern "C" void PreKernelInit()
 {
+    TerminalInit();
+    TRACE_INFO("Starting pre-kernel initialization...");
+
+    TRACE_INFO("Starting to setup CPU features...");
     BlockHardwareInterrupts();
 
     /* NOTE: sequence is important */
@@ -37,4 +42,7 @@ void KernelArchInit()
     IdtInit();
 
     EnableHardwareInterrupts();
+    TRACE_INFO("Finished cpu features setup.");
+
+    TRACE_INFO("Pre-kernel initialization finished.");
 }

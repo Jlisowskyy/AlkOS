@@ -33,6 +33,6 @@ struct PACK IsrErrorStackFrame {
 
 void IdtInit();
 
-void LogIrqReceived(void *stack_frame, u8 exception_code);
+void LogIrqReceived(void *stack_frame, u8 idt_idx);
 
 #endif  // ARCH_X86_64_INTERRUPTS_IDT_HPP_
