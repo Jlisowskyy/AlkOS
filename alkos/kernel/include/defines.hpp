@@ -1,35 +1,54 @@
 #ifndef KERNEL_INCLUDE_DEFINES_HPP_
 #define KERNEL_INCLUDE_DEFINES_HPP_
 
+// ------------------------------
+// Attribute macros
+// ------------------------------
+
+/* Prevent the compiler from adding padding to structures */
 #define PACK __attribute__((__packed__))
 
+/* Indicate that the function will never return */
 #define NO_RET __attribute__((noreturn))
 
+/* Force the compiler to always inline the function */
 #define FORCE_INLINE inline __attribute__((always_inline))
 
+/* Declare a function as a static inline wrapper */
 #define WRAP_CALL static FORCE_INLINE
 
+/* Require a function to be inlined for performance reasons */
 #define FAST_CALL static FORCE_INLINE
 
+// ------------------------------------
+// Macro to constexpr conversions
+// ------------------------------------
+
+#ifdef __USE_DEBUG_OUTPUT__
+static constexpr bool kUseDebugOutput = true;
+#else
+static constexpr bool kUseDebugOutput = false;
+#endif  // __USE_DEBUG_OUTPUT__
+
+#ifdef __USE_DEBUG_TRACES__
+static constexpr bool kUseDebugTraces = true;
+#else
+static constexpr bool kUseDebugTraces = false;
+#endif  // __USE_DEBUG_TRACES__
+
+#ifdef __ALKOS_TESTS_BUILD__
+static constexpr bool kIsAlkosTestBuild = true;
+#else
+static constexpr bool kIsAlkosTestBuild = false;
+#endif  // __ALKOS_TESTS_BUILD__
+
+// ------------------------------
+// Useful macros
+// ------------------------------
+
+/* Convert a token into a string */
 #define STRINGIFY(x) #x
+/* Apply STRINGIFY to expand macros before conversion */
 #define TOSTRING(x)  STRINGIFY(x)
-
-#ifdef __DEBUG_TERMINAL_TEST__
-static constexpr bool kDebugTerminalEnabled = true;
-#else
-static constexpr bool kDebugTerminalEnabled = false;
-#endif  // __DEBUG_TERMINAL_TEST__
-
-#ifdef __DEBUG_ENABLE_TRACES__
-static constexpr bool kDebugTracesEnabled = true;
-#else
-static constexpr bool kDebugTracesEnabled = false;
-#endif  // __DEBUG_ENABLE_TRACES__
-
-#ifdef __ALKOS_TEST__
-static constexpr bool kAlkosTestEnabled = true;
-#else
-static constexpr bool kAlkosTestEnabled = false;
-#endif  // __ALKOS_TEST__
 
 #endif  // KERNEL_INCLUDE_DEFINES_HPP_

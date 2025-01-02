@@ -1,11 +1,13 @@
 /* internal includes */
 #include <memory.h>
+#include <stdio.h>
 #include <bit.hpp>
 #include <debug.hpp>
 #include <defines.hpp>
 #include <kernel_assert.hpp>
 #include <panic.hpp>
-#include <temp.hpp>
+
+#include <terminal.hpp>
 
 TODO_BY_THE_END_OF_MILESTONE0
 TODO_WHEN_SNPRINTF_EXISTS
@@ -16,7 +18,17 @@ TODO_WHEN_SNPRINTF_EXISTS
 /* crucial defines */
 static constexpr u32 kStubTableSize = 64;
 static constexpr u32 kIdtEntries    = 256;
-static constexpr u8 kDefaultFlags   = 0x8E;
+
+TODO_BY_THE_END_OF_MILESTONE0
+/**
+ * Flags for ISRs (Interrupt Service Routines):
+ * - 0xE: 64-bit Interrupt Gate (0xF for 64-bit Trap Gate)
+ * - Bit 4: Reserved (must always be 0)
+ * - Bits 5-6: 2-bit value defining the allowed CPU Privilege Levels (CPL)
+ *   that can access this interrupt via the INT instruction. Hardware interrupts ignore this.
+ * - Bit 7: Present bit (must be set to 1 for the descriptor to be valid).
+ */
+static constexpr u8 kDefaultFlags = 0x8E;
 
 /* gdt kernel code offset */
 extern "C" u32 kKernelCodeOffset;
@@ -67,15 +79,40 @@ static Idtr g_idtr;
 // Isrs
 // ------------------------------
 
-extern "C" NO_RET void DefaultExceptionHandler(const u8 exception_code)
+/**
+ * @brief This handler is called when an unknown exception occurs.
+ * Executes KernelPanic.
+ *
+ * @param idt_idx index of interrupt triggered.
+ */
+extern "C" NO_RET void DefaultExceptionHandler(const u8 idt_idx)
 {
-    temp_DisplayNum(exception_code, "Received exception code");
+    static constexpr size_t kBuffSize = 128;
+    char buff[kBuffSize];
+
+    R_ASSERT_NEQ(
+        kBuffSize, snprintf(buff, kBuffSize, "Received exception with code: %hhu\n", idt_idx)
+    );
+    TerminalWriteString(buff);
+
     KernelPanic("Unknown Exception caught -> default handler invoked.");
 }
 
-void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 exception_code)
+/**
+ * @brief Logs the received interrupt.
+ *
+ * @param stack_frame Pointer to the ISR stack frame.
+ * @param idt_idx index of interrupt triggered.
+ */
+void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 idt_idx)
 {
-    temp_DisplayNum(exception_code, "Received interrupt with code");
+    static constexpr size_t kBuffSize = 128;
+    char buff[kBuffSize];
+
+    R_ASSERT_NEQ(
+        kBuffSize, snprintf(buff, kBuffSize, "Received interrupt with code: %hhu\n", idt_idx)
+    );
+    TerminalWriteString(buff);
 }
 
 // ------------------------------
@@ -84,7 +121,7 @@ void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 exception_code)
 
 static void IdtSetDescriptor(const u8 idx, const u64 isr, const u8 flags)
 {
-    ASSERT_EQ(false, g_idtGuards[idx]);
+    R_ASSERT_EQ(false, g_idtGuards[idx]);
 
     IdtEntry &entry = g_idt[idx];
 
@@ -102,7 +139,7 @@ static void IdtSetDescriptor(const u8 idx, const u64 isr, const u8 flags)
 void IdtInit()
 {
     ASSERT(kKernelCodeOffset < UINT16_MAX && "Kernel code offset out of range");
-    ASSERT_NEQ(0, kKernelCodeOffset);
+    R_ASSERT_NEQ(0, kKernelCodeOffset);
 
     g_idtr.base  = reinterpret_cast<uintptr_t>(g_idt);
     g_idtr.limit = static_cast<u16>(sizeof(IdtEntry)) * kIdtEntries - 1;
@@ -117,7 +154,8 @@ void IdtInit()
         IdtSetDescriptor(idx, reinterpret_cast<u64>(IsrWrapperTable[idx]), kDefaultFlags);
     }
 
-    __asm__ volatile("lidt %0" : : "m"(g_idtr));  // load the new IDT
+    /* load the new IDT */
+    __asm__ volatile("lidt %0" : : "m"(g_idtr));
 
     TRACE_SUCCESS("IDT initialized");
 }

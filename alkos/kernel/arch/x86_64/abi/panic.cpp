@@ -11,7 +11,7 @@ extern "C" void KernelPanic(const char *msg)
     TerminalWriteError(msg);
     TerminalWriteError("\n");
 
-    if constexpr (kAlkosTestEnabled) {
+    if constexpr (kIsAlkosTestBuild) {
         /* When running tests */
         test::OnKernelPanic();
     } else {

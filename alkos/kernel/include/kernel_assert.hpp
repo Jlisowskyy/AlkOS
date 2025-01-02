@@ -28,10 +28,10 @@
 
 #endif  // NDEBUG
 
-/* release assert */
-#define ASSERT_ALWAYS(expr) \
-    if (!(expr)) {          \
-        FAIL_KERNEL(expr);  \
+/* Works also in release build */
+#define R_ASSERT(expr)     \
+    if (!(expr)) {         \
+        FAIL_KERNEL(expr); \
     }
 
 // ------------------------------
@@ -59,31 +59,35 @@ TODO_BY_THE_END_OF_MILESTONE0
 TODO_WHEN_SNPRINTF_EXISTS
 TODO_WHEN_VMEM_WORKS
 
-#define ASSERT_EQ(expected, value)      \
-    if (expected != value) {            \
-        FAIL_KERNEL(expected == value); \
+#define R_ASSERT_EQ(expected, value)        \
+    {                                       \
+        if (expected != value) {            \
+            FAIL_KERNEL(expected == value); \
+        }                                   \
     }
 
-#define ASSERT_NEQ(expected, value)     \
-    if (expected == value) {            \
-        FAIL_KERNEL(expected != value); \
+#define R_ASSERT_NEQ(expected, value)       \
+    {                                       \
+        if (expected == value) {            \
+            FAIL_KERNEL(expected != value); \
+        }                                   \
     }
 
-#define ASSERT_TRUE(value)              \
+#define R_ASSERT_TRUE(value)            \
     {                                   \
         if (value != true) {            \
             FAIL_KERNEL(value == true); \
         }                               \
     };
 
-#define ASSERT_NOT_NULL(value)             \
+#define R_ASSERT_NOT_NULL(value)           \
     {                                      \
         if (value == nullptr) {            \
             FAIL_KERNEL(value != nullptr); \
         }                                  \
     }
 
-#define ASSERT_NULL(value)                 \
+#define R_ASSERT_NULL(value)               \
     {                                      \
         if (value != nullptr) {            \
             FAIL_KERNEL(value == nullptr); \

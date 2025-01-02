@@ -1,7 +1,7 @@
 extern serial_puts32
 extern QemuTerminalWriteString
 
-%ifdef __DEBUG_TERMINAL_TEST__
+%ifdef __USE_DEBUG_OUTPUT__
 
 %macro trace_32 1
     push %1

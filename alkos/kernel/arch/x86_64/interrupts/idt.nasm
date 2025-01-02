@@ -2,6 +2,8 @@
 ; Unsupported ISR
 ; ------------------------------
 
+; Macro to define an unsupported ISR handler.
+; It invokes the default exception handler and then returns via `iretq`.
 %macro unsupported_isr 1
 isr_wrapper_%+%1:
     mov edi, %1
@@ -10,10 +12,10 @@ isr_wrapper_%+%1:
 %endmacro
 
 ; ------------------------------------
-; ISR with full gpr save/restore
+; ISR with full GPR save/restore
 ; ------------------------------------
 
-; register offsets on stack when saving the state
+; Register offsets on the stack when saving the state
 _rax equ 0
 _rcx equ 8
 _rdx equ 16
@@ -25,16 +27,16 @@ _r10 equ 56
 _r11 equ 64
 _rbp equ 72
 
-; size needed to save the registers on stack
+; Size needed to save the registers on the stack
 _reg_size equ 8*10
 
-; shadow space needed for C++ functions
+; Shadow space required for C++ function calls
 _shadow_space equ 8*4
 
-; full isr stack size needed
+; Full ISR stack frame offset
 _isr_stack_frame_offset equ 14
 
-; We save only the registers which state is volatile in sysV ABI
+; Macro to save all volatile registers (SysV ABI) onto the stack.
 %macro push_regs 0
     mov qword [rsp + _rax], rax
     mov qword [rsp + _rcx], rcx
@@ -48,6 +50,7 @@ _isr_stack_frame_offset equ 14
     mov qword [rsp + _rbp], rbp
 %endmacro
 
+; Macro to restore all volatile registers (SysV ABI) from the stack.
 %macro pop_regs 0
     mov rax, qword [rsp + _rax]
     mov rcx, qword [rsp + _rcx]
@@ -61,35 +64,31 @@ _isr_stack_frame_offset equ 14
     mov rbp, qword [rsp + _rbp]
 %endmacro
 
-; Usual ISR wrappers used to save state and invoke relevant handlers
+; Macro to define an ISR wrapper with general-purpose register save/restore.
 %macro isr_wrapper_save_general_regs 1
 extern isr_%+%1
 
 isr_wrapper_%+%1:
-    sub rsp, _reg_size ; create space for the registers
-    push_regs
-
-    sub rsp, _shadow_space ; create space for shadow space
-    cld
-
-    lea rdi, [rsp + 8*_isr_stack_frame_offset]
-    mov rsi, %1 ; TODO: temporary instruction for debug purposes
-    call isr_%+%1
-
-    add rsp, _shadow_space ; free the shadow space
-
-    pop_regs
-    add rsp, _reg_size ; free registers space
-
-    iretq
+    sub rsp, _reg_size          ; Allocate space for saving registers.
+    push_regs                   ; Save registers.
+    sub rsp, _shadow_space      ; Allocate shadow space for function calls.
+    cld                         ; Clear direction flag for string operations.
+    lea rdi, [rsp + 8*_isr_stack_frame_offset] ; Pass pointer to stack frame.
+    mov rsi, %1                 ; Pass the interrupt number (debugging aid).
+    call isr_%+%1               ; Call the specific ISR handler.
+    add rsp, _shadow_space      ; Deallocate shadow space.
+    pop_regs                    ; Restore registers.
+    add rsp, _reg_size          ; Deallocate register save space.
+    iretq                       ; Return from interrupt.
 %endmacro
 
 ; --------------------------------------
 ; ISR with full state save/restore
 ; --------------------------------------
 
+; Macro for defining an ISR wrapper with full state save/restore (TODO).
 %macro isr_wrapper_save_all_regs 1
-    ; TODO
+    ; TODO: Implement full state save/restore.
     unsupported_isr %1
 %endmacro
 
@@ -97,8 +96,9 @@ isr_wrapper_%+%1:
 ; ISR without any state saved
 ; ---------------------------------
 
+; Macro for defining an ISR wrapper without saving any state (TODO).
 %macro isr_wrapper_no_save 1
-    ; TODO
+    ; TODO: Implement no-save ISR.
     unsupported_isr %1
 %endmacro
 
@@ -112,7 +112,7 @@ extern DefaultExceptionHandler
 
 section .text
 
-; Intel defined interrupts
+; Intel-defined interrupts (0-31).
 unsupported_isr 0  ; Division Error: Divide by zero error
 unsupported_isr 1  ; Debug: Reserved for debugging exceptions
 unsupported_isr 2  ; Non-Maskable Interrupt: Non-maskable interrupt detected
@@ -122,7 +122,7 @@ unsupported_isr 5  ; Bound Range Exceeded: Bound range exceeded
 unsupported_isr 6  ; Invalid Opcode: Invalid instruction
 unsupported_isr 7  ; Device Not Available: FPU device unavailable
 unsupported_isr 8  ; Double Fault: Critical CPU error
-unsupported_isr 9  ; Coprocessor Segment Overrun: Legacy interrupt ; NOT USED
+unsupported_isr 9  ; Coprocessor Segment Overrun: Legacy interrupt (not used)
 unsupported_isr 10 ; Invalid TSS: Invalid Task State Segment
 unsupported_isr 11 ; Segment Not Present: Segment not present in memory
 unsupported_isr 12 ; Stack Segment Fault: Stack-related fault
@@ -146,27 +146,28 @@ unsupported_isr 29 ; VMM Communication Exception
 unsupported_isr 30 ; Security Exception: Security-related error
 unsupported_isr 31 ; Reserved: Reserved by Intel
 
-; IRQs for PICs
+; IRQs for PICs (32-47).
 isr_wrapper_save_general_regs 32 ; IRQ0: System timer
 isr_wrapper_save_general_regs 33 ; IRQ1: Keyboard
-unsupported_isr 34 ; IRQ2: Cascade (used by second PIC) this will (should) never come
+unsupported_isr 34               ; IRQ2: Cascade (used by second PIC, should never occur)
 isr_wrapper_save_general_regs 35 ; IRQ3: Serial port 2
 isr_wrapper_save_general_regs 36 ; IRQ4: Serial port 1
-unsupported_isr 37 ; IRQ5: Parallel port 2 or sound card
-unsupported_isr 38 ; IRQ6: Floppy disk controller
-unsupported_isr 39 ; IRQ7: Parallel port 1
+unsupported_isr 37               ; IRQ5: Parallel port 2 or sound card
+unsupported_isr 38               ; IRQ6: Floppy disk controller
+unsupported_isr 39               ; IRQ7: Parallel port 1
 isr_wrapper_save_general_regs 40 ; IRQ8: Real-time clock
-unsupported_isr 41 ; IRQ9: Free for peripherals / legacy SCSI / NIC
-unsupported_isr 42 ; IRQ10: Free for peripherals / SCSI / NIC
-unsupported_isr 43 ; IRQ11: Free for peripherals / SCSI / NIC
+unsupported_isr 41               ; IRQ9: Free for peripherals / legacy SCSI / NIC
+unsupported_isr 42               ; IRQ10: Free for peripherals / SCSI / NIC
+unsupported_isr 43               ; IRQ11: Free for peripherals / SCSI / NIC
 isr_wrapper_save_general_regs 44 ; IRQ12: Mouse
-unsupported_isr 45 ; IRQ13: FPU (legacy)
-unsupported_isr 46 ; IRQ14: Primary ATA channel
-unsupported_isr 47 ; IRQ15: Secondary ATA channel
+unsupported_isr 45               ; IRQ13: FPU (legacy)
+unsupported_isr 46               ; IRQ14: Primary ATA channel
+unsupported_isr 47               ; IRQ15: Secondary ATA channel
 
-; test interrupt
+; Test interrupt (48).
 isr_wrapper_save_general_regs 48
 
+; Total number of ISRs.
 _num_isrs equ 49
 
 ; ----------------------------------
@@ -175,6 +176,7 @@ _num_isrs equ 49
 
 section .data
 
+; Global table of ISR wrappers.
 global IsrWrapperTable
 IsrWrapperTable:
 %assign i 0
