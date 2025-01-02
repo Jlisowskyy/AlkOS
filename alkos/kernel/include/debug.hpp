@@ -21,7 +21,8 @@ FAST_CALL constexpr void FormatTrace(const char* format, Args... args)
 {
     char buffer[kTraceBufferSize];
 
-    ASSERT_NEQ(kTraceBufferSize, snprintf(buffer, kTraceBufferSize, format, args...));
+    const u64 bytesWritten = snprintf(buffer, kTraceBufferSize, format, args...);
+    ASSERT(bytesWritten < kTraceBufferSize);
     DebugTerminalWrite(buffer);
 }
 
