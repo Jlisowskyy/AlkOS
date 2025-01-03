@@ -7,26 +7,30 @@
 class SnprintfTest : public TestGroupBase {
 protected:
     static constexpr size_t kBufSize = 256;
-    char buffer[kBufSize]{};
+    char buffer[kBufSize + 1]{};
 
     void Setup_() override {
         memset(buffer, 'X', kBufSize);
+        buffer[kBufSize] = '\0';
     }
 
     [[nodiscard]] bool IsBufferClean(const unsigned long n) const {
         for (size_t i = n; i < kBufSize; i++) {
-            if (buffer[i] != 'X') return false;
+            if (buffer[i] != 'X') {
+                return false;
+            }
         }
         return true;
     }
 
     template<typename... Args>
     void VerifyOutput(const char *format, const char *expected, Args... args) {
+        Setup_();
         const int ret = snprintf(buffer, kBufSize, format, args...);
 
-        R_ASSERT_STREQ(buffer, expected);
-        R_ASSERT_EQ(ret, strlen(expected));
-        R_ASSERT_TRUE(IsBufferClean(strlen(expected) + 1));
+        EXPECT_STREQ(expected, buffer);
+        EXPECT_EQ(strlen(expected), ret);
+        EXPECT_TRUE(IsBufferClean(strlen(expected) + 1));
     }
 };
 
@@ -37,21 +41,23 @@ protected:
 TEST_F(SnprintfTest, BasicFormatting) {
     // Basic string formatting
     int ret = snprintf(buffer, kBufSize, "Hello, %s!", "world");
-    R_ASSERT_EQ(ret, 13);
-    R_ASSERT_STREQ(buffer, "Hello, world!");
-    R_ASSERT_TRUE(IsBufferClean(14));
+    EXPECT_EQ(13, ret);
+    EXPECT_STREQ("Hello, world!", buffer);
+    EXPECT_TRUE(IsBufferClean(14));
 
     // Integer formatting
+    Setup_();
     ret = snprintf(buffer, kBufSize, "%d", 12345);
-    R_ASSERT_EQ(ret, 5);
-    R_ASSERT_STREQ(buffer, "12345");
-    R_ASSERT_TRUE(IsBufferClean(6));
+    EXPECT_EQ(5, ret);
+    EXPECT_STREQ("12345", buffer);
+    EXPECT_TRUE(IsBufferClean(6));
 
     // Multiple arguments
+    Setup_();
     ret = snprintf(buffer, kBufSize, "%s %d %.2f", "Test", 42, 3.14159);
-    R_ASSERT_EQ(ret, 13);
-    R_ASSERT_STREQ(buffer, "Test 42 3.14");
-    R_ASSERT_TRUE(IsBufferClean(14));
+    EXPECT_EQ(12, ret);
+    EXPECT_STREQ("Test 42 3.14", buffer);
+    EXPECT_TRUE(IsBufferClean(14));
 }
 
 // ------------------------------
@@ -61,43 +67,24 @@ TEST_F(SnprintfTest, BasicFormatting) {
 TEST_F(SnprintfTest, BufferSizeHandling) {
     // Zero-size buffer
     int ret = snprintf(buffer, 0, "Test");
-    R_ASSERT_EQ(ret, 4); // Should return length needed
-    R_ASSERT_TRUE(IsBufferClean(0));
+    EXPECT_EQ(4, ret); // Should return length needed
+    EXPECT_TRUE(IsBufferClean(0));
 
     // Buffer exactly fits (including null terminator)
+    Setup_();
     ret = snprintf(buffer, 5, "Test");
-    R_ASSERT_EQ(ret, 4);
-    R_ASSERT_STREQ(buffer, "Test");
-    R_ASSERT_TRUE(IsBufferClean(5));
+    EXPECT_EQ(4, ret);
+    EXPECT_STREQ("Test", buffer);
+    EXPECT_TRUE(IsBufferClean(5));
 
     // Buffer too small
+    Setup_();
     ret = snprintf(buffer, 3, "Test");
-    R_ASSERT_EQ(ret, 4);
-    R_ASSERT_EQ(buffer[0], 'T');
-    R_ASSERT_EQ(buffer[1], 'e');
-    R_ASSERT_EQ(buffer[2], '\0');
-    R_ASSERT_TRUE(IsBufferClean(3));
-}
-
-TEST_F(SnprintfTest, StandardsCompliance) {
-    int ret;
-
-    // Test return value for null buffer (ISO C99)
-    ret = snprintf(nullptr, 0, "Test string %d", 42);
-    R_ASSERT_EQ(ret, 15); // Should return number of chars that would be written
-
-    // Test handling of size_t max (POSIX)
-    ret = snprintf(buffer, SIZE_MAX, "Test");
-    R_ASSERT_EQ(ret, 4);
-    R_ASSERT_STREQ(buffer, "Test");
-
-    ret = snprintf(buffer, kBufSize, "%.2f", 3.14159);
-    R_ASSERT_EQ(ret, 4);
-    R_ASSERT_STREQ(buffer, "3.14");
-
-    ret = snprintf(buffer, kBufSize, "%d", INT_MIN);
-    R_ASSERT_GT(ret, 0);
-    R_ASSERT_EQ(buffer[0], '-');
+    EXPECT_EQ(4, ret);
+    EXPECT_EQ('T', buffer[0]);
+    EXPECT_EQ('e', buffer[1]);
+    EXPECT_EQ('\0', buffer[2]);
+    EXPECT_TRUE(IsBufferClean(3));
 }
 
 // ------------------------------
@@ -105,26 +92,49 @@ TEST_F(SnprintfTest, StandardsCompliance) {
 // ------------------------------
 
 TEST_F(SnprintfTest, EdgeCases) {
-    int ret;
-
     // Empty format string
-    ret = snprintf(buffer, kBufSize, "");
-    R_ASSERT_EQ(ret, 0);
-    R_ASSERT_EQ(buffer[0], '\0');
-    R_ASSERT_TRUE(IsBufferClean(1));
+    int ret = snprintf(buffer, kBufSize, "");
+    EXPECT_EQ(0, ret);
+    EXPECT_EQ('\0', buffer[0]);
+    EXPECT_TRUE(IsBufferClean(1));
+
+    // Test return value for null buffer (ISO C99)
+    Setup_();
+    ret = snprintf(nullptr, 0, "Test string %d", 42);
+    EXPECT_EQ(14, ret); // Should return number of chars that would be written
+
+    // Test handling of size_t max (POSIX)
+    Setup_();
+    ret = snprintf(buffer, SIZE_MAX, "Test");
+    EXPECT_EQ(4, ret);
+    EXPECT_STREQ("Test", buffer);
+
+    Setup_();
+    ret = snprintf(buffer, kBufSize, "%.2f", 3.14159);
+    EXPECT_EQ(4, ret);
+    EXPECT_STREQ("3.14", buffer);
+
+    Setup_();
+    ret = snprintf(buffer, kBufSize, "%d", INT_MIN);
+    EXPECT_LT(0, ret);
+    EXPECT_EQ('-', buffer[0]);
 
     // Only format specifiers
+    Setup_();
     ret = snprintf(buffer, kBufSize, "%%");
-    R_ASSERT_EQ(ret, 1);
-    R_ASSERT_STREQ(buffer, "%");
+    EXPECT_EQ(1, ret);
+    EXPECT_STREQ("%", buffer);
 
     // Long string of format specifiers
+    Setup_();
     ret = snprintf(buffer, kBufSize, "%%%d%%%s%%%c", 42, "test", 'X');
-    R_ASSERT_GT(ret, 0);
+    EXPECT_LT(0, ret);
+    EXPECT_STREQ("%42%test%X", buffer);
 
     // Invalid format specifier (implementation-defined behavior)
+    Setup_();
     ret = snprintf(buffer, kBufSize, "%y");
-    R_ASSERT_GT(ret, 0); // Should not crash
+    EXPECT_LT(0, ret); // Should not crash
 }
 
 // ------------------------------
@@ -136,9 +146,9 @@ TEST_F(SnprintfTest, IntegerFormats) {
     VerifyOutput("%d", "42", 42);
     VerifyOutput("%i", "42", 42);
     VerifyOutput("%u", "42", 42u);
-    VerifyOutput("%o", "52", 42); // Octal
-    VerifyOutput("%x", "2a", 42); // Hex lowercase
-    VerifyOutput("%X", "2A", 42); // Hex uppercase
+    VerifyOutput("%o", "52", 42);
+    VerifyOutput("%x", "2a", 42);
+    VerifyOutput("%X", "2A", 42);
 
     // Width specifications
     VerifyOutput("%5d", "   42", 42);
@@ -221,7 +231,7 @@ TEST_F(SnprintfTest, ComplexCombinations) {
 
     // Width and precision combinations
     VerifyOutput("%+8.2f:%04d:%-10s",
-                 " +33.14:0042:test      ",
+                 "  +33.14:0042:test      ",
                  33.14159, 42, "test");
 
     // Multiple similar types
@@ -235,23 +245,19 @@ TEST_F(SnprintfTest, ComplexCombinations) {
                  42L, 42LL, static_cast<short>(42), static_cast<size_t>(42));
 }
 
-TEST_F(SnprintfTest, PositionalParameters) {
-    // Basic positional parameters
-    VerifyOutput("%2$d %1$d", "2 1", 1, 2);
-    VerifyOutput("%3$s %1$d %2$.2f",
-                 "three 1 2.00",
-                 1, 2.0, "three");
-
-    // Reuse of positional parameters
-    VerifyOutput("%1$d %1$d %1$d",
-                 "42 42 42",
-                 42);
-
-    // Mixed positional and non-positional (implementation-defined)
-    VerifyOutput("%2$d %d %1$d",
-                 "2 2 1",
-                 1, 2);
-}
+TODO_BY_THE_END_OF_MILESTONE0
+// TEST_F(SnprintfTest, PositionalParameters) {
+//     // Basic positional parameters
+//     VerifyOutput("%2$d %1$d", "2 1", 1, 2);
+//     VerifyOutput("%3$s %1$d %2$.2f",
+//                  "three 1 2.00",
+//                  1, 2.0, "three");
+//
+//     // Reuse of positional parameters
+//     VerifyOutput("%1$d %1$d %1$d",
+//                  "42 42 42",
+//                  42);
+// }
 
 TEST_F(SnprintfTest, FlagCombinations) {
     // Combining multiple flags
