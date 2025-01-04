@@ -24,22 +24,32 @@ extern "C" void enable_avx();
 extern "C" void PreKernelInit()
 {
     TerminalInit();
-    TRACE_INFO("Starting pre-kernel initialization...");
+    TRACE_INFO("In 64 bit mode");
+    TRACE_INFO("Starting pre-kernel initialization");
 
-    TRACE_INFO("Starting to setup CPU features...");
+    TRACE_INFO("Starting to setup CPU features");
     BlockHardwareInterrupts();
 
     /* NOTE: sequence is important */
     TRACE_INFO("Setting up OS XSAVE...");
     enable_osxsave();
+    TRACE_SUCCESS("OS XSAVE setup complete!");
+
     TRACE_INFO("Setting up SSE...");
     enable_sse();
+    TRACE_SUCCESS("SSE setup complete!");
+
     TRACE_INFO("Setting up AVX...");
     enable_avx();
+    TRACE_SUCCESS("AVX setup complete!");
+
     TRACE_INFO("Setting up PIC units...");
     InitPic8259(kIrq1Offset, kIrq2Offset);
+    TRACE_SUCCESS("PIC units setup complete!");
+
     TRACE_INFO("Setting up IDT...");
     IdtInit();
+    TRACE_SUCCESS("IDT setup complete!");
 
     EnableHardwareInterrupts();
     TRACE_INFO("Finished cpu features setup.");

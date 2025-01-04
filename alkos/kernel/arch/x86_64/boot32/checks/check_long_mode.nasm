@@ -1,7 +1,5 @@
           bits 32
 
-          %include "return_codes.nasm"
-
           EXTENDED_FUNCTIONS_THRESHOLD equ 0x80000000
           LONG_MODE_BIT equ 1 << 29
 
@@ -42,9 +40,9 @@ check_long_mode:
           jz .no_long_mode
 
           ; Long mode is supported
-          mov eax, SUCCESS_CHECK_LONG_MODE
+          mov eax, 0
           ret
 
 .no_long_mode:
-          mov eax, ERROR_NO_LONG_MODE
+          mov eax, 1
           ret

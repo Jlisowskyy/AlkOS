@@ -2,9 +2,6 @@
           extern stack_bottom
           extern stack_top
 
-          ; Includes
-          %include "puts.nasm"
-
           ; GDT64
           extern GDT64.Data
 
@@ -31,8 +28,6 @@ boot64:
           mov fs, ax
           mov gs, ax
           mov ss, ax
-
-          puts MESSAGE_INFO_IN_64
 
           sub rsp, 32 ; shadow space
 

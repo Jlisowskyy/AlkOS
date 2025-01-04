@@ -4,18 +4,7 @@
           FRAMEBUFFER_INFO_T_LOCATION equ stack_top - 8
 
           ; Includes
-          %include "puts.nasm"
-          extern TerminalInit
           extern PreKernelInit
-
-          ; Error checking and handling
-          extern check_multiboot
-          extern check_cpuid
-          extern check_long_mode
-          extern handle_return_code
-
-          extern MESSAGE_INIT_ALKOS
-          extern MESSAGE_INFO_JUMPING_TO_64
 
           ; GDT64
           extern GDT64.Pointer
@@ -70,49 +59,12 @@ boot32:
           sub esp, 8; Reserve space for multiboot_info_t* and framebuffer_info_t*
           mov [MULTI_BOOT_INFO_T_LOCATION], ebx ; Save multiboot_info_t*
 
-
-          ; save multi boot info
-          push eax
-
           call PreKernelInit
 hang: ; #TODO
           cli
           jmp hang
 
-
-          call TerminalInit
-          puts_32 MESSAGE_INIT_ALKOS
-
-
-          ; restore multi boot info
-          pop eax
-          call check_multiboot
-          call handle_return_code
-
-          ; TODO: Implement framebuffer support
-          ; Use the multiboot information to locate the framebuffer
-;          push dword [MULTI_BOOT_INFO_T_LOCATION]
-;          call locate_framebuffer_tag
-;          add esp, 4
-;          mov [FRAMEBUFFER_INFO_T_LOCATION], eax ; Save multiboot_tag_framebuffer_t*
-
-          call check_cpuid
-          call handle_return_code
-          call check_long_mode
-          call handle_return_code
-
-          call setup_page_tables
-          call handle_return_code
-          call enable_long_mode
-          call handle_return_code
-          call enable_paging
-          call handle_return_code
-
-          puts_32 MESSAGE_INFO_JUMPING_TO_64
-;
-
           ; Jump to long mode
 ;          lgdt [GDT64.Pointer]
 ;          jmp GDT64.Code:boot64
-kill:
 

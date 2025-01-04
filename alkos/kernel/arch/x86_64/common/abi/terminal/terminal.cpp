@@ -3,8 +3,8 @@
 #include <terminal.hpp>
 
 #include <serial_port_qemu/serial_qemu.hpp>
-#include <vga/vga.hpp>
 #include <todo.hpp>
+#include <vga/vga.hpp>
 
 extern "C" {
 void TerminalInit()

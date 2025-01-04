@@ -5,17 +5,15 @@
 
           bits 32
 
-          %include "return_codes.nasm"
-
           MULTIBOOT_HEADER_MAGIC equ 0x36d76289
 
           section .text
-          global check_multiboot
-check_multiboot:
+          global check_multiboot2
+check_multiboot2:
           cmp eax, MULTIBOOT_HEADER_MAGIC
           jne .no_multiboot
-          mov eax, SUCCESS_CHECK_MULTIBOOT
+          mov eax, 0
           ret
 .no_multiboot:
-          mov eax, ERROR_NO_MULTIBOOT
+          mov eax, 1
           ret
