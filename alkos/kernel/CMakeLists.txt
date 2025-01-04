@@ -8,11 +8,23 @@ if (NOT DEFINED ARCH)
     message(FATAL_ERROR "ARCH is not defined")
 endif ()
 
-# Arch has the option to define multiple kernel executables (like boot32, and main kernel)
-# This is the boot executable that will be run by the bootloader
+# Arch can optionally create other executables (for chainloading, etc)
+# They need to place themselves in sysroot/boot
+# ------------------------------------------------------------------------
+# This is the boot executable that will be run by the bootloader initially
 set(BOOTABLE_KERNEL_EXECUTABLE alkos.kernel)
 
+# Ensure sysroot/boot directory exists
+file(MAKE_DIRECTORY ${SYSROOT}/boot)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SYSROOT}/boot)
+
 # Base include directories
+set(KERNEL_INCLUDE_DIRS
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${SYSROOT}/usr/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/test
+        ${CMAKE_CURRENT_SOURCE_DIR}/abi
+)
 include_directories(include)
 include_directories(${SYSROOT}/usr/include)
 include_directories(test)
@@ -47,30 +59,19 @@ add_executable(alkos.kernel
 
 # Include the architecture specific CMakeLists.txt file
 add_subdirectory(arch/${ARCH})
-if (NOT DEFINED KERNEL_EXECUTABLES)
-    message(FATAL_ERROR "No kernel executables defined in arch/${ARCH}")
-endif ()
 
 if (NOT DEFINED BOOTABLE_KERNEL_EXECUTABLE)
     message(FATAL_ERROR "No primary kernel executable defined")
 endif ()
 
 # Link against libk and gcc
-foreach (KERNEL_EXECUTABLE ${KERNEL_EXECUTABLES})
-    target_link_libraries(${KERNEL_EXECUTABLE} PRIVATE ${SYSROOT}/usr/lib/libk.a gcc)
-endforeach ()
+target_link_libraries(alkos.kernel PRIVATE ${SYSROOT}/usr/lib/libk.a gcc)
 
 
-# Ensure sysroot/boot directory exists
-file(MAKE_DIRECTORY ${SYSROOT}/boot)
-
-# Place each executable in the boot directory
-foreach (KERNEL_EXECUTABLE ${KERNEL_EXECUTABLES})
-    set_target_properties(${KERNEL_EXECUTABLE} PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY ${SYSROOT}/boot
-            OUTPUT_NAME ${KERNEL_EXECUTABLE}
-    )
-endforeach ()
+set_target_properties(alkos.kernel PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        OUTPUT_NAME alkos.kernel
+)
 
 # Note: architecture file have a possibility to define custom command to run before linking
 if (DEFINED POST_ARCH_ACTION)

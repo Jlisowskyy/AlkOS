@@ -1,6 +1,38 @@
+cmake_minimum_required(VERSION 3.30)
+project(boot32_project LANGUAGES C CXX ASM_NASM)
+enable_language(ASM_NASM)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+add_compile_definitions(__USE_DEBUG_OUTPUT__=1)
+
 message(STATUS "Configuring boot32")
-set(KERNEL_EXECUTABLES ${KERNEL_EXECUTABLES} alkos.boot32 PARENT_SCOPE)
-set(BOOTABLE_KERNEL_EXECUTABLE alkos.boot32 PARENT_SCOPE)
+
+# Receive the variables from the parent project
+set(CMAKE_FLAGS_FILE "${CMAKE_FLAGS_FILE}" CACHE FILEPATH "CMake flags file" FORCE)
+set(COMMON_DIR "${COMMON_DIR}" CACHE PATH "Common directory" FORCE)
+set(COMMON_INCLUDE_DIRS_ENCODED "${COMMON_INCLUDE_DIRS_ENCODED}" CACHE STRING "Encoded common include directories" FORCE)
+set(ARCH_COMMON_SOURCES_ENCODED "${ARCH_COMMON_SOURCES_ENCODED}" CACHE STRING "Encoded common source files" FORCE)
+
+include(${CMAKE_FLAGS_FILE})
+
+# Convert the passed strings back to lists
+string(REPLACE "|" ";" COMMON_INCLUDE_DIRS ${COMMON_INCLUDE_DIRS_ENCODED})
+string(REPLACE "|" ";" ARCH_COMMON_SOURCES ${ARCH_COMMON_SOURCES_ENCODED})
+string(REPLACE "|" ";" KERNEL_INCLUDE_DIRS ${KERNEL_INCLUDE_DIRS_ENCODED})
+# Delete " from the strings
+string(REPLACE "\"" "" COMMON_INCLUDE_DIRS "${COMMON_INCLUDE_DIRS}")
+string(REPLACE "\"" "" ARCH_COMMON_SOURCES "${ARCH_COMMON_SOURCES}")
+string(REPLACE "\"" "" KERNEL_INCLUDE_DIRS "${KERNEL_INCLUDE_DIRS}")
+# TODO: THIS IS A HACK, FIX IT
+
+message(STATUS "boot32 decoded COMMON_INCLUDE_DIRS_LIST: ${COMMON_INCLUDE_DIRS}")
+message(STATUS "boot32 decoded ARCH_COMMON_SOURCES_LIST: ${ARCH_COMMON_SOURCES}")
 
 file(GLOB_RECURSE ARCH_SOURCES_32
         "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
@@ -16,15 +48,17 @@ file(GLOB_RECURSE ARCH_SOURCES_32_CPP
         "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
 )
+message(STATUS "Boot32 sources: ${ARCH_SOURCES_32}")
+
 
 add_executable(alkos.boot32 ${ARCH_SOURCES_32})
+
 # Include common headers
 target_include_directories(alkos.boot32 PRIVATE ${COMMON_INCLUDE_DIRS})
 
 # Apply flags to the kernel target
 target_compile_options(alkos.boot32 PRIVATE ${ARCH_C_FLAGS} ${ARCH_CXX_FLAGS})
 set_source_files_properties(${ARCH_SOURCES_32} PROPERTIES COMPILE_FLAGS "${ARCH_ASM_FLAGS}")
-set_source_files_properties(${ARCH_SOURCES_32_CPP} PROPERTIES COMPILE_FLAGS "-m32")
 
 # Set linker script and flags
 set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld")
@@ -34,11 +68,16 @@ target_link_options(alkos.boot32 PRIVATE
         -z max-page-size=0x1000 # Maximum page size (For 1k alignment)
         -n                      # Omit default mem map
         -lgcc                   # Link against GCC
-        -m elf_i386             # Set the target to i386
 )
 target_compile_definitions(alkos.boot32 PRIVATE
         __i386__=1
         __x86_64__=0
 )
+target_link_libraries(alkos.boot32 PRIVATE gcc)
 
-add_dependencies(alkos.kernel alkos.boot32)
+foreach (KERNEL_INCLUDE_DIR ${KERNEL_INCLUDE_DIRS})
+    target_include_directories(alkos.boot32 PRIVATE ${KERNEL_INCLUDE_DIR})
+endforeach ()
+
+# install to root of the sysroot
+install(TARGETS alkos.boot32 DESTINATION .)

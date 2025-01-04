@@ -1,9 +1,7 @@
 /* internal includes */
 
-#include <arch_utils.hpp>
 #include <panic.hpp>
 #include <terminal.hpp>
-#include <test_module/test_module.hpp>
 
 extern "C" void KernelPanic(const char *msg)
 {

@@ -6,6 +6,7 @@
           ; Includes
           %include "puts.nasm"
           extern TerminalInit
+          extern PreKernelInit
 
           ; Error checking and handling
           extern check_multiboot
@@ -73,9 +74,11 @@ boot32:
           ; save multi boot info
           push eax
 
+          call PreKernelInit
 hang: ; #TODO
           cli
           jmp hang
+
 
           call TerminalInit
           puts_32 MESSAGE_INIT_ALKOS
@@ -106,8 +109,10 @@ hang: ; #TODO
           call handle_return_code
 
           puts_32 MESSAGE_INFO_JUMPING_TO_64
-
+;
 
           ; Jump to long mode
 ;          lgdt [GDT64.Pointer]
 ;          jmp GDT64.Code:boot64
+kill:
+
