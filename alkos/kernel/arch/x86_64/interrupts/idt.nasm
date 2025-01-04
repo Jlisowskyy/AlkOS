@@ -3,12 +3,22 @@
 ; ------------------------------
 
 ; Macro to define an unsupported ISR handler.
-; It invokes the default exception handler and then returns via `iretq`.
+; It invokes the default interrupt handler which should never return.
 %macro unsupported_isr 1
 isr_wrapper_%+%1:
-    mov edi, %1
+    mov rdi, %1
+    call DefaultInterruptHandler
+%endmacro
+
+; Macro to define an unsupported error ISR handler.
+; It invokes the default exception handler which should never return.
+%macro unsupported_error_isr 1
+isr_wrapper_%+%1:
+    push rdi ; save state for debug print
+    push rsi ; save state for debug prints
+    lea rdi, [rsp + 2 * 8] ; pass pointer to stack frame
+    mov rsi, %1 ; pass the interrupt number (debugging aid)
     call DefaultExceptionHandler
-    iretq
 %endmacro
 
 ; ------------------------------------
@@ -82,6 +92,25 @@ isr_wrapper_%+%1:
     iretq                       ; Return from interrupt.
 %endmacro
 
+; Macro to define an error ISR wrapper with general-purpose register save/restore.
+%macro error_isr_wrapper_save_general_regs 1
+extern isr_%+%1
+
+isr_wrapper_%+%1:
+    sub rsp, _reg_size          ; Allocate space for saving registers.
+    push_regs                   ; Save registers.
+    sub rsp, _shadow_space      ; Allocate shadow space for function calls.
+    cld                         ; Clear direction flag for string operations.
+    lea rdi, [rsp + 8*_isr_stack_frame_offset] ; Pass pointer to stack frame.
+    mov rsi, %1                 ; Pass the interrupt number (debugging aid).
+    call isr_%+%1               ; Call the specific ISR handler.
+    add rsp, _shadow_space      ; Deallocate shadow space.
+    pop_regs                    ; Restore registers.
+    add rsp, _reg_size          ; Deallocate register save space.
+    add rsp, 8                  ; Skip error code.
+    iretq                       ; Return from interrupt.
+%endmacro
+
 ; --------------------------------------
 ; ISR with full state save/restore
 ; --------------------------------------
@@ -108,6 +137,7 @@ isr_wrapper_%+%1:
 
 bits 64
 
+extern DefaultInterruptHandler
 extern DefaultExceptionHandler
 
 section .text
@@ -121,20 +151,20 @@ unsupported_isr 4  ; Overflow: Overflow detected
 unsupported_isr 5  ; Bound Range Exceeded: Bound range exceeded
 unsupported_isr 6  ; Invalid Opcode: Invalid instruction
 unsupported_isr 7  ; Device Not Available: FPU device unavailable
-unsupported_isr 8  ; Double Fault: Critical CPU error
+unsupported_error_isr 8  ; Double Fault: Critical CPU error
 unsupported_isr 9  ; Coprocessor Segment Overrun: Legacy interrupt (not used)
-unsupported_isr 10 ; Invalid TSS: Invalid Task State Segment
-unsupported_isr 11 ; Segment Not Present: Segment not present in memory
-unsupported_isr 12 ; Stack Segment Fault: Stack-related fault
-unsupported_isr 13 ; General Protection Fault: Memory access violation
-unsupported_isr 14 ; Page Fault: Page not found in memory
+unsupported_error_isr 10 ; Invalid TSS: Invalid Task State Segment
+unsupported_error_isr 11 ; Segment Not Present: Segment not present in memory
+unsupported_error_isr 12 ; Stack Segment Fault: Stack-related fault
+unsupported_error_isr 13 ; General Protection Fault: Memory access violation
+unsupported_error_isr 14 ; Page Fault: Page not found in memory
 unsupported_isr 15 ; Reserved: Reserved by Intel
 unsupported_isr 16 ; x87 Floating-Point Exception: FPU error
-unsupported_isr 17 ; Alignment Check: Alignment error
+unsupported_error_isr 17 ; Alignment Check: Alignment error
 unsupported_isr 18 ; Machine Check: Hardware failure detected
 unsupported_isr 19 ; SIMD Floating-Point Exception: SIMD operation error
 unsupported_isr 20 ; Virtualization Exception: Virtualization error
-unsupported_isr 21 ; Control Protection Exception
+unsupported_error_isr 21 ; Control Protection Exception
 unsupported_isr 22 ; Reserved: Reserved by Intel
 unsupported_isr 23 ; Reserved: Reserved by Intel
 unsupported_isr 24 ; Reserved: Reserved by Intel
@@ -142,8 +172,8 @@ unsupported_isr 25 ; Reserved: Reserved by Intel
 unsupported_isr 26 ; Reserved: Reserved by Intel
 unsupported_isr 27 ; Reserved: Reserved by Intel
 unsupported_isr 28 ; Hypervisor Injection Exception
-unsupported_isr 29 ; VMM Communication Exception
-unsupported_isr 30 ; Security Exception: Security-related error
+unsupported_error_isr 29 ; VMM Communication Exception
+unsupported_error_isr 30 ; Security Exception: Security-related error
 unsupported_isr 31 ; Reserved: Reserved by Intel
 
 ; IRQs for PICs (32-47).
