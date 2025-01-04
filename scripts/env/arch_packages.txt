@@ -4,7 +4,7 @@ libisoburn
 mtools
 base-devel
 gmp
-mpc
+libmpc
 mpfr
 base-devel
 wget
