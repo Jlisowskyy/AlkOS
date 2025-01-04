@@ -9,7 +9,7 @@
 
           MULTIBOOT_HEADER_MAGIC equ 0x36d76289
 
-          section .text32
+          section .text
           global check_multiboot
 check_multiboot:
           cmp eax, MULTIBOOT_HEADER_MAGIC

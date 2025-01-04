@@ -30,7 +30,7 @@ p1_table:
           resb 4096 ; Page Table
 
           global setup_page_tables
-          section   .text32
+          section   .text
 setup_page_tables:
           ; Map the first 2 MiB to the first 2 MiB
           ; PML4[0] = PDPT

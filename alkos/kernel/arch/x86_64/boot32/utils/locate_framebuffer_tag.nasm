@@ -14,7 +14,7 @@
           MESSAGE_NEW_TAG db "[INFO]", TAB, SPACE, SPACE, "New tag: ", NEWLINE, 0
           MESSAGE_TAG_NOT_FOUND db "[WARN]", TAB, SPACE, SPACE, "Tag not found", NEWLINE, 0
 
-          section .text32
+          section .text
           ; struct multiboot_tag_framebuffer
           ;         +--------------------+
           ; u32     | type = 8           |

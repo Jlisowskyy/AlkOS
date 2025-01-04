@@ -10,7 +10,7 @@
 
           extern p4_table
 
-          section .text32
+          section .text
           global enable_paging
 enable_paging:
           ; Enable PAE

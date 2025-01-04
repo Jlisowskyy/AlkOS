@@ -5,7 +5,7 @@
           section .bss
           MESSAGE_BUFFER resb 256
 
-          section .text32
+          section .text
           global reg_to_message
           ; void reg_to_message(uint32_t value);
           ; Convert a register value to corresponding ASCII characters and store them in MESSAGE_BUFFER with a newline

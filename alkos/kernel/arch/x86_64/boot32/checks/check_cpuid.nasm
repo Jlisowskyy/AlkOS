@@ -2,7 +2,7 @@
 
           %include "return_codes.nasm"
 
-          section .text32
+          section .text
           global check_cpuid
 check_cpuid:
           ; Check if CPUID is supported by flipping the ID bit (bit 21) in

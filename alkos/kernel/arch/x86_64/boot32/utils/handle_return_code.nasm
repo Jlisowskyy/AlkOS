@@ -16,7 +16,7 @@
           extern MESSAGE_ENABLE_PAGING
           extern MESSAGE_SETUP_PAGE_TABLES
 
-          section .text32
+          section .text
           global handle_return_code
           ; void check_and_handle_errors(uint8_t error_code);
 handle_return_code:

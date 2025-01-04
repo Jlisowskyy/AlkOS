@@ -7,7 +7,7 @@ set(CMAKE_SYSTEM_PROCESSOR x86_64)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 # Define the path to your cross-compiler tools
-set(CROSS_COMPILER_PATH "${CMAKE_CURRENT_LIST_DIR}/../../tools/bin")
+set(CROSS_COMPILER_PATH "${CMAKE_CURRENT_LIST_DIR}/../../tools/x86_64-elf/bin")
 
 # Specify the cross-compilers
 set(PREFIX x86_64-elf)

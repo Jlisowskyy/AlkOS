@@ -5,7 +5,7 @@
           LONG_MODE_BIT       equ 1 << 8
           EFER_MSR            equ 0xC0000080
 
-          section .text32
+          section .text
           global enable_long_mode
 enable_long_mode:
           ; Set the LME (Long Mode Enable) bit in the

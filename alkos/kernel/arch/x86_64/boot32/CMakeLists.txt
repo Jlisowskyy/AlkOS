@@ -34,6 +34,7 @@ target_link_options(alkos.boot32 PRIVATE
         -z max-page-size=0x1000 # Maximum page size (For 1k alignment)
         -n                      # Omit default mem map
         -lgcc                   # Link against GCC
+        -m elf_i386             # Set the target to i386
 )
 target_compile_definitions(alkos.boot32 PRIVATE
         __i386__=1

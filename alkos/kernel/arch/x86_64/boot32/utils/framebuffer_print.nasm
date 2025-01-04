@@ -11,7 +11,7 @@
           extern stack_top
           extern reg_to_message
 
-          section .text32
+          section .text
           global framebuffer_print
 framebuffer_print:
           push ebp

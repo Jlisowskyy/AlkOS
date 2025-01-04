@@ -1,3 +1,4 @@
+OUTPUT_FORMAT("elf32-i386")
 /* The bootloader will look at this image and start execution at the symbol
    designated as the entry point. */
 ENTRY(_start)
@@ -28,12 +29,6 @@ SECTIONS
 	}
 
 	. = ALIGN(4K);
-
-	.text32 BLOCK(4K) : ALIGN(4K)
-    {
-        *(.text32)
-    }
-
 
 	.text BLOCK(4K) : ALIGN(4K)
 	{

@@ -47,7 +47,7 @@
 ; The linker script specifies _start as the entry point to the kernel and the
 ; bootloader will jump to this position once the kernel has been loaded. It
 ; doesn't make sense to return from this function as the bootloader is gone.
-          section   .text32
+          section   .text
           global    _start
 _start:
 boot32:
@@ -73,9 +73,10 @@ boot32:
           ; save multi boot info
           push eax
 
-hang:
+hang: ; #TODO
           cli
           jmp hang
+
           call TerminalInit
           puts_32 MESSAGE_INIT_ALKOS
 
