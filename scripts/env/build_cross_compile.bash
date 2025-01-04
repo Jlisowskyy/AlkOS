@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 CROSS_COMPILE_BUILD_SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 CROSS_COMPILE_BUILD_SCRIPT_PATH="${CROSS_COMPILE_BUILD_SCRIPT_DIR}/$(basename "$0")"
@@ -11,6 +11,7 @@ CROSS_COMPILE_BUILD_TARGET=x86_64-elf
 CROSS_COMPILE_BUILD_POSITIONAL_ARGS=()
 CROSS_COMPILE_BUILD_INSTALL_FOUND=false
 CROSS_COMPILE_BUILD_VERBOSE=false
+CROSS_COMPILE_USES_DEFAULT_TARGET=true
 
 PROC_COUNT=$(nproc --all)
 
@@ -18,11 +19,12 @@ source "${CROSS_COMPILE_BUILD_SCRIPT_DIR}/../utils/pretty_print.bash"
 source "${CROSS_COMPILE_BUILD_SCRIPT_DIR}/../utils/helpers.bash"
 
 help() {
-    echo "${CROSS_COMPILE_BUILD_SCRIPT_PATH} --install [--build_dir | -b <dir>] [--tool_dir | -t <dir>] [--verbose | -v]"
+    echo "${CROSS_COMPILE_BUILD_SCRIPT_PATH} --install [--build_dir | -b <dir>] [--tool_dir | -t <dir>] [--custom_target | -c <target>]"
     echo "Where:"
     echo "--install         | -i - required flag to start installation"
     echo "--build_dir <dir> | -b <dir> - provides directory <dir> to save all build files"
     echo "--tool_dir  <dir> | -t <dir> - directory where tooling should be saved"
+    echo "--custom_target   | -c - custom target to build cross-compiler for (default: x86_64-elf)"
     echo "--verbose         | -v - flag to enable verbose output"
 }
 
@@ -205,6 +207,12 @@ parse_args() {
                 CROSS_COMPILE_BUILD_VERBOSE=true
                 shift
                 ;;
+            -c|--custom_target)
+                CROSS_COMPILE_BUILD_TARGET="$2"
+                CROSS_COMPILE_USES_DEFAULT_TARGET=false
+                shift
+                shift
+                ;;
             -*)
                 dump_error "Unknown option $1"
                 ;;
@@ -229,6 +237,12 @@ process_args() {
 
     if [ -z "${CROSS_COMPILE_BUILD_BUILD_DIR}" ] ; then
         dump_error "--build_dir | -t flag with directory where save build files was not provided!"
+    fi
+
+    if [ $CROSS_COMPILE_USES_DEFAULT_TARGET = false ] ; then
+        pretty_info "Using custom target: ${CROSS_COMPILE_BUILD_TARGET}"
+    else
+        pretty_info "Using default target: ${CROSS_COMPILE_BUILD_TARGET}"
     fi
 }
 
