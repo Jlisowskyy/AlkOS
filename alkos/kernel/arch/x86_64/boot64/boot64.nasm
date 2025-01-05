@@ -23,13 +23,9 @@
           section .text
           bits 64
 boot64:
-          ; TODO It may be a good idea to copy the multiboot info structure to a known location
-          ; And then:
-          ; Reload the stack
-          ; Remap the kernel to the higher half / setup paging again
-          ; This will allow us to essentially have a clean slate to work with
-          ; And delete the bootloader from memory (unnecessary to go that far
-          ; but clean state itself is nice)
+          ; TODO Remap the kernel to the higher half / setup paging again
+          ; TODO Use Multiboot2 information to get the memory map and other information
+          ; Then clear both multiboot header and loader from memory
           mov esp, stack_top
           mov ebp, esp
 
