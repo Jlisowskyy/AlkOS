@@ -14,6 +14,9 @@
 #define ELF_MAGIC2 'L'
 #define ELF_MAGIC3 'F'
 
+// Taken from glibc https://github.com/lattera/glibc/blob/master/elf/elf.h#L60
+// And https://krinkinmu.github.io/2020/11/15/loading-elf-image.html
+
 /**
  * @brief ELF-64 header structure
  *
