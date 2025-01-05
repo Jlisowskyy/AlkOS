@@ -7,4 +7,4 @@
 # ALKOS_TOOLCHAIN_PATH=...
 
 export ALKOS_QEMU_ARGS="-serial stdio -enable-kvm -cpu host"
-export ALKOS_ISO_PATH="/home/Jlisowskyy/Repos/AlkOS/alkos/build/gcc-cross-debug/alkos.iso"
+export ALKOS_ISO_PATH="/home/wookie/Projects/AlkOS/alkos/cmake-build-debug-x86_64-elf/alkos.iso"

@@ -4,7 +4,9 @@
 #include <arch_utils.hpp>
 #include <terminal.hpp>
 #include <tags.hpp>
+#include <elf.hpp>
 #include <multiboot2.h>
+#include <libc.hpp>
 
 // External functions defined in assembly or C
 extern "C" int check_multiboot2();
@@ -14,26 +16,11 @@ extern "C" int check_long_mode();
 void setup_page_tables();
 extern "C" void enable_paging();
 extern "C" void enable_long_mode();
+extern "C" void enter_kernel(void* kernel_entry, void* multiboot_info_addr);
 
 char text_buffer[1024];
 
-void uint32_to_string(uint32_t value, char* buffer)
-{
-    uint32_t i = 0;
-    do {
-        buffer[i++] = '0' + value % 10;
-        value /= 10;
-    } while (value > 0);
-    buffer[i] = '\0';
-
-    for (uint32_t j = 0; j < i / 2; j++) {
-        char temp = buffer[j];
-        buffer[j] = buffer[i - j - 1];
-        buffer[i - j - 1] = temp;
-    }
-}
-
-extern "C" void PreKernelInit(uint32_t boot_loader_magic, uint32_t multiboot_info_addr)
+extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_addr)
 {
     TerminalInit();
     TerminalWriteString(INFO_TAG "In 32-bit mode\n");
@@ -80,8 +67,10 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, uint32_t multiboot_inf
 
     TerminalWriteString(INFO_TAG "Finished hardware features setup for 32-bit mode.\n");
 
+    TerminalWriteString(INFO_TAG "Starting 64-bit kernel...\n");
+
     TerminalWriteString(INFO_TAG "Parsing Multiboot2 tags...\n");
-    uint32_t multiboot_info_size = *(uint32_t*)(multiboot_info_addr);
+//    uint32_t multiboot_info_size = *(uint32_t*)(multiboot_info_addr);
 
     multiboot_tag_module* kernel_module = nullptr;
     multiboot_tag* tag;
@@ -89,7 +78,7 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, uint32_t multiboot_inf
          tag->type != MULTIBOOT_TAG_TYPE_END;
          tag = (multiboot_tag*)((multiboot_uint8_t*)tag + ((tag->size + 7) & ~7))) {
         TerminalWriteString(INFO_TAG "Found tag: ");
-        TerminalWriteString(get_tag_name(tag->type));
+        TerminalWriteString(GetTagName(tag->type));
         TerminalWriteString("\n");
 
         if(tag->type == MULTIBOOT_TAG_TYPE_MODULE) {
@@ -98,7 +87,7 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, uint32_t multiboot_inf
 
             // TODO: Modules should be loaded with a specific command line
             // so that the loader knows which module is the kernel
-            // but for now, we will just take the first module as the kernel
+            // but for now, we will just take the last module as the kernel
 
             TerminalWriteString(INFO_TAG "Module loaded at: ");
             uint32_to_string(module->mod_start, text_buffer);
@@ -116,7 +105,16 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, uint32_t multiboot_inf
             TerminalWriteString("\n");
         }
     }
+    TerminalWriteString(SUCCESS_TAG "Multiboot2 tags parsed!\n");
 
-    TerminalWriteString(INFO_TAG "Starting 64-bit kernel...\n");
-    OsHangNoInterrupts();
+    TerminalWriteString(INFO_TAG "Loading kernel module...\n");
+    void* kernel_entry = load_elf64_module((uint8_t*)kernel_module->mod_start, (uint8_t*)kernel_module->mod_end);
+    if (kernel_entry == nullptr) {
+        TerminalWriteString(ERROR_TAG "Failed to load kernel module!\n");
+        OsHangNoInterrupts();
+    }
+    TerminalWriteString(SUCCESS_TAG "Kernel module loaded!\n");
+
+
+    enter_kernel(kernel_entry, multiboot_info_addr);
 }

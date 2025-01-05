@@ -419,7 +419,7 @@ struct multiboot_tag_load_base_addr
     multiboot_uint32_t load_base_addr;
 };
 
-const char* get_tag_name(unsigned int type) {
+const char* GetTagName(unsigned int type) {
     switch(type){
         case MULTIBOOT_TAG_TYPE_END:
             return "MULTIBOOT_TAG_TYPE_END";

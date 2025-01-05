@@ -14,20 +14,6 @@
           extern stack_bottom
           extern stack_top
 
-          ; Paging
-          extern p1_table
-          extern p2_table
-          extern p3_table
-          extern p4_table
-          extern setup_page_tables
-          extern enable_paging
-
-          ; Long mode
-          extern enable_long_mode
-
-          ; Boot64 - entry point to 64-bit boot code - continuation of what is here
-;          extern boot64
-
 ; The multiboot standard does not define the value of the stack pointer register.
 ; The stack on x86 must be 16-byte aligned according to the
 ; System V ABI standard and de-facto extensions. The compiler will assume the
@@ -56,6 +42,7 @@ boot32:
           ; stack (as it grows downwards on x86 systems). This is necessarily done
           ; in assembly as languages such as C cannot function without a stack.
           mov esp, stack_top
+          mov ebp, esp
 
           push ebx
           push eax
