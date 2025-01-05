@@ -2,11 +2,11 @@
 // Created by wookie on 1/4/25.
 //
 
-#ifndef ALKOS_IO_TAGS_H
-#define ALKOS_IO_TAGS_H
+#ifndef ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_TAGS_HPP
+#define ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_TAGS_HPP
 
 #define INFO_TAG    "[INFO]      "
 #define ERROR_TAG   "[ERROR]     "
 #define SUCCESS_TAG "[SUCCESS]   "
 
-#endif //ALKOS_IO_TAGS_H
+#endif // ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_TAGS_HPP

@@ -56,9 +56,9 @@ boot32:
           ; stack (as it grows downwards on x86 systems). This is necessarily done
           ; in assembly as languages such as C cannot function without a stack.
           mov esp, stack_top
-          sub esp, 8; Reserve space for multiboot_info_t* and framebuffer_info_t*
-          mov [MULTI_BOOT_INFO_T_LOCATION], ebx ; Save multiboot_info_t*
 
+          push ebx
+          push eax
           call PreKernelInit
 hang: ; #TODO
           cli

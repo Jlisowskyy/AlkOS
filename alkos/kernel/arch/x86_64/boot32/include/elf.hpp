@@ -2,8 +2,8 @@
 // Created by wookie on 1/4/25.
 //
 
-#ifndef ALKOS_ELF_LOADER_H
-#define ALKOS_ELF_LOADER_H
+#ifndef ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP
+#define ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP
 #include <stdint.h>
 #include <tags.hpp>
 
@@ -41,4 +41,4 @@ struct Elf64_Phdr {
 // Function to load ELF-64 kernel
 bool load_elf64_kernel(uint8_t* elf_data, size_t elf_size, uint64_t& entry_point);
 
-#endif //ALKOS_ELF_LOADER_H
+#endif // ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP

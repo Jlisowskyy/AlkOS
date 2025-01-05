@@ -63,7 +63,7 @@ parse_args() {
 
         local MODULES_LINES=""
         for module in ${MAKE_ISO_SCRIPT_MODULES_LIST}; do
-          MODULES_LINES+="  module /boot/${module}\n"
+          MODULES_LINES+="  module2 /boot/${module}\n"
         done
 
         # Convert the \n to actual newlines and strip spaces at the start of the first line and only it

@@ -2,8 +2,8 @@
 // Created by wookie on 1/4/25.
 //
 
-#ifndef ALKOS_LIBC_H
-#define ALKOS_LIBC_H
+#ifndef ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP
+#define ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP
 
 #include <stddef.h>
 
@@ -93,4 +93,4 @@ char *strcpy(char *dest, const char *src);
  */
 char* strncpy(char *dest, const char *src, size_t n);
 
-#endif //ALKOS_LIBC_H
+#endif // ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP

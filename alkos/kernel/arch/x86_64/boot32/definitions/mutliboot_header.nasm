@@ -70,14 +70,14 @@ multiboot_start:
 
 ;          ; Framebuffer tag
 ;          ; https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#The-framebuffer-tag-of-Multiboot2-header
-;          align 8
+          align 8
 .framebuffer_tag_start:
           dw MULTIBOOT_HEADER_TAG_FRAMEBUFFER
           dw MULTIBOOT_HEADER_TAG_OPTIONAL
           dd (.framebuffer_tag_end - .framebuffer_tag_start)
-          dd 800 ; width  - no preference
-          dd 600 ; height - no preference
-          dd 32 ; depth  - no preference
+          dd 0 ; width  - no preference
+          dd 0 ; height - no preference
+          dd 0 ; depth  - no preference
 .framebuffer_tag_end:
 
           ; End tag (required)

@@ -72,8 +72,8 @@ endif ()
 message(STATUS "Using make_iso script: ${MAKE_ISO_SCRIPT_PATH}")
 message(STATUS "Using run_alkos script: ${RUN_ALKOS_SCRIPT_PATH}")
 
-# This is not a workaround, this is genuinely how you pass arguments to the script from CMake
-string(REPLACE ";" " " KERNEL_MODULES "${KERNEL_MODULES}")
+# This is not a workaround, this is genuinely how you pass arguments to a bash script from CMake
+string(REPLACE ";" " " KERNEL_MODULES_FORMATTED "${KERNEL_MODULES}")
 
 add_custom_target(iso
         COMMAND ${MAKE_ISO_SCRIPT_PATH}
@@ -81,7 +81,7 @@ add_custom_target(iso
                 ${SYSROOT}
                 -v -r
                 -e ${BOOTABLE_KERNEL_EXECUTABLE}
-                -m "${KERNEL_MODULES}"
+                -m "${KERNEL_MODULES_FORMATTED}"
         DEPENDS ${BOOTABLE_KERNEL_EXECUTABLE} libk
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
