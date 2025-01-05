@@ -3,6 +3,7 @@
 //
 #include <arch_utils.hpp>
 #include <terminal.hpp>
+#include <tags.hpp>
 
 // External functions defined in assembly or C
 extern "C" int check_multiboot2();
@@ -12,10 +13,6 @@ extern "C" int check_long_mode();
 void setup_page_tables();
 extern "C" void enable_paging();
 extern "C" void enable_long_mode();
-
-#define INFO_TAG    "[INFO]      "
-#define ERROR_TAG   "[ERROR]     "
-#define SUCCESS_TAG "[SUCCESS]   "
 
 extern "C" void PreKernelInit()
 {
@@ -30,7 +27,7 @@ extern "C" void PreKernelInit()
         TerminalWriteString("Multiboot2 check failed!\n");
         OsHangNoInterrupts();
     }
-    TerminalWriteString("Multiboot2 check passed!\n");
+    TerminalWriteString(INFO_TAG "Multiboot2 check passed!\n");
 
     TerminalWriteString(INFO_TAG "Starting pre-kernel initialization\n");
     BlockHardwareInterrupts();
@@ -67,5 +64,6 @@ extern "C" void PreKernelInit()
 
     TerminalWriteString(INFO_TAG "Finished hardware features setup for 32-bit mode.\n");
 
-    TerminalWriteString(INFO_TAG "Loading GDT...\n");
+    TerminalWriteString(INFO_TAG "Starting 64-bit kernel...\n");
+    OsHangNoInterrupts();
 }

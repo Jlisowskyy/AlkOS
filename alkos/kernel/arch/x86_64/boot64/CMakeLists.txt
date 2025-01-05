@@ -1,7 +1,6 @@
 message(STATUS "Configuring boot64")
-set(KERNEL_EXECUTABLES ${KERNEL_EXECUTABLES} alkos.kernel PARENT_SCOPE)
-target_include_directories(alkos.kernel PRIVATE ${COMMON_INCLUDE_DIRS})
 
+############################## Finding Sources ###############################
 file(GLOB_RECURSE ARCH_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
@@ -13,14 +12,17 @@ file(GLOB_RECURSE ARCH_SOURCES
 list(APPEND ARCH_SOURCES ${ARCH_COMMON_SOURCES})
 list(FILTER ARCH_SOURCES EXCLUDE REGEX ".*/(crti\\.nasm|crtn\\.nasm)$")
 
-# Apply flags to the kernel target
+############################### Applying Flags ###############################
 target_compile_options(alkos.kernel PRIVATE ${ARCH_C_FLAGS} ${ARCH_CXX_FLAGS})
 set_source_files_properties(${ARCH_SOURCES} PROPERTIES COMPILE_FLAGS "${ARCH_ASM_FLAGS}")
 
-# Add kernel sources
+############################### Adding Sources ###############################
 target_sources(alkos.kernel PRIVATE ${ARCH_SOURCES})
 
-# Set linker script and flags
+############################### Adding Headers ###############################
+target_include_directories(alkos.kernel PRIVATE ${COMMON_INCLUDE_DIRS})
+
+################################ Linker Flags ################################
 set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld")
 target_link_options(alkos.kernel PRIVATE
         -T ${LINKER_SCRIPT}     # Linker script
@@ -30,10 +32,7 @@ target_link_options(alkos.kernel PRIVATE
         -lgcc                   # Link against GCC
 )
 
-################################################################################
-#                           CXX Global Constructors                            #
-################################################################################
-
+########################## CXX Global Constructors ###########################
 set(SRTI_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cxx/crti.nasm")
 set(SRTN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cxx/crtn.nasm")
 
@@ -57,6 +56,5 @@ set(CRTEND_OBJ "${CRTEND_OBJ}" PARENT_SCOPE)
 set(CRTBEGIN_OBJ "${CRTBEGIN_OBJ}" PARENT_SCOPE)
 set(CRTI_OBJ "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/alkos.kernel.crts.dir/cxx/crti.nasm.obj" PARENT_SCOPE)
 set(CRTN_OBJ "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/alkos.kernel.crts.dir/cxx/crtn.nasm.obj" PARENT_SCOPE)
-
 
 add_dependencies(alkos.kernel alkos.kernel.crts)
