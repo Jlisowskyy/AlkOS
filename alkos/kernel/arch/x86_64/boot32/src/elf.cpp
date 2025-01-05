@@ -47,6 +47,7 @@ void* load_elf64_module(uint8_t* elf_start, uint8_t* elf_end){
     }
 
     Elf64_Phdr* phdrs = reinterpret_cast<Elf64_Phdr*>(elf_start + ehdr->e_phoff);
+
     for (uint16_t i = 0; i < ehdr->e_phnum; i++) {
         const Elf64_Phdr* phdr = &phdrs[i];
 

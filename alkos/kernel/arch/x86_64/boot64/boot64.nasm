@@ -22,12 +22,14 @@
           section .text
           bits 64
 boot64:
-          mov ax, GDT64.Data
-          mov ds, ax
-          mov es, ax
-          mov fs, ax
-          mov gs, ax
-          mov ss, ax
+          ; TODO It may be a good idea to copy the multiboot info structure to a known location
+          ; And then:
+          ; Reload the stack
+          ; Reload the GDT
+          ; Remap the kernel to the higher half / setup paging again
+          ; This will allow us to essentially have a clean slate to work with
+          ; And delete the bootloader from memory (unnecessary to go that far
+          ; but clean state itself is nice)
 
           sub rsp, 32 ; shadow space
 

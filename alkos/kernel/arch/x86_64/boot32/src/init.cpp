@@ -9,7 +9,6 @@
 #include <libc.hpp>
 
 // External functions defined in assembly or C
-extern "C" int check_multiboot2();
 extern "C" int check_cpuid();
 extern "C" int check_long_mode();
 
@@ -70,7 +69,6 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
     TerminalWriteString(INFO_TAG "Starting 64-bit kernel...\n");
 
     TerminalWriteString(INFO_TAG "Parsing Multiboot2 tags...\n");
-//    uint32_t multiboot_info_size = *(uint32_t*)(multiboot_info_addr);
 
     multiboot_tag_module* kernel_module = nullptr;
     multiboot_tag* tag;

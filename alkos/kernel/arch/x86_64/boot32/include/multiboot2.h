@@ -419,6 +419,12 @@ struct multiboot_tag_load_base_addr
     multiboot_uint32_t load_base_addr;
 };
 
+/**
+ * @brief Get the tag name from the tag type.
+ *
+ * @param type The tag type.
+ * @return const char* The tag name.
+ */
 const char* GetTagName(unsigned int type) {
     switch(type){
         case MULTIBOOT_TAG_TYPE_END:

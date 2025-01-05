@@ -3,7 +3,7 @@ ENTRY(boot64)
 
 SECTIONS
 {
-	. = 100m;
+	. = 100m; /* This is chosen to be far enough from loader to avoid conflicts, but is arbitrary */
 
 	.text BLOCK(4K) : ALIGN(4K)
 	{
