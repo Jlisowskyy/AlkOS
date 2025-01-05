@@ -3,6 +3,7 @@
           extern stack_top
 
           ; GDT64
+          extern GDT64.Pointer
           extern GDT64.Data
 
           ; Message
@@ -25,15 +26,27 @@ boot64:
           ; TODO It may be a good idea to copy the multiboot info structure to a known location
           ; And then:
           ; Reload the stack
-          ; Reload the GDT
           ; Remap the kernel to the higher half / setup paging again
           ; This will allow us to essentially have a clean slate to work with
           ; And delete the bootloader from memory (unnecessary to go that far
           ; but clean state itself is nice)
+          mov esp, stack_top
+          mov ebp, esp
+
+          mov r10, 0
+          mov r10d, edi ; Edi is a 32 bit LoaderData pointer filled by the loader
+
+          lgdt [GDT64.Pointer]
+          mov ax, GDT64.Data
+          mov ss, ax
+          mov ds, ax
+          mov es, ax
 
           sub rsp, 32 ; shadow space
 
           ; There all basic initialization should be done
+          mov rdi, 0
+          mov edi, r10d
           call PreKernelInit
 
           ; Invoke global constructors
@@ -50,33 +63,3 @@ boot64:
 os_hang:
           hlt
           jmp os_hang
-
-; # TODO TEMP
-          section .data
-          GDT64:
-          .Null:
-          dq 0
-          .Code: equ $ - GDT64
-          dw 0x0000
-          dw 0x0000
-          db 0x00
-          db 0x9A        ; Access byte
-          db 0x20        ; Flags
-          db 0x00
-          .Data: equ $ - GDT64
-          dw 0x0000
-          dw 0x0000
-          db 0x00
-          db 0x92        ; Access byte
-          db 0x00        ; Flags
-          db 0x00
-          .End:
-          .Pointer:
-          dw .End - GDT64 - 1 ;
-          dq GDT64
-
-          global kKernelCodeOffset
-          global kKernelDataOffset
-
-          kKernelCodeOffset dd GDT64.Code
-          kKernelDataOffset dd GDT64.Data

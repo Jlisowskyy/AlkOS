@@ -6,8 +6,8 @@
 
           section .text
           global enter_kernel
-          ; void enter_kernel(void *kernel_entry, void *multiboot_info_addr)
-          ;                   [ebp + 8]
+          ; void enter_kernel(void *kernel_entry, LoaderData *loader_data)
+          ;                   [ebp + 8]           [ebp + 12]
 enter_kernel:
           push ebp
           mov ebp, esp
@@ -23,7 +23,7 @@ enter_kernel:
           mov es, ax
           jmp GDT64.Code:.jmp_kernel
 .jmp_kernel:
-          mov edi, [ebp + 12] ; Multiboot info address
+          mov edi, [ebp + 12] ; LoaderData address
           mov eax, [k_ptr]
           dd 0
           jmp eax

@@ -20,38 +20,18 @@
 ; stack is properly aligned and failure to align the stack will result in
 ; undefined behavior.
 
-; The linker script specifies _start as the entry point to the kernel and the
-; bootloader will jump to this position once the kernel has been loaded. It
-; doesn't make sense to return from this function as the bootloader is gone.
           section   .text
-          global    _start
-_start:
+          global    boot32
 boot32:
           ; The bootloader has loaded us into 32-bit protected mode on a x86
           ; machine. Interrupts are disabled. Paging is disabled. The processor
           ; state is as defined in the multiboot standard. The kernel has full
           ; control of the CPU. The kernel can only make use of hardware features
-          ; and any code it provides as part of itself. There's no printf
-          ; function, unless the kernel provides its own <stdio.h> header and a
-          ; printf implementation. There are no security restrictions, no
-          ; safeguards, no debugging mechanisms, only what the kernel provides
-          ; itself. It has absolute and complete power over the
-          ; machine.
+          ; and any code it provides as part of itself.
 
-          ; To set up a stack, we set the esp register to point to the top of the
-          ; stack (as it grows downwards on x86 systems). This is necessarily done
-          ; in assembly as languages such as C cannot function without a stack.
           mov esp, stack_top
           mov ebp, esp
 
-          push ebx
-          push eax
-          call PreKernelInit
-hang: ; #TODO
-          cli
-          jmp hang
-
-          ; Jump to long mode
-;          lgdt [GDT64.Pointer]
-;          jmp GDT64.Code:boot64
-
+          push ebx ; Multiboot info
+          push eax ; Magic number
+          call PreKernelInit ; This jumps

@@ -7,6 +7,8 @@
 #include <elf.hpp>
 #include <multiboot2.h>
 #include <libc.hpp>
+#include <loader_data.hpp>
+#include <defines.hpp>
 
 // External functions defined in assembly or C
 extern "C" int check_cpuid();
@@ -17,7 +19,18 @@ extern "C" void enable_paging();
 extern "C" void enable_long_mode();
 extern "C" void enter_kernel(void* kernel_entry, void* multiboot_info_addr);
 
+// Buffer for text output
 char text_buffer[1024];
+
+// External symbols defined in the linker script
+extern const char multiboot_header_start[];
+extern const char multiboot_header_end[];
+
+extern const char loader_start[];
+extern const char loader_end[];
+
+// Data structure that holds information passed from the 32-bit loader to the 64-bit kernel
+LoaderData loader_data;
 
 extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_addr)
 {
@@ -113,6 +126,42 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
     }
     TerminalWriteString(SUCCESS_TAG "Kernel module loaded!\n");
 
+    // Set the loader data structure
+    loader_data.multiboot_info_addr = (u32)multiboot_info_addr;
+    loader_data.multiboot_header_start_addr = (u32)multiboot_header_start;
+    loader_data.multiboot_header_end_addr = (u32)multiboot_header_end;
+    loader_data.loader_start_addr = (u32)loader_start;
+    loader_data.loader_end_addr = (u32)loader_end;
 
-    enter_kernel(kernel_entry, multiboot_info_addr);
+    uint32_to_string((u32)&loader_data, text_buffer);
+    TerminalWriteString(INFO_TAG "LoaderData Address: ");
+    TerminalWriteString(text_buffer);
+    TerminalWriteString("\n");
+
+    uint32_to_string((u32)loader_data.multiboot_info_addr, text_buffer);
+    TerminalWriteString(INFO_TAG "LoaderData multiboot_info_addr: ");
+    TerminalWriteString(text_buffer);
+    TerminalWriteString("\n");
+
+    uint32_to_string((u32)loader_data.multiboot_header_start_addr, text_buffer);
+    TerminalWriteString(INFO_TAG "LoaderData multiboot_header_start_addr: ");
+    TerminalWriteString(text_buffer);
+    TerminalWriteString("\n");
+
+    uint32_to_string((u32)loader_data.multiboot_header_end_addr, text_buffer);
+    TerminalWriteString(INFO_TAG "LoaderData multiboot_header_end_addr: ");
+    TerminalWriteString(text_buffer);
+    TerminalWriteString("\n");
+
+    uint32_to_string((u32)loader_data.loader_start_addr, text_buffer);
+    TerminalWriteString(INFO_TAG "LoaderData loader_start_addr: ");
+    TerminalWriteString(text_buffer);
+    TerminalWriteString("\n");
+
+    uint32_to_string((u32)loader_data.loader_end_addr, text_buffer);
+    TerminalWriteString(INFO_TAG "LoaderData loader_end_addr: ");
+    TerminalWriteString(text_buffer);
+    TerminalWriteString("\n");
+
+    enter_kernel(kernel_entry, &loader_data);
 }

@@ -13,6 +13,7 @@
 #include <init.hpp>
 #include <pic8259/pic8259.hpp>
 #include <terminal.hpp>
+#include <loader_data.hpp>
 
 /* external init procedures */
 extern "C" void enable_osxsave();
@@ -21,10 +22,23 @@ extern "C" void enable_sse();
 
 extern "C" void enable_avx();
 
-extern "C" void PreKernelInit()
+extern "C" void PreKernelInit(LoaderData* loader_data)
 {
     TerminalInit();
     TRACE_INFO("In 64 bit mode");
+
+    TRACE_INFO("Checking for LoaderData...");
+    TRACE_INFO("LoaderData Address: %d", loader_data);
+    if (loader_data == nullptr) {
+        TRACE_ERROR("LoaderData check failed!");
+        OsHangNoInterrupts();
+    }
+    TRACE_INFO("LoaderData multiboot_info_addr: %d", loader_data->multiboot_info_addr);
+    TRACE_INFO("LoaderData multiboot_header_start_addr: %d", loader_data->multiboot_header_start_addr);
+    TRACE_INFO("LoaderData multiboot_header_end_addr: %d", loader_data->multiboot_header_end_addr);
+    TRACE_INFO("LoaderData loader_start_addr: %d", loader_data->loader_start_addr);
+    TRACE_INFO("LoaderData loader_end_addr: %d", loader_data->loader_end_addr);
+
     TRACE_INFO("Starting pre-kernel initialization");
 
     TRACE_INFO("Starting to setup CPU features");
