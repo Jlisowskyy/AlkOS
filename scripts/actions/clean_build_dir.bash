@@ -41,11 +41,6 @@ process_args() {
 }
 
 main() {
-  # print all flags
-  for arg in "$@"; do
-    echo "arg: $arg"
-  done
-
   parse_args "$@"
   process_args
 
@@ -54,20 +49,12 @@ main() {
     exit 0
   fi
 
-  pretty_info "Deleting config.cache"
-  if [[ "${CLEAN_BUILD_VERBOSE}" == "true" ]]; then
-    find ${CLEAN_BUILD_BUILD_DIR} -name "config.cache" -delete
-  else
-    find ${CLEAN_BUILD_BUILD_DIR} -name "config.cache" -delete &> /dev/null
-  fi
-  pretty_info "Running make distclean"
+  base_runner "Deleting config.cache" ${CLEAN_BUILD_VERBOSE} find ${CLEAN_BUILD_BUILD_DIR} -name "config.cache" -delete
+  base_runner "Finding and running distclean" ${CLEAN_BUILD_VERBOSE} \
   find "${CLEAN_BUILD_BUILD_DIR}" -type f \( -iname "Makefile" -o -iname "makefile" -o -iname "GNUmakefile" \) -printf '%h\n' | sort -u | while read -r dir; do
-    if [[ "${CLEAN_BUILD_VERBOSE}" == "true" ]]; then
       (cd "$dir" && make distclean && make clean)
-    else
-      (cd "$dir" && make distclean && make clean) &> /dev/null
-    fi
   done
+
   pretty_success "${CLEAN_BUILD_BUILD_DIR} cleaned"
 }
 
