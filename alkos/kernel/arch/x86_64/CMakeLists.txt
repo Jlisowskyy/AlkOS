@@ -58,15 +58,6 @@ set(BOOTABLE_KERNEL_EXECUTABLE alkos.boot32)
 add_subdirectory(boot64)
 set(KERNEL_MODULES ${KERNEL_MODULES} alkos.kernel)
 
-########################## Back-Propagate Variables ##########################
-set(CRTEND_OBJ "${CRTEND_OBJ}" PARENT_SCOPE)
-set(CRTBEGIN_OBJ "${CRTBEGIN_OBJ}" PARENT_SCOPE)
-set(CRTI_OBJ "${CRTI_OBJ}" PARENT_SCOPE)
-set(CRTN_OBJ "${CRTN_OBJ}" PARENT_SCOPE)
-
-set(BOOTABLE_KERNEL_EXECUTABLE ${BOOTABLE_KERNEL_EXECUTABLE} PARENT_SCOPE)
-set(KERNEL_MODULES ${KERNEL_MODULES} PARENT_SCOPE)
-
 ############################### Error Checking ###############################
 if (NOT BOOTABLE_KERNEL_EXECUTABLE)
     message(FATAL_ERROR "No primary kernel executable defined")
@@ -87,3 +78,12 @@ if (NOT CRTBEGIN_OBJ)
 endif ()
 
 message(STATUS "CRTI_OBJ: ${CRTI_OBJ}, CRTN_OBJ: ${CRTN_OBJ}")
+
+########################## Back-Propagate Variables ##########################
+set(CRTEND_OBJ "${CRTEND_OBJ}" PARENT_SCOPE)
+set(CRTBEGIN_OBJ "${CRTBEGIN_OBJ}" PARENT_SCOPE)
+set(CRTI_OBJ "${CRTI_OBJ}" PARENT_SCOPE)
+set(CRTN_OBJ "${CRTN_OBJ}" PARENT_SCOPE)
+
+set(BOOTABLE_KERNEL_EXECUTABLE ${BOOTABLE_KERNEL_EXECUTABLE} PARENT_SCOPE)
+set(KERNEL_MODULES ${KERNEL_MODULES} PARENT_SCOPE)

@@ -72,10 +72,17 @@ endif ()
 message(STATUS "Using make_iso script: ${MAKE_ISO_SCRIPT_PATH}")
 message(STATUS "Using run_alkos script: ${RUN_ALKOS_SCRIPT_PATH}")
 
+# This is not a workaround, this is genuinely how you pass arguments to the script from CMake
+string(REPLACE ";" " " KERNEL_MODULES "${KERNEL_MODULES}")
+
 add_custom_target(iso
-        COMMAND ${MAKE_ISO_SCRIPT_PATH} ${ALKOS_ISO_PATH} ${SYSROOT} -v -r ${BOOTABLE_KERNEL_EXECUTABLE}
-        DEPENDS ${BOOTABLE_KERNEL_EXECUTABLE}
-        DEPENDS libk
+        COMMAND ${MAKE_ISO_SCRIPT_PATH}
+                ${ALKOS_ISO_PATH}
+                ${SYSROOT}
+                -v -r
+                -e ${BOOTABLE_KERNEL_EXECUTABLE}
+                -m "${KERNEL_MODULES}"
+        DEPENDS ${BOOTABLE_KERNEL_EXECUTABLE} libk
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
