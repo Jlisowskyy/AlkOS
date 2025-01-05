@@ -45,14 +45,14 @@ ExternalProject_Add(
         -DKERNEL_INCLUDE_DIRS_ENCODED="${KERNEL_INCLUDE_DIRS_ENCODED}"
         BUILD_ALWAYS 1
 )
-add_executable(alkos.boot32 IMPORTED GLOBAL)
-set_target_properties(alkos.boot32 PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/alkos.boot32"
+add_executable(alkos.loader IMPORTED GLOBAL)
+set_target_properties(alkos.loader PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/alkos.loader"
 )
-add_dependencies(alkos.boot32 boot32_external)
+add_dependencies(alkos.loader boot32_external)
 
-# Retrieve the bootable kernel executable # TODO: Rename this to alkos.loader
-set(BOOTABLE_KERNEL_EXECUTABLE alkos.boot32)
+# Retrieve the bootable kernel executable
+set(BOOTABLE_KERNEL_EXECUTABLE alkos.loader)
 
 ################################### Boot64 ###################################
 add_subdirectory(boot64)

@@ -82,7 +82,7 @@ add_custom_target(iso
                 -v -r
                 -e ${BOOTABLE_KERNEL_EXECUTABLE}
                 -m "${KERNEL_MODULES_FORMATTED}"
-        DEPENDS ${BOOTABLE_KERNEL_EXECUTABLE} libk
+        DEPENDS ${BOOTABLE_KERNEL_EXECUTABLE} ${KERNEL_MODULES} libk
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 

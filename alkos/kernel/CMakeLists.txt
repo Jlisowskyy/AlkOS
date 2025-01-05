@@ -76,7 +76,7 @@ if (NOT DEFINED BOOTABLE_KERNEL_EXECUTABLE)
 endif ()
 
 ################################## Linking ###################################
-target_link_libraries(alkos.kernel PRIVATE ${SYSROOT}/usr/lib/libk.a gcc)
+target_link_libraries(alkos.kernel PRIVATE libk gcc)
 
 ############################## Post Arch Action ##############################
 # Note: architecture file has a possibility to define custom command to run
