@@ -1,7 +1,11 @@
 /* internal includes */
 
+#include <arch_utils.hpp>
 #include <panic.hpp>
 #include <terminal.hpp>
+#ifndef __i386__
+#include "test_module/test_module.hpp"
+#endif
 
 extern "C" void KernelPanic(const char *msg)
 {
@@ -9,17 +13,16 @@ extern "C" void KernelPanic(const char *msg)
     TerminalWriteError(msg);
     TerminalWriteError("\n");
 
-    // #TODO
-    // #ifdef __x86_64__
-    //    if constexpr (kIsAlkosTestBuild) {
-    //        /* When running tests */
-    //        test::OnKernelPanic();
-    //    } else {
-    //        /* Usual situation */
-    //
-    //        OsHang();
-    //    }
-    // #else
-    //    OsHang();
-    // #endif
+     #ifndef __i386__
+        if constexpr (kIsAlkosTestBuild) {
+            /* When running tests */
+            test::OnKernelPanic();
+        } else {
+            /* Usual situation */
+
+            OsHang();
+        }
+     #else
+        OsHang();
+     #endif
 }

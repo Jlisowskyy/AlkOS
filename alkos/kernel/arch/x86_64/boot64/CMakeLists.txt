@@ -21,6 +21,7 @@ target_sources(alkos.kernel PRIVATE ${ARCH_SOURCES})
 
 ############################### Adding Headers ###############################
 target_include_directories(alkos.kernel PRIVATE ${COMMON_INCLUDE_DIRS})
+target_include_directories(alkos.kernel PRIVATE drivers)
 
 ################################ Linker Flags ################################
 set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld")

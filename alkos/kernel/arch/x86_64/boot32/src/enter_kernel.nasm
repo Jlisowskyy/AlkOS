@@ -22,11 +22,11 @@ enter_kernel:
           mov ds, ax
           mov es, ax
           jmp GDT64.Code:.jmp_kernel
-.jmp_kernel:
+.jmp_kernel:                  ; https://wiki.osdev.org/Creating_a_64-bit_kernel_using_a_separate_loader
           mov edi, [ebp + 12] ; LoaderData address
-          mov eax, [k_ptr]
-          dd 0
-          jmp eax
+          mov eax, [k_ptr]    ; This is transformed to mov rax, [k_ptr] and uses the double word reserved below
+          dd 0                ; Trick the processor, contains high address of k_ptr
+          jmp eax             ; This part is plain bad, tricking the processor is not the best thing to do here
 
           section .data
           align 16

@@ -1,6 +1,3 @@
-//
-// Created by wookie on 1/4/25.
-//
 #include <stdint.h>
 #include <libc.hpp>
 
@@ -35,7 +32,7 @@ void *memset(void *dest, int c, size_t n)
     return dest;
 }
 
-void uint32_to_string(uint32_t value, char* buffer)
+void Uint32ToString(uint32_t value, char* buffer)
 {
     uint32_t i = 0;
     do {

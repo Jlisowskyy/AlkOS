@@ -1,6 +1,3 @@
-//
-// Created by wookie on 1/4/25.
-//
 #include <arch_utils.hpp>
 #include <terminal.hpp>
 #include <tags.hpp>

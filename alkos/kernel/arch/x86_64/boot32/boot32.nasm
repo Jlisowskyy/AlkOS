@@ -1,14 +1,7 @@
           bits 32
 
-          MULTI_BOOT_INFO_T_LOCATION equ stack_top - 4
-          FRAMEBUFFER_INFO_T_LOCATION equ stack_top - 8
-
           ; Includes
           extern PreKernelInit
-
-          ; GDT64
-          extern GDT64.Pointer
-          extern GDT64.Code
 
           ; Stack
           extern stack_bottom

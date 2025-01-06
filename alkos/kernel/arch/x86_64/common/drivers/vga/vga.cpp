@@ -1,5 +1,7 @@
 /* internal includes */
+#ifndef __i386__
 #include <string.h>
+#endif
 #include <defines.hpp>
 #include <types.hpp>
 #include <vga/vga.hpp>

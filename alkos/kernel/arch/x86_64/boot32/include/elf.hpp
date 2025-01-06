@@ -1,18 +1,16 @@
-//
-// Created by wookie on 1/4/25.
-//
+#ifndef ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP_
+#define ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP_
 
-#ifndef ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP
-#define ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP
 #include <stdint.h>
 #include <tags.hpp>
 
 // ELF-64 Structures
 
-#define ELF_MAGIC0 0x7F
-#define ELF_MAGIC1 'E'
-#define ELF_MAGIC2 'L'
-#define ELF_MAGIC3 'F'
+static constexpr unsigned char ELF_MAGIC0 = 0x7F;
+static constexpr unsigned char ELF_MAGIC1 = 'E';
+static constexpr unsigned char ELF_MAGIC2 = 'L';
+static constexpr unsigned char ELF_MAGIC3 = 'F';
+
 
 // Taken from glibc https://github.com/lattera/glibc/blob/master/elf/elf.h#L60
 // And https://krinkinmu.github.io/2020/11/15/loading-elf-image.html
@@ -69,4 +67,4 @@ struct Elf64_Phdr
 // Function to load ELF-64 kernel
 void* load_elf64_module(uint8_t* elf_start, uint8_t* elf_end);
 
-#endif // ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP
+#endif // ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP_

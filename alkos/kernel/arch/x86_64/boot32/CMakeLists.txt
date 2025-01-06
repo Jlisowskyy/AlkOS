@@ -11,6 +11,7 @@ message(STATUS "Configuring boot32")
 
 ######################## Retrieving Passed Arguments #########################
 set(CMAKE_FLAGS_FILE "${CMAKE_FLAGS_FILE}" CACHE FILEPATH "CMake flags file" FORCE)
+include(${CMAKE_FLAGS_FILE})
 set(COMMON_DIR "${COMMON_DIR}" CACHE PATH "Common directory" FORCE)
 set(COMMON_INCLUDE_DIRS_ENCODED "${COMMON_INCLUDE_DIRS_ENCODED}" CACHE STRING "Encoded common include directories" FORCE)
 set(ARCH_COMMON_SOURCES_ENCODED "${ARCH_COMMON_SOURCES_ENCODED}" CACHE STRING "Encoded common source files" FORCE)
@@ -54,7 +55,6 @@ foreach (KERNEL_INCLUDE_DIR ${KERNEL_INCLUDE_DIRS})
 endforeach ()
 
 ############################### Applying Flags ###############################
-include(${CMAKE_FLAGS_FILE})
 
 ################################ Exec Flags ##################################
 target_compile_options(alkos.loader PRIVATE ${ARCH_C_FLAGS} ${ARCH_CXX_FLAGS})
@@ -69,9 +69,8 @@ target_link_options(alkos.loader PRIVATE
         -n                      # Omit default mem map
         -lgcc                   # Link against GCC
 )
-target_compile_definitions(alkos.loader PRIVATE
+target_compile_definitions(alkos.loader PUBLIC
         __i386__=1
-        __x86_64__=0
 )
 target_link_libraries(alkos.loader PRIVATE gcc)
 

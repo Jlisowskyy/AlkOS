@@ -6,11 +6,11 @@ set(CMAKE_SYSTEM_PROCESSOR x86_64)
 # (So it doesn't need to link an executable against C standard library)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-# Define the path to your cross-compiler tools
-set(CROSS_COMPILER_PATH "${CMAKE_CURRENT_LIST_DIR}/../../tools/x86_64-elf/bin")
-
 # Specify the cross-compilers
 set(PREFIX x86_64-elf)
+
+# Define the path to your cross-compiler tools
+set(CROSS_COMPILER_PATH "${CMAKE_CURRENT_LIST_DIR}/../../tools/${PREFIX}/bin")
 
 set(CMAKE_C_COMPILER "${CROSS_COMPILER_PATH}/${PREFIX}-gcc")
 set(CMAKE_CXX_COMPILER "${CROSS_COMPILER_PATH}/${PREFIX}-g++")

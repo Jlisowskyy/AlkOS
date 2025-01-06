@@ -63,9 +63,6 @@ if (NOT BOOTABLE_KERNEL_EXECUTABLE)
     message(FATAL_ERROR "No primary kernel executable defined")
 endif ()
 
-if (NOT KERNEL_MODULES)
-    message(STATUS "No kernel modules defined") # Kernel can be a mono-binary or a multi-binary
-endif ()
 message(STATUS "Bootable kernel executable: ${BOOTABLE_KERNEL_EXECUTABLE}")
 message(STATUS "Kernel modules: ${KERNEL_MODULES}")
 

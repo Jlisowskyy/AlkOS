@@ -1,6 +1,3 @@
-//
-// Created by wookie on 1/2/25.
-//
 #include <arch_utils.hpp>
 #include <terminal.hpp>
 #include <tags.hpp>
@@ -14,7 +11,7 @@
 extern "C" int check_cpuid();
 extern "C" int check_long_mode();
 
-void setup_page_tables();
+extern void SetupPageTables();
 extern "C" void enable_paging();
 extern "C" void enable_long_mode();
 extern "C" void enter_kernel(void* kernel_entry, void* multiboot_info_addr);
@@ -66,7 +63,7 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
     TerminalWriteString(INFO_TAG "Enabling hardware features...\n");
 
     TerminalWriteString(INFO_TAG "Setting up page tables...\n");
-    setup_page_tables();
+    SetupPageTables();
     TerminalWriteString(SUCCESS_TAG "Page tables setup complete!\n");
 
     TerminalWriteString(INFO_TAG "Enabling long mode...\n");
@@ -101,10 +98,10 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
             // but for now, we will just take the last module as the kernel
 
             TerminalWriteString(INFO_TAG "Module loaded at: ");
-            uint32_to_string(module->mod_start, text_buffer);
+            Uint32ToString(module->mod_start, text_buffer);
             TerminalWriteString(text_buffer);
             TerminalWriteString(" - ");
-            uint32_to_string(module->mod_end, text_buffer);
+            Uint32ToString(module->mod_end, text_buffer);
             TerminalWriteString(text_buffer);
             TerminalWriteString("\n");
             TerminalWriteString(INFO_TAG "With command line: ");
@@ -133,32 +130,32 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
     loader_data.loader_start_addr = (u32)loader_start;
     loader_data.loader_end_addr = (u32)loader_end;
 
-    uint32_to_string((u32)&loader_data, text_buffer);
+    Uint32ToString((u32)&loader_data, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData Address: ");
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");
 
-    uint32_to_string((u32)loader_data.multiboot_info_addr, text_buffer);
+    Uint32ToString((u32)loader_data.multiboot_info_addr, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData multiboot_info_addr: ");
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");
 
-    uint32_to_string((u32)loader_data.multiboot_header_start_addr, text_buffer);
+    Uint32ToString((u32)loader_data.multiboot_header_start_addr, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData multiboot_header_start_addr: ");
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");
 
-    uint32_to_string((u32)loader_data.multiboot_header_end_addr, text_buffer);
+    Uint32ToString((u32)loader_data.multiboot_header_end_addr, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData multiboot_header_end_addr: ");
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");
 
-    uint32_to_string((u32)loader_data.loader_start_addr, text_buffer);
+    Uint32ToString((u32)loader_data.loader_start_addr, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData loader_start_addr: ");
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");
 
-    uint32_to_string((u32)loader_data.loader_end_addr, text_buffer);
+    Uint32ToString((u32)loader_data.loader_end_addr, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData loader_end_addr: ");
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");

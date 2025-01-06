@@ -1,9 +1,5 @@
-//
-// Created by wookie on 1/4/25.
-//
-
-#ifndef ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_LIBC_HPP
-#define ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_LIBC_HPP
+#ifndef ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_LIBC_HPP_
+#define ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_LIBC_HPP_
 
 #include <stddef.h>
 
@@ -35,6 +31,6 @@ void *memset(void *dest, int c, size_t n);
  * @param value The value to convert
  * @param buffer The buffer to store the string
  */
-void uint32_to_string(uint32_t value, char* buffer);
+void Uint32ToString(uint32_t value, char* buffer);
 
-#endif // ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_LIBC_HPP
+#endif // ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_LIBC_HPP_

@@ -1,9 +1,5 @@
-//
-// Created by wookie on 1/5/25.
-//
-
-#ifndef ALK_OS_KERNEL_ARCH_X86_64_COMMON_INCLUDE_LOADER_DATA_H
-#define ALK_OS_KERNEL_ARCH_X86_64_COMMON_INCLUDE_LOADER_DATA_H
+#ifndef ALK_OS_KERNEL_ARCH_X86_64_COMMON_INCLUDE_LOADER_DATA_HPP_
+#define ALK_OS_KERNEL_ARCH_X86_64_COMMON_INCLUDE_LOADER_DATA_HPP_
 
 /**
  * loader_data.h
@@ -28,4 +24,4 @@ struct PACK LoaderData {
     u32 loader_end_addr;                // The end address of the loader
 };
 
-#endif // ALK_OS_KERNEL_ARCH_X86_64_COMMON_INCLUDE_LOADER_DATA_H
+#endif // ALK_OS_KERNEL_ARCH_X86_64_COMMON_INCLUDE_LOADER_DATA_HPP_
