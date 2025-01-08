@@ -1,5 +1,3 @@
-project(kernecommonl LANGUAGES C CXX ASM_NASM)
-
 ############################### Error Checking ###############################
 if (NOT DEFINED SYSROOT)
     message(FATAL_ERROR "SYSROOT is not defined")

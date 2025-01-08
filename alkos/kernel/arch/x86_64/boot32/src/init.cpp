@@ -33,14 +33,16 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
 {
     TerminalInit();
     TerminalWriteString(INFO_TAG "In 32-bit mode\n");
-    TerminalWriteString(INFO_TAG "Checking for Multiboot2...\n");
 
+    ////////////////////////////// Multiboot Check ///////////////////////////////
+    TerminalWriteString(INFO_TAG "Checking for Multiboot2...\n");
     if (boot_loader_magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
         TerminalWriteString("Multiboot2 check failed!\n");
         OsHangNoInterrupts();
     }
     TerminalWriteString(INFO_TAG "Multiboot2 check passed!\n");
 
+    ////////////////////////////// Hardware Checks ///////////////////////////////
     TerminalWriteString(INFO_TAG "Starting pre-kernel initialization\n");
     BlockHardwareInterrupts();
 
@@ -62,10 +64,12 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
 
     TerminalWriteString(INFO_TAG "Enabling hardware features...\n");
 
+    //////////////////////// Setting up Paging Structures ////////////////////////
     TerminalWriteString(INFO_TAG "Setting up page tables...\n");
     SetupPageTables();
     TerminalWriteString(SUCCESS_TAG "Page tables setup complete!\n");
 
+    ///////////////////////////// Enabling Hardware //////////////////////////////
     TerminalWriteString(INFO_TAG "Enabling long mode...\n");
     enable_long_mode();
     TerminalWriteString(SUCCESS_TAG "Long mode enabled!\n");
@@ -76,60 +80,39 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
 
     TerminalWriteString(INFO_TAG "Finished hardware features setup for 32-bit mode.\n");
 
+    /////////////////////// Preparation for jump to 64 bit ///////////////////////
     TerminalWriteString(INFO_TAG "Starting 64-bit kernel...\n");
 
     TerminalWriteString(INFO_TAG "Parsing Multiboot2 tags...\n");
 
-    multiboot_tag_module* kernel_module = nullptr;
-    multiboot_tag* tag;
-    for (tag = (multiboot_tag*)(multiboot_info_addr + 8);
-         tag->type != MULTIBOOT_TAG_TYPE_END;
-         tag = (multiboot_tag*)((multiboot_uint8_t*)tag + ((tag->size + 7) & ~7))) {
-        TerminalWriteString(INFO_TAG "Found tag: ");
-        TerminalWriteString(GetTagName(tag->type));
-        TerminalWriteString("\n");
-
-        if(tag->type == MULTIBOOT_TAG_TYPE_MODULE) {
-            multiboot_tag_module* module = (multiboot_tag_module*)tag;
-            kernel_module = module;
-
-            // TODO: Modules should be loaded with a specific command line
-            // so that the loader knows which module is the kernel
-            // but for now, we will just take the last module as the kernel
-
-            TerminalWriteString(INFO_TAG "Module loaded at: ");
-            Uint32ToString(module->mod_start, text_buffer);
-            TerminalWriteString(text_buffer);
-            TerminalWriteString(" - ");
-            Uint32ToString(module->mod_end, text_buffer);
-            TerminalWriteString(text_buffer);
-            TerminalWriteString("\n");
-            TerminalWriteString(INFO_TAG "With command line: ");
-            if ( (char*)module->cmdline == "\0") {
-                TerminalWriteString((char*)module->cmdline);
-            } else {
-                TerminalWriteString("no command line provided");
-            }
-            TerminalWriteString("\n");
-        }
+    ///////////////// Finding Kernel Module in Multiboot Struct //////////////////
+    multiboot_tag_module* kernel_module = FindKernelModule(multiboot_info_addr);
+    if (kernel_module == nullptr) {
+        TerminalWriteString(ERROR_TAG "Failed to find kernel module!\n");
+        OsHangNoInterrupts();
     }
-    TerminalWriteString(SUCCESS_TAG "Multiboot2 tags parsed!\n");
+    TerminalWriteString(SUCCESS_TAG "Found kernel module in multiboot tags!\n");
 
+    /////////////////////////// Loading Kernel Module ////////////////////////////
     TerminalWriteString(INFO_TAG "Loading kernel module...\n");
-    void* kernel_entry = load_elf64_module((uint8_t*)kernel_module->mod_start, (uint8_t*)kernel_module->mod_end);
+    void* kernel_entry = LoadElf64Module((uint8_t*)kernel_module->mod_start, (uint8_t*)kernel_module->mod_end);
     if (kernel_entry == nullptr) {
         TerminalWriteString(ERROR_TAG "Failed to load kernel module!\n");
         OsHangNoInterrupts();
     }
     TerminalWriteString(SUCCESS_TAG "Kernel module loaded!\n");
 
-    // Set the loader data structure
+    ///////////////////// Initializing LoaderData Structure //////////////////////
     loader_data.multiboot_info_addr = (u32)multiboot_info_addr;
     loader_data.multiboot_header_start_addr = (u32)multiboot_header_start;
     loader_data.multiboot_header_end_addr = (u32)multiboot_header_end;
     loader_data.loader_start_addr = (u32)loader_start;
     loader_data.loader_end_addr = (u32)loader_end;
 
+    //////////////////////////// Printing LoaderData Info /////////////////////////
+    // TODO: This should properly print the addresses of the loader data structure
+    // as %x and not %d
+    // TODO: This may print the address range of the kernel module as well
     Uint32ToString((u32)&loader_data, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData Address: ");
     TerminalWriteString(text_buffer);
@@ -160,5 +143,6 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");
 
+    //////////////////////////// Jumping to 64-bit Kernel /////////////////////////
     enter_kernel(kernel_entry, &loader_data);
 }

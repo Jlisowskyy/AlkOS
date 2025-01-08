@@ -8,7 +8,7 @@
 
 extern char text_buffer[1024];
 
-void* load_elf64_module(uint8_t* elf_start, uint8_t* elf_end){
+void* LoadElf64Module(uint8_t* elf_start, uint8_t* elf_end){
     TerminalWriteString(INFO_TAG "Loading ELF-64 module...\n");
     if (elf_start == nullptr || elf_end == nullptr) {
         TerminalWriteString(ERROR_TAG "Null ELF boundaries.\n");

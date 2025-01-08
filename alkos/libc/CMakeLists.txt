@@ -1,5 +1,3 @@
-project(libc)
-
 if (NOT DEFINED SYSROOT)
     message(FATAL_ERROR "SYSROOT is not defined")
 endif ()

@@ -65,6 +65,6 @@ struct Elf64_Phdr
 #define PT_LOAD 1 // Loadable segment
 
 // Function to load ELF-64 kernel
-void* load_elf64_module(uint8_t* elf_start, uint8_t* elf_end);
+void* LoadElf64Module(uint8_t* elf_start, uint8_t* elf_end);
 
 #endif // ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP_
