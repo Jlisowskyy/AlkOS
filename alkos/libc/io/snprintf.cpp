@@ -57,7 +57,7 @@ FAST_CALL static void PutChar(char *str, int &i, size_t size, char c) {
     }
 }
 
-int snprintf(char *str, size_t size, const char *format, ...) {
+int snprintf(char *str, const size_t size, const char *format, ...) {
     va_list args;
     va_start(args, format);
     const int ret = vsnprintf(str, size, format, args);
