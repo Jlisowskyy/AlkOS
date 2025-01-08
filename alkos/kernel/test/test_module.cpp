@@ -155,7 +155,7 @@ namespace test {
         pTestSpec->name = name;
     }
 
-    void OnKernelPanic() {
+    NO_RET void OnKernelPanic() {
         if (!g_testStarted) {
             /* test not started yet, but we received failure -> some critical bug -> abort execution */
             TerminalWriteError("[TEST] [FAIL] Kernel panic received before test started...\n");

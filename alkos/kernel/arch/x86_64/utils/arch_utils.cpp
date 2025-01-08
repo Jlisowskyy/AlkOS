@@ -9,8 +9,7 @@
  *
  * @return CpuState structure containing current register values
  */
-CpuState DumpCpuState()
-{
+CpuState DumpCpuState() {
     CpuState cpu_state{};
 
     __asm__ volatile("movq %%rax, %0" : "=m"(cpu_state.general_purpose_registers[CpuState::kRax]));
@@ -34,32 +33,41 @@ CpuState DumpCpuState()
 }
 
 /**
+ * Simply formats the CPU state into a human-readable string.
+ *
+ * @param buff - buffer to write to
+ * @param buff_size - size of buffer
+ */
+void CpuState::GetStateDesc(char *buff, const size_t buff_size) const {
+    static constexpr const char *kRegNames[]{
+        "rax", "rbx", "rcx", "rdx", "rsi", "rdi",
+        "rbp", "rsp", "r8", "r9", "r10", "r11",
+        "r12", "r13", "r14", "r15"
+    };
+
+    size_t offset = 0;
+
+    for (int i = 0; i < kGprLast && offset < buff_size; ++i) {
+        const int written = snprintf(
+            buff + offset, buff_size - offset, "%s: 0x%016llx\n", kRegNames[i],
+            general_purpose_registers[i]
+        );
+
+        offset += written;
+        ASSERT_NEQ(offset, buff_size);
+    }
+}
+
+/**
  * @brief Print formatted dump of CPU register state
  *
  * Outputs current values of all general-purpose registers
  * to the terminal in a human-readable format.
  */
-void CpuState::DumpStateDesc() const
-{
+void CpuState::DumpStateDesc() const {
     static constexpr size_t kSizeBuff = 2048;
-
-    static constexpr const char* kRegNames[]{"rax", "rbx", "rcx", "rdx", "rsi", "rdi",
-                                             "rbp", "rsp", "r8",  "r9",  "r10", "r11",
-                                             "r12", "r13", "r14", "r15"};
-
     char buff[kSizeBuff];
 
-    size_t offset = 0;
-
-    for (int i = 0; i < kGprLast && offset < kSizeBuff; ++i) {
-        int written = snprintf(
-            buff + offset, kSizeBuff - offset, "%s: 0x%016llx\n", kRegNames[i],
-            general_purpose_registers[i]
-        );
-
-        offset += written;
-        R_ASSERT_NEQ(offset, kSizeBuff);
-    }
-
+    GetStateDesc(buff, kSizeBuff);
     TerminalWriteString(buff);
 }

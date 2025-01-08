@@ -1,13 +1,12 @@
 /* internal includes */
+#include <arch_utils.hpp>
 #include <memory.h>
-#include <stdio.h>
 #include <bit.hpp>
 #include <debug.hpp>
 #include <defines.hpp>
+#include <idt.hpp>
 #include <kernel_assert.hpp>
 #include <panic.hpp>
-
-#include <terminal.hpp>
 
 /* crucial defines */
 static constexpr u32 kStubTableSize = 64;
@@ -21,7 +20,8 @@ static constexpr u32 kIdtEntries = 256;
  *   that can access this interrupt via the INT instruction. Hardware interrupts ignore this.
  * - Bit 7: Present bit (must be set to 1 for the descriptor to be valid).
  */
-static constexpr u8 kDefaultFlags = 0x8E;
+static constexpr u8 kTrapFlags = 0x8F;
+static constexpr u8 kInterruptFlags = 0x8E;
 
 /* gdt kernel code offset */
 extern "C" u32 kKernelCodeOffset;
@@ -73,14 +73,43 @@ static Idtr g_idtr;
 // ------------------------------
 
 /**
- * @brief This handler is called when an unknown exception occurs.
+ * @brief This handler is called when an unknown interrupt occurs.
  * Executes KernelPanic.
  *
  * @param idt_idx index of interrupt triggered.
  */
-extern "C" NO_RET void DefaultExceptionHandler(const u8 idt_idx) {
-    TRACE_INFO("Received exception with code: %hhu\n", idt_idx);
-    KernelPanic("Unknown Exception caught -> default handler invoked.");
+extern "C" NO_RET void DefaultInterruptHandler(const u8 idt_idx) {
+    KernelPanicFormat("Received unsupported interrupt with code: %hhu\n", idt_idx);
+}
+
+extern "C" NO_RET void DefaultExceptionHandler(IsrErrorStackFrame *stack_frame, const u8 idt_idx) {
+    static constexpr size_t kStateMsgSize = 1024;
+
+    CpuState cpu_state = DumpCpuState();
+
+    /* restore relevant registers to the state before printing msg */
+    cpu_state.general_purpose_registers[CpuState::kRdi] = *(reinterpret_cast<u64 *>(stack_frame) - 1);
+    cpu_state.general_purpose_registers[CpuState::kRsi] = *(reinterpret_cast<u64 *>(stack_frame) - 2);
+    cpu_state.general_purpose_registers[CpuState::kRsp] = stack_frame->isr_stack_frame.rsp;
+
+
+    char state_buffer[kStateMsgSize];
+    cpu_state.GetStateDesc(state_buffer, kStateMsgSize);
+
+    const char *exception_msg = GetExceptionMsg(idt_idx);
+    R_ASSERT_NOT_NULL(exception_msg);
+
+    KernelPanicFormat("Received exception: %d (%s)\n"
+                      "And error: %llu\n"
+                      "At instruction address: 0x%016llx\n"
+                      "%s"
+                      "RFLAGS: %0x%016llx\n",
+                      idt_idx, exception_msg,
+                      stack_frame->error_code,
+                      stack_frame->isr_stack_frame.rip,
+                      state_buffer,
+                      stack_frame->isr_stack_frame.rflags
+    );
 }
 
 /**
@@ -96,6 +125,21 @@ void LogIrqReceived([[maybe_unused]] void *stack_frame, const u8 idt_idx) {
 // ------------------------------
 // Functions
 // ------------------------------
+
+/**
+ * @brief Checks if the interrupt is a trap entry.
+ * @param idx - index of the interrupt
+ * @return whether the interrupt is a trap entry
+ */
+static bool IsTrapEntry(const u8 idx) {
+    for (const u8 trap_idx: kExceptionIdx) {
+        if (idx == trap_idx) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 static void IdtSetDescriptor(const u8 idx, const u64 isr, const u8 flags) {
     R_ASSERT_FALSE(g_idtGuards[idx]);
@@ -113,6 +157,19 @@ static void IdtSetDescriptor(const u8 idx, const u64 isr, const u8 flags) {
     g_idtGuards[idx] = true;
 }
 
+/**
+ * @note returns nullptr if the exception index is not found
+ */
+const char *GetExceptionMsg(const u8 exc_idx) {
+    for (size_t idx = 0; idx < kExceptionCount; ++idx) {
+        if (kExceptionIdx[idx] == exc_idx) {
+            return kExceptionMsg[idx];
+        }
+    }
+
+    return nullptr;
+}
+
 void IdtInit() {
     ASSERT(kKernelCodeOffset < UINT16_MAX && "Kernel code offset out of range");
     R_ASSERT_NEQ(0, kKernelCodeOffset);
@@ -127,7 +184,8 @@ void IdtInit() {
     memset(g_idt, 0, sizeof(g_idt));
 
     for (u8 idx = 0; idx < kStubTableSize; ++idx) {
-        IdtSetDescriptor(idx, reinterpret_cast<u64>(IsrWrapperTable[idx]), kDefaultFlags);
+        IdtSetDescriptor(idx, reinterpret_cast<u64>(IsrWrapperTable[idx]),
+                         IsTrapEntry(idx) ? kTrapFlags : kInterruptFlags);
     }
 
     /* load the new IDT */
