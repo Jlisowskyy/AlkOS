@@ -11,6 +11,27 @@
 static constexpr u16 kIrq1Offset = 0x20;
 static constexpr u16 kIrq2Offset = 0x28;
 
+static constexpr u8 kExceptionIdx[]{
+    8, 10, 11, 12, 13, 14, 17, 21, 29, 30
+};
+static constexpr size_t kExceptionCount = sizeof(kExceptionIdx) / sizeof(kExceptionIdx[0]);
+
+static const char *kExceptionMsg[]{
+    "Double fault",
+    "Invalid TSS",
+    "Segment not present",
+    "Stack-segment fault",
+    "General protection fault",
+    "Page fault",
+    "Alignment check",
+    "Control Protection Exception",
+    "VMM Communication Exception",
+    "Security exception"
+};
+static constexpr size_t kExceptionMsgCount = sizeof(kExceptionMsg) / sizeof(kExceptionMsg[0]);
+
+static_assert(kExceptionCount == kExceptionMsgCount, "Exception index and message arrays must have the same size");
+
 // ------------------------------
 // Data layout
 // ------------------------------
@@ -34,5 +55,7 @@ struct PACK IsrErrorStackFrame {
 void IdtInit();
 
 void LogIrqReceived(void *stack_frame, u8 idt_idx);
+
+const char *GetExceptionMsg(u8 idx);
 
 #endif  // ARCH_X86_64_INTERRUPTS_IDT_HPP_

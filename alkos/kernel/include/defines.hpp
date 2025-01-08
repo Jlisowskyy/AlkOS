@@ -23,6 +23,9 @@
 /* Require a function to be inlined for performance reasons */
 #define FAST_CALL static FORCE_INLINE_F
 
+/* Marks a function for a compiler to prevent any optimizations */
+#define NO_OPT __attribute__((optimize("O0")))
+
 // ------------------------------------
 // Macro to constexpr conversions
 // ------------------------------------
