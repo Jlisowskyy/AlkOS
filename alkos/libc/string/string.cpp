@@ -67,6 +67,11 @@ char *strchr(const char *str, int c) {
         }
         ++str;
     }
+
+    if (c == '\0') {
+        return const_cast<char *>(str);
+    }
+
     return nullptr;
 }
 
@@ -78,5 +83,10 @@ char *strrchr(const char *str, int c) {
         }
         ++str;
     }
+
+    if (c == '\0') {
+        return const_cast<char *>(str);
+    }
+
     return const_cast<char *>(last);
 }
