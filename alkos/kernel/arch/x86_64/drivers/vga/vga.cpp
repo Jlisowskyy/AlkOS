@@ -68,7 +68,7 @@ static uint16_t *g_TerminalBuffer;  ///< Pointer to VGA memory buffer (0xB8000)
  * Combines foreground and background colors into a single byte
  * where the background color is in the high nibble.
  */
-static FORCE_INLINE uint8_t VgaEntryColor(const VgaColor fg, const VgaColor bg)
+static FORCE_INLINE_F uint8_t VgaEntryColor(const VgaColor fg, const VgaColor bg)
 {
     return fg | bg << 4;
 }
@@ -83,7 +83,7 @@ static FORCE_INLINE uint8_t VgaEntryColor(const VgaColor fg, const VgaColor bg)
  * Creates a 16-bit VGA character entry with the character in the low byte
  * and the color attribute in the high byte.
  */
-static FORCE_INLINE uint16_t VgaEntry(const unsigned char uc, const uint8_t color)
+static FORCE_INLINE_F uint16_t VgaEntry(const unsigned char uc, const uint8_t color)
 {
     return static_cast<uint16_t>(uc) | static_cast<uint16_t>(color) << 8;
 }
