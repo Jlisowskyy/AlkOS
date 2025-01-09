@@ -160,9 +160,9 @@ The primary goals of AlkOS are:
 
    The `-r` flag of `alkos_cli.bash` also handles running AlkOS in QEMU after building it. It invokes `run_alkos.bash` script. This script will start QEMU with the correct parameters, including booting from the generated ISO image.
 
-    ```bash
-    ./alkos_cli.bash -v -r
-    ```
+   ```bash
+   ./alkos_cli.bash -v -r
+   ```
     
 ### 🧪 Running Tests
 
