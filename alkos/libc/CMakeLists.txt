@@ -44,6 +44,8 @@ target_include_directories(lib${LIB_NAME} PUBLIC
         ${SYSROOT}/usr/include
 )
 
+target_link_libraries(lib${LIB_NAME} PRIVATE gcc)
+
 ############################### Processing output ###############################
 
 file(MAKE_DIRECTORY ${SYSROOT}/usr/include)

@@ -2,6 +2,7 @@
 #include <terminal.hpp>
 #include <tags.hpp>
 #include <types.hpp>
+#include "debug.hpp"
 
 extern char text_buffer[1024];
 
@@ -11,9 +12,8 @@ multiboot_tag_module* FindKernelModule(void* multiboot_info_addr) {
     for (tag = (multiboot_tag*)(multiboot_info_addr + 8);
          tag->type != MULTIBOOT_TAG_TYPE_END;
          tag = (multiboot_tag*)((multiboot_uint8_t*)tag + ((tag->size + 7) & ~7))) {
-        TerminalWriteString(INFO_TAG "Found tag: ");
-        TerminalWriteString(GetTagName(tag->type));
-        TerminalWriteString("\n");
+        const char* tag_name = GetTagName(tag->type);
+        TRACE_INFO("Found tag: %s", tag_name);
 
         if(tag->type == MULTIBOOT_TAG_TYPE_MODULE) {
             multiboot_tag_module* module = (multiboot_tag_module*)tag;
@@ -23,20 +23,13 @@ multiboot_tag_module* FindKernelModule(void* multiboot_info_addr) {
             // so that the loader knows which module is the kernel
             // but for now, we will just take the last module as the kernel
 
-            TerminalWriteString(INFO_TAG "Module loaded at: ");
-            // Uint32ToString(module->mod_start, text_buffer);
-            TerminalWriteString(text_buffer);
-            TerminalWriteString(" - ");
-            // Uint32ToString(module->mod_end, text_buffer);
-            TerminalWriteString(text_buffer);
-            TerminalWriteString("\n");
-            TerminalWriteString(INFO_TAG "With command line: ");
-            if ( (char*)module->cmdline == "\0") {
-                TerminalWriteString((char*)module->cmdline);
-            } else {
-                TerminalWriteString("no command line provided");
-            }
-            TerminalWriteString("\n");
+            TRACE_INFO("Module loaded at: 0x%X - 0x%X",
+                       (uint32_t)module->mod_start,
+                       (uint32_t)module->mod_end);
+
+            TRACE_INFO("With command line: %s",
+                       (module->cmdline && *(char*)module->cmdline != '\0') ?
+                       (char*)module->cmdline : "no command line provided");
         }
     }
     return kernel_module;

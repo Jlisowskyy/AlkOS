@@ -1,7 +1,5 @@
 /* internal includes */
-#ifndef __i386__
 #include <string.h>
-#endif
 #include <defines.hpp>
 #include <types.hpp>
 #include <vga/vga.hpp>
@@ -59,16 +57,6 @@ static size_t g_TerminalColumn;     ///< Current cursor column position
 static uint8_t g_TerminalColor;     ///< Current text color attributes
 static uint16_t *g_TerminalBuffer;  ///< Pointer to VGA memory buffer (0xB8000)
 /** @} */
-
-// Include strlen if not already defined
-#ifdef __i386__
-size_t strlen(const char *str)
-{
-    const char *s;
-    for (s = str; *s; ++s) continue;
-    return s - str;
-}
-#endif
 
 /**
  * @brief Create a VGA color attribute byte
