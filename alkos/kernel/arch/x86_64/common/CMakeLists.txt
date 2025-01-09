@@ -33,6 +33,16 @@ add_library(arch.common.32 OBJECT
         ${COMMON_ASM_32}
 )
 
+############################# Linking libraries ##############################
+
+target_link_libraries(arch.common PRIVATE
+        libk
+)
+
+target_link_libraries(arch.common.32 PRIVATE
+        libk.32
+)
+
 ############################### Applying Flags ###############################
 
 target_compile_options(arch.common.32 PRIVATE "-m32")
