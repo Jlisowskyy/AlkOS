@@ -28,7 +28,7 @@ base_runner() {
     local verbose="$1"
     shift
 
-    pretty_info "Running: $@"
+    pretty_info "Running: $@" >&2
 
     if [ "$verbose" = true ]; then
         if ! "$@" 2>&1 | tee "$HELPERS_LOG_FILE"; then
