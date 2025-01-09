@@ -4,11 +4,7 @@
  */
 
 /* internal includes */
-#ifndef __i386__
 #include <debug.hpp>
-#else
-#include <terminal.hpp>
-#endif
 #include <io.hpp>
 #include <kernel_assert.hpp>
 #include <serial_port_qemu/serial_qemu.hpp>
@@ -147,11 +143,7 @@ void QemuTerminalInit()
     /* Switch to normal operation mode with final modem configuration */
     outb(kModemControlReg, kModemConfFlags);
 
-    #ifndef __i386__
     TRACE_SUCCESS("QemuTerminalInit() returned with success");
-    #else
-    TerminalWriteString("QemuTerminalInit() returned with success");
-    #endif
 
 }
 

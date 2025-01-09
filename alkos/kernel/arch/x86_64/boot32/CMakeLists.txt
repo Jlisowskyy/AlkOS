@@ -1,67 +1,50 @@
-############################## Project Settings ##############################
-cmake_minimum_required(VERSION 3.30)
-project(boot32_project LANGUAGES C CXX ASM_NASM)
-enable_language(ASM_NASM)
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_C_STANDARD 17)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-add_compile_definitions(__USE_DEBUG_OUTPUT__=1)
 message(STATUS "Configuring boot32")
 
-######################## Retrieving Passed Arguments #########################
-set(CMAKE_FLAGS_FILE "${CMAKE_FLAGS_FILE}" CACHE FILEPATH "CMake flags file" FORCE)
-include(${CMAKE_FLAGS_FILE})
-set(COMMON_DIR "${COMMON_DIR}" CACHE PATH "Common directory" FORCE)
-set(COMMON_INCLUDE_DIRS_ENCODED "${COMMON_INCLUDE_DIRS_ENCODED}" CACHE STRING "Encoded common include directories" FORCE)
-set(ARCH_COMMON_SOURCES_ENCODED "${ARCH_COMMON_SOURCES_ENCODED}" CACHE STRING "Encoded common source files" FORCE)
-# Convert the passed strings back to lists
-string(REPLACE "|" ";" COMMON_INCLUDE_DIRS ${COMMON_INCLUDE_DIRS_ENCODED})
-string(REPLACE "|" ";" ARCH_COMMON_SOURCES ${ARCH_COMMON_SOURCES_ENCODED})
-string(REPLACE "|" ";" KERNEL_INCLUDE_DIRS ${KERNEL_INCLUDE_DIRS_ENCODED})
-# Delete " from the strings
-string(REPLACE "\"" "" COMMON_INCLUDE_DIRS "${COMMON_INCLUDE_DIRS}")
-string(REPLACE "\"" "" ARCH_COMMON_SOURCES "${ARCH_COMMON_SOURCES}")
-string(REPLACE "\"" "" KERNEL_INCLUDE_DIRS "${KERNEL_INCLUDE_DIRS}")
-# TODO: THIS IS A HACK, FIX IT
-
-message(STATUS "boot32 decoded COMMON_INCLUDE_DIRS_LIST: ${COMMON_INCLUDE_DIRS}")
-message(STATUS "boot32 decoded ARCH_COMMON_SOURCES_LIST: ${ARCH_COMMON_SOURCES}")
-
 ############################## Finding Sources ###############################
+
 file(GLOB_RECURSE ARCH_SOURCES_32
         "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
+)
+
+file(GLOB_RECURSE ARCH_ASM_32
         "${CMAKE_CURRENT_SOURCE_DIR}/*.s"
         "${CMAKE_CURRENT_SOURCE_DIR}/*.S"
         "${CMAKE_CURRENT_SOURCE_DIR}/*.asm"
         "${CMAKE_CURRENT_SOURCE_DIR}/*.nasm"
 )
-list(APPEND ARCH_SOURCES_32 ${ARCH_COMMON_SOURCES})
-
-file(GLOB_RECURSE ARCH_SOURCES_32_CPP
-        "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
-)
 
 #################################### Exec ####################################
-add_executable(alkos.loader ${ARCH_SOURCES_32})
 
-############################## Finding Headers ###############################
-target_include_directories(alkos.loader PRIVATE ${COMMON_INCLUDE_DIRS})
-include_directories(include)
-foreach (KERNEL_INCLUDE_DIR ${KERNEL_INCLUDE_DIRS})
-    target_include_directories(alkos.loader PRIVATE ${KERNEL_INCLUDE_DIR})
-endforeach ()
+add_executable(alkos.loader
+        ${ARCH_SOURCES_32}
+        ${ARCH_ASM_32}
+)
+
+message(STATUS "32 bit compiler: ${CMAKE_CXX_COMPILER_32}")
+set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_COMPILER_32} <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
 
 ############################### Applying Flags ###############################
 
+target_compile_definitions(alkos.loader PRIVATE __USE_DEBUG_OUTPUT__=1)
+
+############################## Finding Headers ###############################
+
+target_include_directories(alkos.loader PRIVATE include)
+
 ################################ Exec Flags ##################################
-target_compile_options(alkos.loader PRIVATE ${ARCH_C_FLAGS} ${ARCH_CXX_FLAGS})
-set_source_files_properties(${ARCH_SOURCES_32} PROPERTIES COMPILE_FLAGS "${ARCH_ASM_FLAGS}")
+
+set_source_files_properties(${ARCH_SOURCES_32} PROPERTIES COMPILE_FLAGS "-m32")
+
+set_source_files_properties(${ARCH_ASM_32} PROPERTIES COMPILE_FLAGS "-f elf32 ")
+
+set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> <INCLUDES> <FLAGS> -o <OBJECT> <SOURCE>")
 
 ################################ Linker Flags ################################
+
 set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld")
+message(STATUS "32 bit link script: ${LINKER_SCRIPT}")
+
 target_link_options(alkos.loader PRIVATE
         -T ${LINKER_SCRIPT}     # Linker script
         -nostdlib               # No standard libs
@@ -69,11 +52,17 @@ target_link_options(alkos.loader PRIVATE
         -n                      # Omit default mem map
         -lgcc                   # Link against GCC
 )
+
 target_compile_definitions(alkos.loader PUBLIC
         __i386__=1
 )
-target_link_libraries(alkos.loader PRIVATE gcc)
 
+target_link_libraries(alkos.loader PRIVATE
+        gcc
+        arch.common.32
+        libk.32
+)
 
 ################################## Install ###################################
-install(TARGETS alkos.loader DESTINATION .) # Installs to SYSROOT (CMAKE_INSTALL_PREFIX)
+
+install(TARGETS alkos.loader DESTINATION .) # Installs to SYSROOT (CMAKE_INSTALL_PREFIX)\

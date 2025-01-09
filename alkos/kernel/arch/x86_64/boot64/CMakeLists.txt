@@ -1,6 +1,7 @@
 message(STATUS "Configuring boot64")
 
 ############################## Finding Sources ###############################
+
 file(GLOB_RECURSE ARCH_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
@@ -9,22 +10,21 @@ file(GLOB_RECURSE ARCH_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/*.asm"
         "${CMAKE_CURRENT_SOURCE_DIR}/*.nasm"
 )
-list(APPEND ARCH_SOURCES ${ARCH_COMMON_SOURCES})
 list(FILTER ARCH_SOURCES EXCLUDE REGEX ".*/(crti\\.nasm|crtn\\.nasm)$")
 
-############################### Applying Flags ###############################
-target_compile_options(alkos.kernel PRIVATE ${ARCH_C_FLAGS} ${ARCH_CXX_FLAGS})
-set_source_files_properties(${ARCH_SOURCES} PROPERTIES COMPILE_FLAGS "${ARCH_ASM_FLAGS}")
-
 ############################### Adding Sources ###############################
+
 target_sources(alkos.kernel PRIVATE ${ARCH_SOURCES})
 
 ############################### Adding Headers ###############################
-target_include_directories(alkos.kernel PRIVATE ${COMMON_INCLUDE_DIRS})
-target_include_directories(alkos.kernel PRIVATE drivers)
-target_include_directories(alkos.kernel PRIVATE include)
+
+target_include_directories(alkos.kernel PRIVATE
+        drivers
+        include
+)
 
 ################################ Linker Flags ################################
+
 set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld")
 target_link_options(alkos.kernel PRIVATE
         -T ${LINKER_SCRIPT}     # Linker script
@@ -35,10 +35,14 @@ target_link_options(alkos.kernel PRIVATE
 )
 
 ########################## CXX Global Constructors ###########################
+
 set(SRTI_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cxx/crti.nasm")
 set(SRTN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cxx/crtn.nasm")
 
-add_library(alkos.kernel.crts OBJECT ${SRTI_FILE} ${SRTN_FILE})
+add_library(alkos.kernel.crts OBJECT
+        ${SRTI_FILE}
+        ${SRTN_FILE}
+)
 
 # Retrieve GCC provided CRT
 execute_process(

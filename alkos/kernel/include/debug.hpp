@@ -37,10 +37,10 @@ FAST_CALL constexpr void FormatTrace(const char* format, Args... args)
 #endif  // __USE_DEBUG_TRACES__
 
 #define TRACE_FORMAT_LOCATION(message) __FILE__ " " TOSTRING(__LINE__) " " message "\n"
-#define TRACE_FORMAT_ERROR(message)    "[ERROR] " TRACE_FORMAT_LOCATION(message)
-#define TRACE_FORMAT_WARNING(message)  "[WARNING] " TRACE_FORMAT_LOCATION(message)
-#define TRACE_FORMAT_INFO(message)     "[INFO] " TRACE_FORMAT_LOCATION(message)
-#define TRACE_FORMAT_SUCCESS(message)  "[SUCCESS] " TRACE_FORMAT_LOCATION(message)
+#define TRACE_FORMAT_ERROR(message)    "[ERROR]     " TRACE_FORMAT_LOCATION(message)
+#define TRACE_FORMAT_WARNING(message)  "[WARNING]   " TRACE_FORMAT_LOCATION(message)
+#define TRACE_FORMAT_INFO(message)     "[INFO]      " TRACE_FORMAT_LOCATION(message)
+#define TRACE_FORMAT_SUCCESS(message)  "[SUCCESS]   " TRACE_FORMAT_LOCATION(message)
 
 #define TRACE_ERROR(message, ...)   TRACE(TRACE_FORMAT_ERROR(message) __VA_OPT__(, ) __VA_ARGS__)
 #define TRACE_WARNING(message, ...) TRACE(TRACE_FORMAT_WARNING(message) __VA_OPT__(, ) __VA_ARGS__)
