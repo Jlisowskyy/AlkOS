@@ -2,7 +2,6 @@
 #include <terminal.hpp>
 #include <tags.hpp>
 #include <types.hpp>
-#include <libc.hpp>
 
 extern char text_buffer[1024];
 
@@ -25,10 +24,10 @@ multiboot_tag_module* FindKernelModule(void* multiboot_info_addr) {
             // but for now, we will just take the last module as the kernel
 
             TerminalWriteString(INFO_TAG "Module loaded at: ");
-            Uint32ToString(module->mod_start, text_buffer);
+            // Uint32ToString(module->mod_start, text_buffer);
             TerminalWriteString(text_buffer);
             TerminalWriteString(" - ");
-            Uint32ToString(module->mod_end, text_buffer);
+            // Uint32ToString(module->mod_end, text_buffer);
             TerminalWriteString(text_buffer);
             TerminalWriteString("\n");
             TerminalWriteString(INFO_TAG "With command line: ");

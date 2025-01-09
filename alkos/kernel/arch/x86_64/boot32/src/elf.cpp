@@ -2,7 +2,7 @@
 #include <terminal.hpp>
 #include <tags.hpp>
 #include <elf.hpp>
-#include <libc.hpp>
+#include <memory.h>
 
 #define MAYBE_UNUSED(x) (void)(x)
 

@@ -3,7 +3,6 @@
 #include <tags.hpp>
 #include <elf.hpp>
 #include <multiboot2.h>
-#include <libc.hpp>
 #include <loader_data.hpp>
 #include <defines.hpp>
 
@@ -113,32 +112,32 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
     // TODO: This should properly print the addresses of the loader data structure
     // as %x and not %d
     // TODO: This may print the address range of the kernel module as well
-    Uint32ToString((u32)&loader_data, text_buffer);
+    // Uint32ToString((u32)&loader_data, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData Address: ");
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");
 
-    Uint32ToString((u32)loader_data.multiboot_info_addr, text_buffer);
+    // Uint32ToString((u32)loader_data.multiboot_info_addr, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData multiboot_info_addr: ");
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");
 
-    Uint32ToString((u32)loader_data.multiboot_header_start_addr, text_buffer);
+    // Uint32ToString((u32)loader_data.multiboot_header_start_addr, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData multiboot_header_start_addr: ");
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");
 
-    Uint32ToString((u32)loader_data.multiboot_header_end_addr, text_buffer);
+    // Uint32ToString((u32)loader_data.multiboot_header_end_addr, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData multiboot_header_end_addr: ");
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");
 
-    Uint32ToString((u32)loader_data.loader_start_addr, text_buffer);
+    // Uint32ToString((u32)loader_data.loader_start_addr, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData loader_start_addr: ");
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");
 
-    Uint32ToString((u32)loader_data.loader_end_addr, text_buffer);
+    // Uint32ToString((u32)loader_data.loader_end_addr, text_buffer);
     TerminalWriteString(INFO_TAG "LoaderData loader_end_addr: ");
     TerminalWriteString(text_buffer);
     TerminalWriteString("\n");

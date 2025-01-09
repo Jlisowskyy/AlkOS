@@ -1,4 +1,5 @@
 ############################### Error Checking ###############################
+
 if (NOT DEFINED SYSROOT)
     message(FATAL_ERROR "SYSROOT is not defined")
 endif ()
@@ -8,6 +9,7 @@ if (NOT DEFINED ARCH)
 endif ()
 
 ############################ Compile Definitions #############################
+
 add_compile_definitions(__ALKOS_KERNEL__=1)
 
 # Uncomment to start test framework
@@ -20,6 +22,7 @@ add_compile_definitions(__USE_DEBUG_OUTPUT__=1)
 add_compile_definitions(__USE_DEBUG_TRACES__=1)
 
 ############################# Arch Dependent Vars ############################
+
 # ----------------------------------------------------------------------------
 # Arch can optionally create other executables (for chainloading, etc)
 # They need to place themselves in sysroot/boot
@@ -32,23 +35,12 @@ set(BOOTABLE_KERNEL_EXECUTABLE alkos.kernel)
 # ----------------------------------------------------------------------------
 
 ########################### Setting Sysroot Boot #############################
+
 file(MAKE_DIRECTORY ${SYSROOT}/boot)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SYSROOT}/boot)
 
-############################### Adding Headers ###############################
-set(KERNEL_INCLUDE_DIRS
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${SYSROOT}/usr/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/test
-        ${CMAKE_CURRENT_SOURCE_DIR}/abi
-)
-include_directories(include)
-include_directories(${SYSROOT}/usr/include)
-include_directories(test)
-include_directories(abi)
-
-
 ############################### Adding Sources ###############################
+
 # NOTE: kernel should not include any architecture specific code
 # including assembly
 file(GLOB KERNEL_SOURCES
@@ -61,22 +53,34 @@ file(GLOB KERNEL_SOURCES
 )
 
 #################################### Exec ####################################
+
 add_executable(alkos.kernel
         ${KERNEL_SOURCES}
 )
 
+############################### Adding Headers ###############################
+
+include_directories(include)
+include_directories(${SYSROOT}/usr/include)
+include_directories(test)
+include_directories(abi)
+
 ########################## Configure for given Arch ##########################
+
 add_subdirectory(arch/${ARCH})
 
 ############################### Error Checking ###############################
+
 if (NOT DEFINED BOOTABLE_KERNEL_EXECUTABLE)
     message(FATAL_ERROR "No primary kernel executable defined")
 endif ()
 
 ################################## Linking ###################################
+
 target_link_libraries(alkos.kernel PRIVATE libk gcc)
 
 ############################## Post Arch Action ##############################
+
 # Note: architecture file has a possibility to define custom command to run
 # before linking
 if (DEFINED POST_ARCH_ACTION)
@@ -104,7 +108,7 @@ set(CMAKE_CXX_LINK_EXECUTABLE
     -o <TARGET> <LINK_LIBRARIES>"
 )
 
-
 ########################## Back-Propagate Variables ##########################
+
 set(BOOTABLE_KERNEL_EXECUTABLE ${BOOTABLE_KERNEL_EXECUTABLE} PARENT_SCOPE)
 set(KERNEL_MODULES ${KERNEL_MODULES} PARENT_SCOPE)
