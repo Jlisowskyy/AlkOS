@@ -12,13 +12,19 @@
 #define NO_RET __attribute__((noreturn))
 
 /* Force the compiler to always inline the function */
-#define FORCE_INLINE inline __attribute__((always_inline))
+#define FORCE_INLINE_F inline __attribute__((always_inline))
+
+/* Force the compiler to always inline the lambda */
+#define FORCE_INLINE_L __attribute__((always_inline))
 
 /* Declare a function as a static inline wrapper */
-#define WRAP_CALL static FORCE_INLINE
+#define WRAP_CALL static FORCE_INLINE_F
 
 /* Require a function to be inlined for performance reasons */
-#define FAST_CALL static FORCE_INLINE
+#define FAST_CALL static FORCE_INLINE_F
+
+/* Marks a function for a compiler to prevent any optimizations */
+#define NO_OPT __attribute__((optimize("O0")))
 
 // ------------------------------------
 // Macro to constexpr conversions
@@ -41,6 +47,12 @@ static constexpr bool kIsAlkosTestBuild = true;
 #else
 static constexpr bool kIsAlkosTestBuild = false;
 #endif  // __ALKOS_TESTS_BUILD__
+
+#ifdef NDEBUG
+static constexpr bool kIsDebugBuild = false;
+#else
+static constexpr bool kIsDebugBuild = true;
+#endif  // NDEBUG
 
 // ------------------------------
 // Useful macros

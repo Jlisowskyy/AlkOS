@@ -6,7 +6,7 @@
 #include <test_module/test_module.hpp>
 #endif
 
-extern "C" void KernelPanic(const char *msg)
+extern "C" void NO_RET KernelPanic(const char *msg)
 {
     TerminalWriteError("[ KERNEL PANIC ]\n");
     TerminalWriteError(msg);

@@ -43,8 +43,7 @@ FAST_CALL void HaltCpu() { __asm__ volatile("hlt"); }
  * Enters an infinite loop that continuously halts the CPU.
  * Allows interrupts to wake the CPU.
  */
-FAST_CALL void OsHang()
-{
+FAST_CALL NO_RET void OsHang() {
     while (true) {
         HaltCpu();
     }
@@ -56,8 +55,7 @@ FAST_CALL void OsHang()
  * Disables interrupts and enters an infinite halt loop.
  * System cannot be woken up from this state.
  */
-FAST_CALL void OsHangNoInterrupts()
-{
+FAST_CALL void OsHangNoInterrupts() {
     BlockHardwareInterrupts();
     OsHang();
 }
@@ -77,8 +75,7 @@ FAST_CALL void InvokeInterrupt(const u8 idx) { __asm__ volatile("int %0" : : "N"
  * Writes shutdown command to QEMU exit port and halts CPU.
  * Only works when running under QEMU.
  */
-FAST_CALL void QemuShutdown()
-{
+FAST_CALL NO_RET void QemuShutdown() {
     outw(0x604, 0x2000);
     OsHang();
 }
@@ -110,6 +107,8 @@ struct PACK CpuState final {
     };
 
     u64 general_purpose_registers[kGprLast];
+
+    void GetStateDesc(char *buff, size_t buff_size) const;
 
     void DumpStateDesc() const;
 };
