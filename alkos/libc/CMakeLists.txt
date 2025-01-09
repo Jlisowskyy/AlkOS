@@ -28,24 +28,18 @@ file(GLOB_RECURSE LIB_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
 )
 
+########################## Configure for given Arch ##########################
+
+add_subdirectory(arch/${ARCH})
+
 ############################### Preparing target ###############################
 
 add_library(lib${LIB_NAME} STATIC ${LIB_SOURCES})
 set_target_properties(lib${LIB_NAME} PROPERTIES OUTPUT_NAME "${LIB_NAME}")
 
-add_library(lib${LIB_NAME}_32 STATIC ${LIB_SOURCES})
-set_target_properties(lib${LIB_NAME}_32 PROPERTIES OUTPUT_NAME "${LIB_NAME}")
-
-target_compile_options(lib${LIB_NAME}_32 PRIVATE -m32)
-
 ############################### Adding includes ###############################
 
 target_include_directories(lib${LIB_NAME} PUBLIC
-        include
-        ${SYSROOT}/usr/include
-)
-
-target_include_directories(lib${LIB_NAME}_32 PUBLIC
         include
         ${SYSROOT}/usr/include
 )
