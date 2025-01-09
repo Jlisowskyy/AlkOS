@@ -60,7 +60,7 @@ target_compile_definitions(alkos.loader PUBLIC
 target_link_libraries(alkos.loader PRIVATE
         gcc
         arch.common.32
-        libk_32
+        libk.32
 )
 
 ################################## Install ###################################
