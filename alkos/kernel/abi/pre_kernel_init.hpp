@@ -1,6 +1,9 @@
 #ifndef KERNEL_ABI_INIT_HPP_
 #define KERNEL_ABI_INIT_HPP_
 
+#include <types.hpp>
+#include <loader_data.hpp>
+
 /**
  * @brief Performs all necessary hardware initialization on the system.
  * @note This function should set up system-critical components like memory, I/O devices, and
@@ -9,6 +12,6 @@
  * @note Global constructors will not be called inside this function, as it must execute
  *       before the _init function is invoked.
  */
-extern "C" void PreKernelInit();
+extern "C" void PreKernelInit(LoaderData* loader_data);
 
 #endif  // KERNEL_ABI_INIT_HPP_

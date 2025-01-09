@@ -2,27 +2,36 @@
 
 MAKE_ISO_SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 MAKE_ISO_SCRIPT_PATH="${MAKE_ISO_SCRIPT_DIR}/$(basename "$0")"
+MAKE_ISO_SCRIPT_BOOTABLE_TOKEN="BOOTABLE_KERNEL_PLACEHOLDER"
+MAKE_ISO_SCRIPT_MODULES_TOKEN="MODULES_PLACEHOLDER"
 
 MAKE_ISO_SCRIPT_GRUB_CONTENTS="
 set timeout=0
 set default=0
 menuentry \"AlkOS\" {
-  multiboot2 /boot/alkos.kernel
+  multiboot2 /boot/${MAKE_ISO_SCRIPT_BOOTABLE_TOKEN}
+  ${MAKE_ISO_SCRIPT_MODULES_TOKEN}
   boot
 }
 "
 MAKE_ISO_SCRIPT_GRUB_PATH_IN_ISO="boot/grub/grub.cfg"
+MAKE_ISO_SCRIPT_EXECUTABLE_NAME="alkos.kernel"
+MAKE_ISO_SCRIPT_MODULES_LIST=""
 
 
 source "${MAKE_ISO_SCRIPT_DIR}/../utils/helpers.bash"
 source "${MAKE_ISO_SCRIPT_DIR}/../utils/pretty_print.bash"
 
 help() {
-  echo "${MAKE_ISO_SCRIPT_PATH} [target] [source] [--run | -r] [--verbose | -v]"
+  echo "${MAKE_ISO_SCRIPT_PATH} [target] [source] [--exec_name | -e executable_name] [--modules | -m modules]
+   [--run | -r] [--verbose | -v]"
   echo "Creates a .iso for alkOS from the sysroot directory"
   echo "Where:"
   echo "target - path to the .iso file to create"
   echo "source - path to the sysroot directory of alkOS"
+  echo "--exec_name | -e - name of the executable in sysroot/boot to boot (default: alkos.kernel)"
+  echo "--modules  | -m - list of modules in sysroot/boot to load along with the kernel"
+  echo "The list should be a space separated list of module names in quotes eg. \"module1 module2\""
   echo "--run     | -r - flag to run make_iso.sh"
   echo "--verbose | -v - flag to enable verbose output"
 }
@@ -43,6 +52,25 @@ parse_args() {
       -v|--verbose)
         MAKE_ISO_SCRIPT_VERBOSE=true
         shift
+        ;;
+      -e|--exec_name)
+        MAKE_ISO_SCRIPT_EXECUTABLE_NAME="$2"
+        MAKE_ISO_SCRIPT_GRUB_CONTENTS="${MAKE_ISO_SCRIPT_GRUB_CONTENTS//${MAKE_ISO_SCRIPT_BOOTABLE_TOKEN}/${MAKE_ISO_SCRIPT_EXECUTABLE_NAME}}"
+        shift 2
+        ;;
+      -m|--modules)
+        MAKE_ISO_SCRIPT_MODULES_LIST="$2"
+
+        local MODULES_LINES=""
+        for module in ${MAKE_ISO_SCRIPT_MODULES_LIST}; do
+          MODULES_LINES+="  module2 /boot/${module}\n"
+        done
+
+        # Convert the \n to actual newlines and strip spaces at the start of the first line and only it
+        local FORMATTED_MODULES
+        FORMATTED_MODULES=$(echo -e "$MODULES_LINES" | sed '1s/^[[:space:]]*//')
+        MAKE_ISO_SCRIPT_GRUB_CONTENTS="${MAKE_ISO_SCRIPT_GRUB_CONTENTS//${MAKE_ISO_SCRIPT_MODULES_TOKEN}/${FORMATTED_MODULES}}"
+        shift 2
         ;;
       *)
         if [ -z "$MAKE_ISO_SCRIPT_TARGET" ]; then
@@ -68,6 +96,21 @@ process_args() {
   if [ "$MAKE_ISO_SCRIPT_RUN" = false ] ; then
     dump_error "--run flag was not provided!"
     exit 1
+  fi
+
+  if [ -z "$MAKE_ISO_SCRIPT_EXECUTABLE_NAME" ]; then
+    dump_error "Executable name must be provided!"
+    exit 1
+  fi
+
+  if [[ $MAKE_ISO_SCRIPT_GRUB_CONTENTS == *"${MAKE_ISO_SCRIPT_BOOTABLE_TOKEN}"* ]] ||
+     [[ $MAKE_ISO_SCRIPT_GRUB_CONTENTS == *"${MAKE_ISO_SCRIPT_MODULES_TOKEN}"* ]]; then
+    dump_error "BOOTABLE_TOKEN or MODULES_TOKEN are still present in the grub contents!"
+    exit 1
+  fi
+
+  if [ "$MAKE_ISO_SCRIPT_VERBOSE" = true ]; then
+    pretty_info "Grub config contents: $MAKE_ISO_SCRIPT_GRUB_CONTENTS"
   fi
 }
 

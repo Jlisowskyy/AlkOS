@@ -6,7 +6,7 @@ ALK_OS_CLI_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/$(basename "$0")"
 ALK_OS_CLI_DEFAULT_TOOL_INSTALL_DIR="${ALK_OS_CLI_SCRIPT_DIR}/../tools"
 ALK_OS_CLI_DEFAULT_BUILD_DIR="${ALK_OS_CLI_SCRIPT_DIR}/../build"
 
-ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH="${ALK_OS_CLI_SCRIPT_DIR}/env/build_cross_compile.bash"
+ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH="${ALK_OS_CLI_SCRIPT_DIR}/actions/install_toolchain.bash"
 ALK_OS_CLI_BUILD_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/install/build_alkos.bash"
 ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/env/install_deps_arch.bash"
 ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/install/run_alkos.bash"
@@ -97,14 +97,12 @@ main() {
   fi
 
   if [ $ALK_OS_CLI_INSTALL_TOOLCHAIN = true ] ; then
-    pretty_info "Installing cross-compile toolchain"
-    base_runner "Failed to install cross-compile toolchain" true "${ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH}" --install \
-      toolchain ${ALK_OS_CLI_VERBOSE_FLAG} -t "${ALK_OS_CLI_DEFAULT_TOOL_INSTALL_DIR}" -b "${ALK_OS_CLI_DEFAULT_BUILD_DIR}"
+    base_runner "Failed to install cross-compile toolchain" true "${ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH}" ${ALK_OS_CLI_VERBOSE_FLAG}
   fi
 
   if [ $ALK_OS_CLI_RUN = true ] ; then
-    base_runner "Failed to build AlkOS" "${ALK_OS_CLI_VERBOSE}" "${ALK_OS_CLI_BUILD_SCRIPT_PATH}" --run ${ALK_OS_CLI_VERBOSE_FLAG}
-    base_runner "Failed to run AlkOS in QEMU" "${ALK_OS_CLI_VERBOSE}" "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" "${ALK_OS_CLI_ISO_PATH}" --run ${ALK_OS_CLI_VERBOSE_FLAG}
+    base_runner "Failed to build AlkOS" true "${ALK_OS_CLI_BUILD_SCRIPT_PATH}" --run ${ALK_OS_CLI_VERBOSE_FLAG}
+    base_runner "Failed to run AlkOS in QEMU" true "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" "${ALK_OS_CLI_ISO_PATH}" --run ${ALK_OS_CLI_VERBOSE_FLAG}
   fi
 }
 

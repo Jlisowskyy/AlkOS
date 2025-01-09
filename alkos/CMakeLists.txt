@@ -48,6 +48,9 @@ set(SYSTEM_LIB_TYPE k)
 # Add the subdirectories
 add_subdirectory(libc)
 add_subdirectory(kernel)
+if (NOT DEFINED BOOTABLE_KERNEL_EXECUTABLE)
+    message(FATAL_ERROR "No primary kernel executable defined")
+endif()
 
 ################################################################################
 #                                Custom Targets                                #
@@ -69,10 +72,17 @@ endif ()
 message(STATUS "Using make_iso script: ${MAKE_ISO_SCRIPT_PATH}")
 message(STATUS "Using run_alkos script: ${RUN_ALKOS_SCRIPT_PATH}")
 
+# This is not a workaround, this is genuinely how you pass arguments to a bash script from CMake
+string(REPLACE ";" " " KERNEL_MODULES_FORMATTED "${KERNEL_MODULES}")
+
 add_custom_target(iso
-        COMMAND ${MAKE_ISO_SCRIPT_PATH} ${ALKOS_ISO_PATH} ${SYSROOT} -v -r
-        DEPENDS alkos.kernel
-        DEPENDS libk
+        COMMAND ${MAKE_ISO_SCRIPT_PATH}
+                ${ALKOS_ISO_PATH}
+                ${SYSROOT}
+                -v -r
+                -e ${BOOTABLE_KERNEL_EXECUTABLE}
+                -m "${KERNEL_MODULES_FORMATTED}"
+        DEPENDS ${BOOTABLE_KERNEL_EXECUTABLE} ${KERNEL_MODULES} libk
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 

@@ -6,11 +6,11 @@ set(CMAKE_SYSTEM_PROCESSOR x86_64)
 # (So it doesn't need to link an executable against C standard library)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-# Define the path to your cross-compiler tools
-set(CROSS_COMPILER_PATH "${CMAKE_CURRENT_LIST_DIR}/../../tools/bin")
-
 # Specify the cross-compilers
 set(PREFIX x86_64-elf)
+
+# Define the path to your cross-compiler tools
+set(CROSS_COMPILER_PATH "${CMAKE_CURRENT_LIST_DIR}/../../tools/${PREFIX}/bin")
 
 set(CMAKE_C_COMPILER "${CROSS_COMPILER_PATH}/${PREFIX}-gcc")
 set(CMAKE_CXX_COMPILER "${CROSS_COMPILER_PATH}/${PREFIX}-g++")
@@ -29,3 +29,6 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)  # Only search for packages in the t
 
 # Optional: Specify NASM if it's not in your PATH
 # set(CMAKE_ASM_NASM_COMPILER "/path/to/your/nasm")
+
+# TODO: try to use g++ compiler
+set(CMAKE_CXX_COMPILER_32 "${CMAKE_CURRENT_LIST_DIR}/../../tools/i386-elf/bin/i386-elf-g++")

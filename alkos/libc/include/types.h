@@ -1,7 +1,8 @@
 #ifndef LIBC_INCLUDE_TYPES_H_
 #define LIBC_INCLUDE_TYPES_H_
 
-#include "stdint.h"
+#include <stdint.h>
+#include <limits.h>
 
 #if SIZE_MAX == UINTMAX_MAX
 typedef intmax_t ssize_t;
@@ -12,7 +13,7 @@ typedef long ssize_t;
 #elif SIZE_MAX == UINT_MAX
 typedef int ssize_t;
 #elif SIZE_MAX == USHRT_MAX
-typede short ssize_t;
+typedef short ssize_t;
 #elif SIZE_MAX == UCHAR_MAX
 typedef signed char ssize_t;
 #else
@@ -28,7 +29,7 @@ typedef unsigned long uptrdiff_t;
 #elif PTRDIFF_MAX == INT_MAX
 typedef unsigned int uptrdiff_t;
 #elif PTRDIFF_MAX == SHRT_MAX
-typede unsigned short uptrdiff_t;
+typedef unsigned short uptrdiff_t;
 #elif PTRDIFF_MAX == CHAR_MAX
 typedef unsigned char uptrdiff_t;
 #else
