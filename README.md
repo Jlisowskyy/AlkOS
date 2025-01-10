@@ -163,6 +163,12 @@ The primary goals of AlkOS are:
    ```bash
    ./alkos_cli.bash -v -r
    ```
+
+### Setting up pre-commit hooks
+   The `-g` flag of `alkos_cli.bash` sets up default git hook dir of this repository to `scripts/git-hooks`
+   ```bash
+   ./alkos_cli.bash -g
+   ```
     
 ### 🧪 Running Tests
 
