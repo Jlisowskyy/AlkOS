@@ -46,3 +46,5 @@ tools
 .venv
 __pycache__
 logs
+
+conf.bash

@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from pathlib import Path
 from datetime import datetime
-from test_data import TestInfo
+from .test_data import TestInfo
 import logging
 
 SCRIPT_DIRECTORY = Path(__file__).parent.resolve()

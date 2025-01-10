@@ -32,3 +32,6 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)  # Only search for packages in the t
 
 # TODO: try to use g++ compiler
 set(CMAKE_CXX_COMPILER_32 "${CMAKE_CURRENT_LIST_DIR}/../../tools/i386-elf/bin/i386-elf-g++")
+
+# Set arch
+set(ARCH "x86_64")
