@@ -50,7 +50,7 @@ echo "$STAGED_FILES"
 
 # Run clang-format
 echo "$STAGED_FILES" | xargs -P "$NUM_CORES" -n 1 clang-format -style="$CLANG_FORMAT_STYLE" -i || {
-  log "Clang-format failed"
+  log "clang-format failed"
   exit 1
 }
 
