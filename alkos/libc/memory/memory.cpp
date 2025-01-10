@@ -2,12 +2,13 @@
 
 #include "memory.h"
 
-void *memcpy(void *dest, const void *src, const size_t n) {
+void *memcpy(void *dest, const void *src, const size_t n)
+{
     if (!dest || !src) {
         return nullptr;
     }
 
-    auto *d = static_cast<unsigned char *>(dest);
+    auto *d       = static_cast<unsigned char *>(dest);
     const auto *s = static_cast<const unsigned char *>(src);
 
     for (size_t i = 0; i < n; ++i) {
@@ -16,12 +17,13 @@ void *memcpy(void *dest, const void *src, const size_t n) {
     return dest;
 }
 
-void *memmove(void *dest, const void *src, const size_t n) {
+void *memmove(void *dest, const void *src, const size_t n)
+{
     if (!dest || !src) {
         return nullptr;
     }
 
-    auto *d = static_cast<unsigned char *>(dest);
+    auto *d       = static_cast<unsigned char *>(dest);
     const auto *s = static_cast<const unsigned char *>(src);
 
     if (d > s) {
@@ -36,7 +38,8 @@ void *memmove(void *dest, const void *src, const size_t n) {
     return dest;
 }
 
-void *memset(void *dest, const int c, const size_t n) {
+void *memset(void *dest, const int c, const size_t n)
+{
     if (!dest) {
         return nullptr;
     }
@@ -50,7 +53,8 @@ void *memset(void *dest, const int c, const size_t n) {
     return dest;
 }
 
-int memcmp(const void *s1, const void *s2, const size_t n) {
+int memcmp(const void *s1, const void *s2, const size_t n)
+{
     if (!s1 || !s2) {
         return 0;
     }

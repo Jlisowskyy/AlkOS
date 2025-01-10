@@ -4,4 +4,4 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#endif //LIBC_INCLUDE_STDLIB_H_
+#endif  // LIBC_INCLUDE_STDLIB_H_

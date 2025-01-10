@@ -1,8 +1,8 @@
 #ifndef LIBC_INCLUDE_TYPES_H_
 #define LIBC_INCLUDE_TYPES_H_
 
-#include <stdint.h>
 #include <limits.h>
+#include <stdint.h>
 
 #if SIZE_MAX == UINTMAX_MAX
 typedef intmax_t ssize_t;
@@ -36,4 +36,4 @@ typedef unsigned char uptrdiff_t;
 #error "Unsupported uptrdiff_t size"
 #endif
 
-#endif // LIBC_INCLUDE_TYPES_H_
+#endif  // LIBC_INCLUDE_TYPES_H_

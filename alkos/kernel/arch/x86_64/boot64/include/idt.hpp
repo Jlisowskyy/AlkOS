@@ -11,9 +11,7 @@
 static constexpr u16 kIrq1Offset = 0x20;
 static constexpr u16 kIrq2Offset = 0x28;
 
-static constexpr u8 kExceptionIdx[]{
-    8, 10, 11, 12, 13, 14, 17, 21, 29, 30
-};
+static constexpr u8 kExceptionIdx[]{8, 10, 11, 12, 13, 14, 17, 21, 29, 30};
 static constexpr size_t kExceptionCount = sizeof(kExceptionIdx) / sizeof(kExceptionIdx[0]);
 
 static const char *kExceptionMsg[]{
@@ -30,7 +28,10 @@ static const char *kExceptionMsg[]{
 };
 static constexpr size_t kExceptionMsgCount = sizeof(kExceptionMsg) / sizeof(kExceptionMsg[0]);
 
-static_assert(kExceptionCount == kExceptionMsgCount, "Exception index and message arrays must have the same size");
+static_assert(
+    kExceptionCount == kExceptionMsgCount,
+    "Exception index and message arrays must have the same size"
+);
 
 // ------------------------------
 // Data layout
