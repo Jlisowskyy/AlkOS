@@ -11,15 +11,17 @@ ALK_OS_CLI_BUILD_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/install/build_alkos.bash"
 ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/env/install_deps_arch.bash"
 ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/install/run_alkos.bash"
 ALK_OS_CLI_ISO_PATH="${ALK_OS_CLI_DEFAULT_BUILD_DIR}/bin/alkos.iso"
+ALK_OS_CLI_SETUP_HOOKS_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/git-hooks/setup-hooks.bash"
 
 source "${ALK_OS_CLI_SCRIPT_DIR}/utils/pretty_print.bash"
 source "${ALK_OS_CLI_SCRIPT_DIR}/utils/helpers.bash"
 
 help() {
-  echo "${ALK_OS_CLI_SCRIPT_PATH} [--run | -r] [--install | -i] [--verbose | -v]"
+  echo "${ALK_OS_CLI_SCRIPT_PATH} [--run | -r] [--install | -i] [--verbose | -v] [--git-hooks | -g]"
   echo "Where:"
   echo "--run     | -r - flag to run the build and deployment process of AlkOS"
   echo "--install [toolchain | deps | all] | -i [toolchain | deps | all] - flag to install toolchain or dependencies"
+  echo "--git-hooks | -g - flag to config git to use this repository's hooks"
   echo "--verbose | -v - flag to enable verbose output"
   echo "Note: If both --run and --install flags are provided, the script will first
   install dependencies and cross-compile toolchain, then run the build and deployment process"
@@ -29,6 +31,7 @@ parse_args() {
   ALK_OS_CLI_RUN=false
   ALK_OS_CLI_INSTALL_TOOLCHAIN=false
   ALK_OS_CLI_INSTALL_DEPS=false
+  ALK_OS_CLI_SETUP_HOOKS=false
   ALK_OS_CLI_VERBOSE=false
   while [[ $# -gt 0 ]]; do
     case $1 in
@@ -59,6 +62,10 @@ parse_args() {
         shift
         shift
         ;;
+      -g|--git-hooks)
+        ALK_OS_CLI_SETUP_HOOKS=true
+        shift
+        ;;
       -v|--verbose)
         ALK_OS_CLI_VERBOSE=true
         shift
@@ -72,7 +79,7 @@ parse_args() {
 }
 
 process_args() {
-  if [ $ALK_OS_CLI_RUN = false ] && [ $ALK_OS_CLI_INSTALL_TOOLCHAIN = false ] && [ $ALK_OS_CLI_INSTALL_DEPS = false ] ; then
+  if [ $ALK_OS_CLI_RUN = false ] && [ $ALK_OS_CLI_INSTALL_TOOLCHAIN = false ] && [ $ALK_OS_CLI_INSTALL_DEPS = false ] && [ $ALK_OS_CLI_SETUP_HOOKS = false ]; then
     dump_error "No action provided! Please provide either --run or --install flag"
   fi
   ALK_OS_CLI_VERBOSE_FLAG=""
@@ -103,6 +110,10 @@ main() {
   if [ $ALK_OS_CLI_RUN = true ] ; then
     base_runner "Failed to build AlkOS" true "${ALK_OS_CLI_BUILD_SCRIPT_PATH}" --run ${ALK_OS_CLI_VERBOSE_FLAG}
     base_runner "Failed to run AlkOS in QEMU" true "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" "${ALK_OS_CLI_ISO_PATH}" --run ${ALK_OS_CLI_VERBOSE_FLAG}
+  fi
+
+  if [ $ALK_OS_CLI_SETUP_HOOKS = true ]; then
+    base_runner "Failed to setup git-hooks" true "${ALK_OS_CLI_SETUP_HOOKS_SCRIPT_PATH}"
   fi
 }
 
