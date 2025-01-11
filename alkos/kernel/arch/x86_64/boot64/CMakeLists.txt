@@ -19,7 +19,6 @@ if (NOT DEFINED ENABLE_TESTS)
     list(FILTER ARCH_SOURCES EXCLUDE REGEX ".*/tests/.*")
 endif ()
 
-
 ############################### Adding Sources ###############################
 
 target_sources(alkos.kernel PRIVATE ${ARCH_SOURCES})
@@ -52,22 +51,34 @@ add_library(alkos.kernel.crts OBJECT
         ${SRTN_FILE}
 )
 
-# Retrieve GCC provided CRT
-execute_process(
-        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=crtbegin.o
-        OUTPUT_VARIABLE CRTBEGIN_OBJ
-        OUTPUT_STRIP_TRAILING_WHITESPACE
+set(CRTBEGIN_PATH_FILE "${CMAKE_CURRENT_BINARY_DIR}/crtbegin_path.txt")
+set(CRTEND_PATH_FILE "${CMAKE_CURRENT_BINARY_DIR}/crtend_path.txt")
+
+add_custom_command(
+        OUTPUT ${CRTBEGIN_PATH_FILE}
+        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=crtbegin.o > ${CRTBEGIN_PATH_FILE}
+        COMMENT "Getting crtbegin.o path"
+        VERBATIM
 )
 
-execute_process(
-        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=crtend.o
-        OUTPUT_VARIABLE CRTEND_OBJ
-        OUTPUT_STRIP_TRAILING_WHITESPACE
+add_custom_command(
+        OUTPUT ${CRTEND_PATH_FILE}
+        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=crtend.o > ${CRTEND_PATH_FILE}
+        COMMENT "Getting crtend.o path"
+        VERBATIM
 )
 
-# Override the link line to include CRT objects in the correct order, propagate to parent scope
-set(CRTEND_OBJ "${CRTEND_OBJ}" PARENT_SCOPE)
-set(CRTBEGIN_OBJ "${CRTBEGIN_OBJ}" PARENT_SCOPE)
+# Create custom target to ensure the commands run
+add_custom_target(get_crt_paths
+        DEPENDS ${CRTBEGIN_PATH_FILE} ${CRTEND_PATH_FILE}
+)
+
+# Make the kernel depend on getting CRT paths
+add_dependencies(alkos.kernel get_crt_paths)
+
+# Set up variables for the CRT objects
+set(CRTBEGIN_OBJ "$<FILE:READ,${CRTBEGIN_PATH_FILE}>" PARENT_SCOPE)
+set(CRTEND_OBJ "$<FILE:READ,${CRTEND_PATH_FILE}>" PARENT_SCOPE)
 set(CRTI_OBJ "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/alkos.kernel.crts.dir/cxx/crti.nasm.o" PARENT_SCOPE)
 set(CRTN_OBJ "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/alkos.kernel.crts.dir/cxx/crtn.nasm.o" PARENT_SCOPE)
 
