@@ -8,6 +8,30 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+set(PROJECT_NAME AlkOS)
+set(PROJECT_VERSION "0.0")
+set(PROJECT_AUTHOR "ALK Organisation")
+
+################################################################################
+#                                  Conf file                                   #
+################################################################################
+
+# Check if configuration was done
+if (NOT EXISTS "${CMAKE_SOURCE_DIR}/../scripts/conf.cmake")
+    message(FATAL_ERROR "Cmake configuration (conf.cmake) file does not exists... Try running configure.bash script first!")
+else ()
+    message(STATUS "Detected configuration file. Updating variables...")
+endif ()
+
+include("${CMAKE_SOURCE_DIR}/../scripts/conf.cmake")
+
+################################################################################
+#                                  toolchain                                   #
+################################################################################
+
+include(${CMAKE_TOOLCHAIN_FILE})
+include(${CMAKE_FLAGS_FILE})
+
 ################################################################################
 #                                   Messages                                   #
 ################################################################################
@@ -27,39 +51,6 @@ message(STATUS "Using gdb: ${CMAKE_GDB}")
 message(STATUS "Using C flags: ${CMAKE_C_FLAGS}")
 message(STATUS "Using C++ flags: ${CMAKE_CXX_FLAGS}")
 message(STATUS "Using ASM_NASM flags: ${CMAKE_ASM_NASM_FLAGS}")
-
-################################################################################
-#                                  Conf file                                   #
-################################################################################
-
-# Check if configuration was done
-if (NOT EXISTS "${CMAKE_SOURCE_DIR}/../scripts/conf.bash")
-    message(FATAL_ERROR "Configuration (conf.bash) file does not exists...")
-else ()
-    message(STATUS "Detected configuration file. Updating variables...")
-endif ()
-
-# Extract variables from bash script
-execute_process(
-        COMMAND bash -c "source ${CMAKE_SOURCE_DIR}/../scripts/conf.bash"
-        OUTPUT_VARIABLE script_output
-        COMMAND_ERROR_IS_FATAL ANY
-)
-
-# Convert the output to a list of lines
-string(REPLACE "\n" ";" script_output_list "${script_output}")
-
-# Parse variables
-
-foreach(line ${script_output_list})
-    if(line MATCHES "^([^=]+)=(.*)$")
-        set(VAR_NAME ${CMAKE_MATCH_1})
-        set(VAR_VALUE ${CMAKE_MATCH_2})
-        set(${VAR_NAME} ${VAR_VALUE})
-        message(STATUS "Set ${VAR_NAME}=${VAR_VALUE}")
-    endif()
-endforeach()
-
 
 ################################################################################
 #                                   Sysroot                                    #

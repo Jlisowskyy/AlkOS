@@ -9,8 +9,13 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 # Specify the cross-compilers
 set(PREFIX x86_64-elf)
 
+if (NOT DEFINED TOOL_BINARIES_DIR)
+    message(FATAL_ERROR "Missing crucial TOOL_BINARIES_DIR, possibly configuration went wrong...")
+endif ()
+message(STATUS "Using tooldir: ${TOOL_BINARIES_DIR}")
+
 # Define the path to your cross-compiler tools
-set(CROSS_COMPILER_PATH "${CMAKE_CURRENT_LIST_DIR}/../../tools/${PREFIX}/bin")
+set(CROSS_COMPILER_PATH "${TOOL_BINARIES_DIR}/${PREFIX}/bin")
 
 set(CMAKE_C_COMPILER "${CROSS_COMPILER_PATH}/${PREFIX}-gcc")
 set(CMAKE_CXX_COMPILER "${CROSS_COMPILER_PATH}/${PREFIX}-g++")
@@ -31,7 +36,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)  # Only search for packages in the t
 # set(CMAKE_ASM_NASM_COMPILER "/path/to/your/nasm")
 
 # TODO: try to use g++ compiler
-set(CMAKE_CXX_COMPILER_32 "${CMAKE_CURRENT_LIST_DIR}/../../tools/i386-elf/bin/i386-elf-g++")
+set(CMAKE_CXX_COMPILER_32 "${TOOL_BINARIES_DIR}/i386-elf/bin/i386-elf-g++")
 
 # Set arch
 set(ARCH "x86_64")
