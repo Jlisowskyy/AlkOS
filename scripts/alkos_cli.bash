@@ -45,8 +45,8 @@ Usage: ${ALK_OS_CLI_SCRIPT_PATH} [options]
 
 Options:
     -c, --configure             Run default configuration [x86_64]
-    -r, --run                    Build and run AlkOS
-    -i, --install <component>    Install components:
+    -r, --run                   Build and run AlkOS
+    -i, --install <component>   Install components:
                                 - toolchain: Cross-compiler toolchain
                                 - deps: System dependencies
                                 - all: Both toolchain and dependencies

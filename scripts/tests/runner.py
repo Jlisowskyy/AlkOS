@@ -1,6 +1,7 @@
 #!/bin/python
 
 import test_framework.main as tf
+import os
 
 
 class TestRun:
@@ -30,7 +31,8 @@ def prepare_command(test_run: TestRun) -> list[str]:
     args = []
 
     args.append("--path")
-    args.append("./run_test_alkos.bash")
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    args.append(os.path.join(script_dir, "./run_test_alkos.bash"))
 
     if len(test_run.test_filters) > 0:
         args.append("--filter")
