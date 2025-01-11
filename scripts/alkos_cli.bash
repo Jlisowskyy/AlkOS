@@ -175,7 +175,7 @@ build_and_run() {
 }
 
 setup_git_hooks() {
-  if [ ${CONFIG[setup_hooks]} == true ]; then
+  if [[ ${CONFIG[setup_hooks]} == true ]]; then
     base_runner "Failed to setup git-hooks" true "${ALK_OS_CLI_SETUP_HOOKS_SCRIPT_PATH}"
   fi
 }
