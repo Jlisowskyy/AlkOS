@@ -116,14 +116,19 @@ endif ()
 # according to the compiler needs
 # NOTE: This linking must be done at this level as global constructors
 # should be supported on each architecture
-if (NOT DEFINED CRTI_OBJ OR NOT DEFINED CRTBEGIN_OBJ OR NOT DEFINED CRTEND_OBJ OR NOT DEFINED CRTN_OBJ)
-    message(FATAL_ERROR "One of: crti.o, crtbegin.o, crtend.o, crtn.o is not defined. Those should be defined in the ARCH CMakeLists.txt file")
+if (NOT DEFINED CRTI_OBJ  OR NOT DEFINED CRTN_OBJ)
+    message(FATAL_ERROR "One of: crti.o, crtn.o is not defined. Those should be defined in the ARCH CMakeLists.txt file")
 endif ()
 
+set(CMAKE_CXX_LINKER_LAUNCHER "/bin/bash -c")
 set(CMAKE_CXX_LINK_EXECUTABLE
-        "${CMAKE_CXX_COMPILER} <CMAKE_C_LINK_FLAGS> <FLAGS> <LINK_FLAGS>\
-    ${CRTI_OBJ} ${CRTBEGIN_OBJ} <OBJECTS> ${CRTEND_OBJ} ${CRTN_OBJ} \
-    -o <TARGET> <LINK_LIBRARIES>"
+"/bin/bash -c \"${CMAKE_CXX_COMPILER} <CMAKE_CXX_LINK_FLAGS> <FLAGS> <LINK_FLAGS> \
+${CRTI_OBJ} \
+\$\(${CMAKE_C_COMPILER} -print-file-name=crtbegin.o\) \
+<OBJECTS> \
+\$\(${CMAKE_C_COMPILER} -print-file-name=crtend.o\) \
+${CRTN_OBJ} \
+-o <TARGET> <LINK_LIBRARIES>\""
 )
 
 ########################## Back-Propagate Variables ##########################
