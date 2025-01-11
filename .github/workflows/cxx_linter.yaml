@@ -1,0 +1,18 @@
+name: C++ linting
+
+on: [push]
+
+jobs:
+  Lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+
+      - name: Check if code is formatted
+        run: sudo scripts/cicd/check_clang_format.bash

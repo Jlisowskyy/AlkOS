@@ -11,7 +11,7 @@ def main(args: list[str]) -> None:
         test_spec = process_args(args)
         test_framework_run(test_spec)
     except Exception as e:
-        print("Failed to run tests. Cause of the problem:")
+        print(f"Failed to run tests. Cause of the problem: {e}")
         traceback.print_exc()
         sys.exit(1)
 
