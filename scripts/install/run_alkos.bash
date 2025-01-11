@@ -21,12 +21,24 @@ source "${RUN_ALKOS_SCRIPT_SOURCE_DIR}/scripts/utils/pretty_print.bash"
 help() {
   echo "${RUN_ALKOS_SCRIPT_PATH} <alkos_iso_path> [--verbose | -v] [--gdb | -g]"
   echo "Where:"
-  echo "alkos_iso_path - path to the .iso file"
+  echo "alkos_iso_path - path to the .iso file (Positional, must be provided)"
   echo "--verbose | -v - flag to enable verbose output"
   echo "--gdb     | -g - flag to run AlkOS in QEMU with GDB"
 }
 
 parse_args() {
+  # Ensure the first positional argument (ISO file path) is provided
+  if [[ $# -lt 1 ]]; then
+    echo "Error: No path to the .iso file was provided!"
+    help
+    exit 1
+  fi
+
+  # First positional argument is the path to the .iso file
+  RUN_ALKOS_ISO_PATH="$1"
+  shift
+
+  # Process optional flags
   while [[ $# -gt 0 ]]; do
     case $1 in
       -h|--help)
@@ -42,26 +54,25 @@ parse_args() {
         shift
         ;;
       *)
-        if [ -z "$RUN_ALKOS_ISO_PATH" ]; then
-          RUN_ALKOS_ISO_PATH="$1"
-        else
-          echo "Unknown argument: $1"
-          exit 1
-        fi
-        shift
+        echo "Unknown argument: $1"
+        help
+        exit 1
         ;;
     esac
   done
 }
 
 process_args() {
+  # Ensure that the .iso file path is provided
   if [ -z "$RUN_ALKOS_ISO_PATH" ]; then
     dump_error "No path to the .iso file was provided!"
     exit 1
   fi
 
+  # Update QEMU arguments to include the ISO path
   RUN_ALKOS_SCRIPT_QEMU_ARGS="${RUN_ALKOS_SCRIPT_QEMU_ARGS} -cdrom ${RUN_ALKOS_ISO_PATH}"
 
+  # If GDB flag is set, add GDB arguments to QEMU command
   if [ "$RUN_ALKOS_SCRIPT_GDB" = true ] ; then
     RUN_ALKOS_SCRIPT_QEMU_ARGS="${RUN_ALKOS_SCRIPT_QEMU_ARGS} ${RUN_ALKOS_SCRIPT_GDB_ARGS}"
   fi

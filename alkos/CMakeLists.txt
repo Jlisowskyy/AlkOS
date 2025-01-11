@@ -137,14 +137,14 @@ add_custom_target(iso
 
 # Custom target to run QEMU
 add_custom_target(run
-        COMMAND ${RUN_ALKOS_SCRIPT_PATH} ${ALKOS_ISO_PATH} -v -r
+        COMMAND ${RUN_ALKOS_SCRIPT_PATH} ${ALKOS_ISO_PATH} -v
         DEPENDS iso
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
 # -s -S flags are used to start QEMU with GDB support, listening on port 1234 - tcp
 add_custom_target(run-with-gdb
-        COMMAND ${RUN_ALKOS_SCRIPT_PATH} ${ALKOS_ISO_PATH} -v -r -g
+        COMMAND ${RUN_ALKOS_SCRIPT_PATH} ${ALKOS_ISO_PATH} -v -g
         DEPENDS iso
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
