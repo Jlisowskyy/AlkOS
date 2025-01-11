@@ -29,7 +29,7 @@ endif ()
 if (USE_DEBUG_TRACES)
     message(STATUS "Debug traces enabled...")
 
-    # Controls whether various traces should be printed to debug output
+    # Controls whether TRACE macro strings should be printed to debug output
     add_compile_definitions(__USE_DEBUG_TRACES__=1)
 endif ()
 
