@@ -128,7 +128,7 @@ add_custom_target(iso
         COMMAND ${MAKE_ISO_SCRIPT_PATH}
         ${ALKOS_ISO_PATH}
         ${CMAKE_SYSROOT}
-        -v -r
+        -v
         -e ${BOOTABLE_KERNEL_EXECUTABLE}
         -m "${KERNEL_MODULES_FORMATTED}"
         DEPENDS ${BOOTABLE_KERNEL_EXECUTABLE} ${KERNEL_MODULES} libk

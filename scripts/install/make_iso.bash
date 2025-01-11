@@ -19,8 +19,6 @@ menuentry \"AlkOS\" {
 MAKE_ISO_SCRIPT_GRUB_PATH_IN_ISO="boot/grub/grub.cfg"
 MAKE_ISO_SCRIPT_EXECUTABLE_NAME="alkos.kernel"
 MAKE_ISO_SCRIPT_MODULES_LIST=""
-MAKE_ISO_SCRIPT_TARGET=""
-MAKE_ISO_SCRIPT_SOURCE=""
 MAKE_ISO_SCRIPT_VERBOSE=false
 
 # Helper functions
@@ -28,17 +26,33 @@ source "${MAKE_ISO_SCRIPT_DIR}/../utils/helpers.bash"
 source "${MAKE_ISO_SCRIPT_DIR}/../utils/pretty_print.bash"
 
 help() {
-  echo "${MAKE_ISO_SCRIPT_PATH} <target> <source> [--exec_name | -e executable_name] [--modules | -m modules] [--run | -r] [--verbose | -v]"
+  echo "${MAKE_ISO_SCRIPT_PATH} <target> <source> [--exec_name | -e executable_name] [--modules | -m modules] [--verbose | -v]"
   echo "Creates a .iso for alkOS from the sysroot directory"
   echo "Where:"
-  echo "  target  - Path to the .iso file to create"
-  echo "  source  - Path to the sysroot directory of alkOS"
+  echo "  target  - Path to the .iso file to create (Positional, must be provided)"
+  echo "  source  - Path to the sysroot directory of alkOS (Positional, must be provided)"
   echo "  --exec_name | -e - Name of the executable in sysroot/boot to boot (default: alkos.kernel)"
   echo "  --modules  | -m - Space-separated list of modules in sysroot/boot to load with the kernel"
   echo "  --verbose  | -v - Enable verbose output"
 }
 
 parse_args() {
+  # Ensure the first two positional arguments are provided
+  if [[ $# -lt 2 ]]; then
+    echo "Error: Both <target> and <source> must be provided as the first two arguments."
+    help
+    exit 1
+  fi
+
+  # First positional argument is the target (ISO file path)
+  MAKE_ISO_SCRIPT_TARGET="$1"
+  shift
+
+  # Second positional argument is the source (sysroot directory)
+  MAKE_ISO_SCRIPT_SOURCE="$1"
+  shift
+
+  # Process optional arguments
   while [[ $# -gt 0 ]]; do
     case $1 in
       -h|--help)
@@ -58,24 +72,18 @@ parse_args() {
         shift 2
         ;;
       *)
-        if [ -z "$MAKE_ISO_SCRIPT_TARGET" ]; then
-          MAKE_ISO_SCRIPT_TARGET="$1"
-        elif [ -z "$MAKE_ISO_SCRIPT_SOURCE" ]; then
-          MAKE_ISO_SCRIPT_SOURCE="$1"
-        else
-          echo "Unknown argument: $1"
-          exit 1
-        fi
-        shift
+        echo "Unknown argument: $1"
+        help
+        exit 1
         ;;
     esac
   done
 }
 
 process_args() {
+  # Validate that both target and source are set
   if [ -z "$MAKE_ISO_SCRIPT_TARGET" ] || [ -z "$MAKE_ISO_SCRIPT_SOURCE" ]; then
-    dump_error "Both target and source paths must be provided!"
-    help
+    dump_error "Both target and source must be provided!"
     exit 1
   fi
 
