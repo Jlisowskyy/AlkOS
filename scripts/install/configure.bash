@@ -137,7 +137,7 @@ process_args() {
   fi
 
   # Set default values if not provided
-  [[ -z "$CONFIGURE_BUILD_DIR" ]] && CONFIGURE_BUILD_DIR="${CONFIGURE_DIR}/../../build/alkos"
+  [[ -z "$CONFIGURE_BUILD_DIR" ]] && CONFIGURE_BUILD_DIR="${CONFIGURE_DIR}/../../build"
   [[ -z "$CONFIGURE_TOOL_BINARIES_DIR" ]] && CONFIGURE_TOOL_BINARIES_DIR="${CONFIGURE_DIR}/../../tools"
 }
 
@@ -172,7 +172,7 @@ run() {
 
   # let the cmake generate bash.conf and build files
   pretty_info "Running cmake..."
-  base_runner "Failed to run cmake" "${CONFIGURE_VERBOSE}" cmake "${CONFIGURE_CMAKE_PATH}" -B "${CONFIGURE_BUILD_DIR}" \
+  base_runner "Failed to run cmake" "${CONFIGURE_VERBOSE}" cmake "${CONFIGURE_CMAKE_PATH}" -B "${CONFIGURE_BUILD_DIR}/alkos" \
         -G "Unix Makefiles"
 }
 
