@@ -33,20 +33,10 @@ endif ()
 message(STATUS "Bootable kernel executable: ${BOOTABLE_KERNEL_EXECUTABLE}")
 message(STATUS "Kernel modules: ${KERNEL_MODULES}")
 
-if (NOT CRTEND_OBJ)
-    message(FATAL_ERROR "CRTEND_OBJ not defined")
-endif ()
-
-if (NOT CRTBEGIN_OBJ)
-    message(FATAL_ERROR "CRTBEGIN_OBJ not defined")
-endif ()
-
 message(STATUS "CRTI_OBJ: ${CRTI_OBJ}, CRTN_OBJ: ${CRTN_OBJ}")
 
 ########################## Back-Propagate Variables ##########################
 
-set(CRTEND_OBJ "${CRTEND_OBJ}" PARENT_SCOPE)
-set(CRTBEGIN_OBJ "${CRTBEGIN_OBJ}" PARENT_SCOPE)
 set(CRTI_OBJ "${CRTI_OBJ}" PARENT_SCOPE)
 set(CRTN_OBJ "${CRTN_OBJ}" PARENT_SCOPE)
 

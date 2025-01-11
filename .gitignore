@@ -46,3 +46,7 @@ tools
 .venv
 __pycache__
 logs
+
+# build configuration
+conf.bash
+conf.cmake

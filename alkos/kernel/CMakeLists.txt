@@ -12,14 +12,26 @@ endif ()
 
 add_compile_definitions(__ALKOS_KERNEL__=1)
 
-# Uncomment to start test framework
-add_compile_definitions(__ALKOS_TESTS_BUILD__=1)
+if (ENABLE_TESTS)
+    message(STATUS "Tests enabled...")
 
-# Defining this macro enables debug output
-add_compile_definitions(__USE_DEBUG_OUTPUT__=1)
+    # Defining this macro autostarts tests framework after kernel boot
+    add_compile_definitions(__ALKOS_TESTS_BUILD__=1)
+endif ()
 
-# Controls whether various traces should be printed to debug output
-add_compile_definitions(__USE_DEBUG_TRACES__=1)
+if (USE_DEBUG_OUTPUT)
+    message(STATUS "Debug output enabled...")
+
+    # Defining this macro enables debug output
+    add_compile_definitions(__USE_DEBUG_OUTPUT__=1)
+endif ()
+
+if (USE_DEBUG_TRACES)
+    message(STATUS "Debug traces enabled...")
+
+    # Controls whether TRACE macro strings should be printed to debug output
+    add_compile_definitions(__USE_DEBUG_TRACES__=1)
+endif ()
 
 ############################# Arch Dependent Vars ############################
 
@@ -46,11 +58,17 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SYSROOT}/boot)
 file(GLOB KERNEL_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-
-        # TODO: compile only when debug build
-        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"
 )
+
+if (ENABLE_TESTS)
+    file(GLOB KERNEL_TEST_SOURCES
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"
+    )
+
+    # Append test sources to the kernel sources
+    list(APPEND KERNEL_SOURCES ${KERNEL_TEST_SOURCES})
+endif ()
 
 #################################### Exec ####################################
 
@@ -98,14 +116,19 @@ endif ()
 # according to the compiler needs
 # NOTE: This linking must be done at this level as global constructors
 # should be supported on each architecture
-if (NOT DEFINED CRTI_OBJ OR NOT DEFINED CRTBEGIN_OBJ OR NOT DEFINED CRTEND_OBJ OR NOT DEFINED CRTN_OBJ)
-    message(FATAL_ERROR "One of: crti.o, crtbegin.o, crtend.o, crtn.o is not defined. Those should be defined in the ARCH CMakeLists.txt file")
+if (NOT DEFINED CRTI_OBJ  OR NOT DEFINED CRTN_OBJ)
+    message(FATAL_ERROR "One of: crti.o, crtn.o is not defined. Those should be defined in the ARCH CMakeLists.txt file")
 endif ()
 
+set(CMAKE_CXX_LINKER_LAUNCHER "/bin/bash -c")
 set(CMAKE_CXX_LINK_EXECUTABLE
-        "${CMAKE_CXX_COMPILER} <CMAKE_C_LINK_FLAGS> <FLAGS> <LINK_FLAGS>\
-    ${CRTI_OBJ} ${CRTBEGIN_OBJ} <OBJECTS> ${CRTEND_OBJ} ${CRTN_OBJ} \
-    -o <TARGET> <LINK_LIBRARIES>"
+"/bin/bash -c \"${CMAKE_CXX_COMPILER} <CMAKE_CXX_LINK_FLAGS> <FLAGS> <LINK_FLAGS> \
+${CRTI_OBJ} \
+\$\(${CMAKE_C_COMPILER} -print-file-name=crtbegin.o\) \
+<OBJECTS> \
+\$\(${CMAKE_C_COMPILER} -print-file-name=crtend.o\) \
+${CRTN_OBJ} \
+-o <TARGET> <LINK_LIBRARIES>\""
 )
 
 ########################## Back-Propagate Variables ##########################

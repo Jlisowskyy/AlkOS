@@ -13,8 +13,21 @@ endif ()
 if (SYSTEM_LIB_TYPE STREQUAL "k" OR SYSTEM_LIB_TYPE STREQUAL "K")
     set(LIB_NAME "k")
     add_compile_definitions(__ALKOS_KERNEL__=1)
-    add_compile_definitions(__USE_DEBUG_OUTPUT__=1)
-    add_compile_definitions(__USE_DEBUG_TRACES__=1)
+
+    if (USE_DEBUG_OUTPUT)
+        message(STATUS "Enabled debug output for libc...")
+
+        # Defining this macro enables debug output
+        add_compile_definitions(__USE_DEBUG_OUTPUT__=1)
+    endif ()
+
+    if (USE_DEBUG_TRACES)
+        message(STATUS "Enabled debug traces for libc...")
+
+        # Controls whether various traces should be printed to debug output
+        add_compile_definitions(__USE_DEBUG_TRACES__=1)
+    endif ()
+
 elseif (SYSTEM_LIB_TYPE STREQUAL "c" OR SYSTEM_LIB_TYPE STREQUAL "C")
     set(LIB_NAME "c")
 else ()

@@ -10,7 +10,14 @@ file(GLOB_RECURSE ARCH_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/*.asm"
         "${CMAKE_CURRENT_SOURCE_DIR}/*.nasm"
 )
+
+# Exclude specific files like crti.nasm and crtn.nasm
 list(FILTER ARCH_SOURCES EXCLUDE REGEX ".*/(crti\\.nasm|crtn\\.nasm)$")
+
+# If ENABLE_TESTS is NOT defined, exclude files from the 'tests/' directory
+if (NOT DEFINED ENABLE_TESTS)
+    list(FILTER ARCH_SOURCES EXCLUDE REGEX ".*/tests/.*")
+endif ()
 
 ############################### Adding Sources ###############################
 
@@ -44,23 +51,8 @@ add_library(alkos.kernel.crts OBJECT
         ${SRTN_FILE}
 )
 
-# Retrieve GCC provided CRT
-execute_process(
-        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=crtbegin.o
-        OUTPUT_VARIABLE CRTBEGIN_OBJ
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-execute_process(
-        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=crtend.o
-        OUTPUT_VARIABLE CRTEND_OBJ
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-# Override the link line to include CRT objects in the correct order, propagate to parent scope
-set(CRTEND_OBJ "${CRTEND_OBJ}" PARENT_SCOPE)
-set(CRTBEGIN_OBJ "${CRTBEGIN_OBJ}" PARENT_SCOPE)
-set(CRTI_OBJ "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/alkos.kernel.crts.dir/cxx/crti.nasm.obj" PARENT_SCOPE)
-set(CRTN_OBJ "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/alkos.kernel.crts.dir/cxx/crtn.nasm.obj" PARENT_SCOPE)
+# Set the CRT object paths
+set(CRTI_OBJ "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/alkos.kernel.crts.dir/cxx/crti.nasm.o" PARENT_SCOPE)
+set(CRTN_OBJ "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/alkos.kernel.crts.dir/cxx/crtn.nasm.o" PARENT_SCOPE)
 
 add_dependencies(alkos.kernel alkos.kernel.crts)

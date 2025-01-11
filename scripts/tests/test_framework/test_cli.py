@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 
-from test_data import TestRunSpec
+from .test_data import TestRunSpec
 
 
 def parse_arguments(args: list[str]) -> argparse.Namespace:
