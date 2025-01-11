@@ -1,6 +1,6 @@
-from test_data import TestRunSpec, TestInfo, MAX_ALKOS_BOOT_TIME, MAX_ALKOS_WAIT_SYNC_TIME
-from test_log import TestLog
-from test_commands import TEST_DISPLAY_STOP_COMMAND_IN, TEST_DISPLAY_STOP_COMMAND_OUT, TEST_COMMAND_SPECIFIER, \
+from .test_data import TestRunSpec, TestInfo, MAX_ALKOS_BOOT_TIME, MAX_ALKOS_WAIT_SYNC_TIME
+from .test_log import TestLog
+from .test_commands import TEST_DISPLAY_STOP_COMMAND_IN, TEST_DISPLAY_STOP_COMMAND_OUT, TEST_COMMAND_SPECIFIER, \
     TEST_NAME_SPECIFIER
 
 import subprocess
@@ -34,7 +34,7 @@ def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
             readable, _, _ = select.select(reads, [], [], MAX_ALKOS_BOOT_TIME - (curr_time - start_time) * 1e-9)
 
             if not readable:
-                logging.ERROR("Select returned not readable...")
+                logging.error("Select returned not readable...")
 
                 alkos.kill()
                 alkos.wait()
@@ -55,7 +55,7 @@ def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
                 line = stream.readline()
 
                 if not line:
-                    logging.ERROR("Stream returned None on parsing...")
+                    logging.error("Stream returned None on parsing...")
                     raise Exception("Read failed...")
 
                 buf += line
@@ -72,7 +72,7 @@ def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
                 break
 
     except Exception as e:
-        logging.ERROR(f"Failed to parse AlkOS tests: {e}")
+        logging.error(f"Failed to parse AlkOS tests: {e}")
 
         print(f"[ERROR] Unexpected error when parsing tests from AlkOS: {e}")
         logger.save_init_log(buf)
@@ -90,7 +90,7 @@ def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
             buf += f"\n{stderr}\n"
 
     except Exception as e:
-        logging.ERROR(f"Unexpected error occurred when waiting for AlkOS: {e}...")
+        logging.error(f"Unexpected error occurred when waiting for AlkOS: {e}...")
 
         print(f"[ERROR] Unexpected error waiting for AlkOS: {e}")
         exit(1)

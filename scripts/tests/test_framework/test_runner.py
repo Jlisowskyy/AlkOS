@@ -4,11 +4,11 @@ import time
 from typing import TextIO
 import logging
 
-from test_commands import TEST_COMMAND_SPECIFIER, TEST_SUCCESS_COMMAND, TEST_FAIL_COMMAND, TEST_DISPLAY_STOP_COMMAND_IN
-from test_data import MAX_ALKOS_TEST_TIME, MAX_ALKOS_WAIT_SYNC_TIME, TestState
-from test_data import TestInfo
-from test_log import TestLog
-from test_utils import print_red, print_green
+from .test_commands import TEST_COMMAND_SPECIFIER, TEST_SUCCESS_COMMAND, TEST_FAIL_COMMAND, TEST_DISPLAY_STOP_COMMAND_IN
+from .test_data import MAX_ALKOS_TEST_TIME, MAX_ALKOS_WAIT_SYNC_TIME, TestState
+from .test_data import TestInfo
+from .test_log import TestLog
+from .test_utils import print_red, print_green
 
 
 def _process_test_state(test_state: TestState, line: str) -> TestState:
@@ -58,7 +58,7 @@ def _run_test(path: str, info: TestInfo, log_file: TextIO) -> bool:
             readable, _, _ = select.select(reads, [], [], MAX_ALKOS_TEST_TIME - (curr_time - start_time) * 1e-9)
 
             if not readable:
-                logging.ERROR("Select returned not readable...")
+                logging.error("Select returned not readable...")
 
                 alkos.kill()
                 alkos.wait()
@@ -100,7 +100,7 @@ def _run_test(path: str, info: TestInfo, log_file: TextIO) -> bool:
                 break
 
     except Exception as e:
-        logging.ERROR(f"Failed to run the test ({info.test_name}): {e}")
+        logging.error(f"Failed to run the test ({info.test_name}): {e}")
 
         print(f"[ERROR] Unexpected error running alkos: {e}")
         exit(1)
@@ -117,7 +117,7 @@ def _run_test(path: str, info: TestInfo, log_file: TextIO) -> bool:
             log_file.write(stderr)
 
     except Exception as e:
-        logging.ERROR(f"Unexpected error occurred when waiting for AlkOS: {e}...")
+        logging.error(f"Unexpected error occurred when waiting for AlkOS: {e}...")
 
         print(f"[ERROR] Unexpected error waiting for alkos: {e}")
         exit(1)
