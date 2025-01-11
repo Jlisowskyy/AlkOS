@@ -8,3 +8,5 @@ libgmp-dev
 libmpc-dev
 libmpfr-dev
 wget
+cmake
+bash

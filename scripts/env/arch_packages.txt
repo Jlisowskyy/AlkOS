@@ -8,3 +8,5 @@ libmpc
 mpfr
 base-devel
 wget
+cmake
+bash
