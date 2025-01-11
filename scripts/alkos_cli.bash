@@ -54,9 +54,7 @@ Options:
     -h, --help                  Display this help message
 
 Examples:
-    ${0##*/} --install all              # Install all dependencies
-    ${0##*/} --arch x86_64 --run        # Build and run for x86_64
-    ${0##*/} --dev --run                # Build and run in development mode
+    ${0##*/} --configure --install all              # Configure and install all dependencies
 
 EOF
 }
