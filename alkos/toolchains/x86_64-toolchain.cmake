@@ -36,7 +36,9 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)  # Only search for packages in the t
 # set(CMAKE_ASM_NASM_COMPILER "/path/to/your/nasm")
 
 # TODO: try to use g++ compiler
-set(CMAKE_CXX_COMPILER_32 "${TOOL_BINARIES_DIR}/i386-elf/bin/i386-elf-g++")
+set(LOADER_PREFIX i386-elf)
+set(LOADER_TOOLS_DIR "${TOOL_BINARIES_DIR}/${LOADER_PREFIX}/bin")
+set(CMAKE_CXX_COMPILER_32 "${LOADER_TOOLS_DIR}/${LOADER_PREFIX}-g++")
 
 # Set arch
 set(ARCH "x86_64")

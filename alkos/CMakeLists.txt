@@ -56,7 +56,7 @@ message(STATUS "Using ASM_NASM flags: ${CMAKE_ASM_NASM_FLAGS}")
 
 ################################################################################
 #                                   Sysroot                                    #
-###############################################################################
+################################################################################
 
 set(SYSROOT ${CMAKE_BINARY_DIR}/sysroot)
 set(CMAKE_SYSROOT ${SYSROOT})
@@ -66,6 +66,10 @@ file(MAKE_DIRECTORY ${CMAKE_SYSROOT}/usr/include)
 file(MAKE_DIRECTORY ${CMAKE_SYSROOT}/usr/lib)
 file(MAKE_DIRECTORY ${CMAKE_SYSROOT}/boot)
 file(MAKE_DIRECTORY ${CMAKE_SYSROOT}/boot/grub)
+
+################################################################################
+#                             Load subdirectories                              #
+################################################################################
 
 set(SYSTEM_LIB_TYPE k)
 
@@ -77,7 +81,7 @@ if (NOT DEFINED BOOTABLE_KERNEL_EXECUTABLE)
 endif()
 
 ################################################################################
-#                                Various config                                #
+#                               Prepare variables                              #
 ################################################################################
 
 set(MAKE_ISO_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/actions/make_iso.bash)
