@@ -97,7 +97,7 @@ def _run_alkos_and_get_output(path: str, logger: TestLog) -> str:
     finally:
         logger.save_init_log(buf)
 
-    logging.info(f"AlkOS test parsing finished successfully")
+    logging.info("AlkOS test parsing finished successfully")
     return buf
 
 
