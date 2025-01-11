@@ -67,18 +67,6 @@ parse_args() {
 }
 
 process_args() {
-  # Validate install directory exists
-  if [ ! -d "$INSTALL_TOOLCHAIN_INSTALL_DIR" ]; then
-    dump_error "Install directory does not exist: $INSTALL_TOOLCHAIN_INSTALL_DIR"
-    exit 1
-  fi
-
-  # Validate build directory exists
-  if [ ! -d "$INSTALL_TOOLCHAIN_BUILD_DIR" ]; then
-    dump_error "Build directory does not exist: $INSTALL_TOOLCHAIN_BUILD_DIR"
-    exit 1
-  fi
-
   # Validate architecture is supported
   if [[ -z "${INSTALL_TOOCHAIN_ARCH_DICT[$INSTALL_TOOLCHAIN_ARCH]}" ]]; then
     dump_error "Unsupported architecture: $INSTALL_TOOLCHAIN_ARCH"
@@ -96,6 +84,10 @@ process_args() {
 main() {
   parse_args "$@"
   process_args
+
+  # Ensure directories exists
+  base_runner "Failed to create install directory" true mkdir -p "${INSTALL_TOOLCHAIN_INSTALL_DIR}"
+  base_runner "Failed to create build directory" true mkdir -p "${INSTALL_TOOLCHAIN_BUILD_DIR}"
 
   pretty_info "Installing cross-compile toolchain"
   for arch in ${INSTALL_TOOCHAIN_ARCH_DICT[${INSTALL_TOOLCHAIN_ARCH}]}; do
