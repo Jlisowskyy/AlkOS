@@ -113,14 +113,6 @@ validate_args() {
         dump_error "No action specified. Use --run, --install or --configure"
         exit 1
     fi
-
-    if [[ ! -d "$ALK_OS_CLI_DEFAULT_TOOL_INSTALL_DIR" ]]; then
-        mkdir -p "$ALK_OS_CLI_DEFAULT_TOOL_INSTALL_DIR"
-    fi
-
-    if [[ ! -d "$ALK_OS_CLI_DEFAULT_BUILD_DIR" ]]; then
-        mkdir -p "$ALK_OS_CLI_DEFAULT_BUILD_DIR"
-    fi
 }
 
 run_default_configuration() {
