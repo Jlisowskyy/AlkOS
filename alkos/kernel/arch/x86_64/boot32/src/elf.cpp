@@ -1,11 +1,12 @@
-#include <arch_utils.hpp>
-#include <terminal.hpp>
-#include <tags.hpp>
-#include <elf.hpp>
 #include <memory.h>
+#include <arch_utils.hpp>
 #include <debug.hpp>
+#include <elf.hpp>
+#include <tags.hpp>
+#include <terminal.hpp>
 
-void* LoadElf64Module(uint8_t* elf_start, uint8_t* elf_end){
+void* LoadElf64Module(uint8_t* elf_start, uint8_t* elf_end)
+{
     TRACE_INFO("Loading ELF-64 module...");
 
     // Validate ELF boundaries
@@ -22,11 +23,8 @@ void* LoadElf64Module(uint8_t* elf_start, uint8_t* elf_end){
     Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(elf_start);
 
     // Verify ELF magic
-    if (!(ehdr->e_ident[0] == ELF_MAGIC0 &&
-          ehdr->e_ident[1] == ELF_MAGIC1 &&
-          ehdr->e_ident[2] == ELF_MAGIC2 &&
-          ehdr->e_ident[3] == ELF_MAGIC3))
-    {
+    if (!(ehdr->e_ident[0] == ELF_MAGIC0 && ehdr->e_ident[1] == ELF_MAGIC1 &&
+          ehdr->e_ident[2] == ELF_MAGIC2 && ehdr->e_ident[3] == ELF_MAGIC3)) {
         TRACE_ERROR("File is not a valid ELF.");
         return nullptr;
     }
@@ -58,21 +56,23 @@ void* LoadElf64Module(uint8_t* elf_start, uint8_t* elf_end){
         if (phdr->p_type == PT_LOAD) {
             TRACE_INFO("Loading segment %d...", i + 1);
 
-            uint64_t segment_dest = phdr->p_vaddr;
-            uint64_t segment_dest_size = phdr->p_memsz;
-            uint64_t segment_source = reinterpret_cast<uint64_t>(elf_start) + phdr->p_offset;
+            uint64_t segment_dest        = phdr->p_vaddr;
+            uint64_t segment_dest_size   = phdr->p_memsz;
+            uint64_t segment_source      = reinterpret_cast<uint64_t>(elf_start) + phdr->p_offset;
             uint64_t segment_source_size = phdr->p_filesz;
 
             // Copy segment data from ELF to destination
-            memcpy(reinterpret_cast<void*>(segment_dest),
-                   reinterpret_cast<void*>(segment_source),
-                   static_cast<size_t>(segment_source_size));
+            memcpy(
+                reinterpret_cast<void*>(segment_dest), reinterpret_cast<void*>(segment_source),
+                static_cast<size_t>(segment_source_size)
+            );
 
             // Zero out the remaining memory if p_memsz > p_filesz
             if (segment_dest_size > segment_source_size) {
-                memset(reinterpret_cast<void*>(segment_dest + segment_source_size),
-                       0,
-                       static_cast<size_t>(segment_dest_size - segment_source_size));
+                memset(
+                    reinterpret_cast<void*>(segment_dest + segment_source_size), 0,
+                    static_cast<size_t>(segment_dest_size - segment_source_size)
+                );
             }
 
             TRACE_SUCCESS("Loaded LOAD segment %d successfully.", i + 1);
@@ -85,6 +85,8 @@ void* LoadElf64Module(uint8_t* elf_start, uint8_t* elf_end){
         return nullptr;
     }
 
-    TRACE_SUCCESS("ELF-64 module loaded successfully. Entry point: 0x%X", static_cast<uint32_t>(ehdr->e_entry));
+    TRACE_SUCCESS(
+        "ELF-64 module loaded successfully. Entry point: 0x%X", static_cast<uint32_t>(ehdr->e_entry)
+    );
     return reinterpret_cast<void*>(ehdr->e_entry);
 }

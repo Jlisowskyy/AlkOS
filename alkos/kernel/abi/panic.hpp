@@ -11,8 +11,9 @@
  */
 extern "C" void KernelPanic(const char *msg);
 
-template<typename... Args>
-FAST_CALL void KernelPanicFormat(const char *fmt, Args... args) {
+template <typename... Args>
+FAST_CALL void KernelPanicFormat(const char *fmt, Args... args)
+{
     static constexpr size_t kKernelPanicPrintBuffSize = 2048;
     char buffer[kKernelPanicPrintBuffSize];
 

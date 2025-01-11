@@ -21,8 +21,9 @@ char *strncpy(char *dest, const char *src, size_t n);
 /**
  *  Compares two strings.
  *  If the return is 0, the strings are equal.
- *  If the return is less then 0, the first character that does not match has a lower value in s1 than s2.
- *  If the return is greater then 0, the first character that does not match has a greater value in s1 than in s2
+ *  If the return is less then 0, the first character that does not match has a lower value in s1
+ * than s2. If the return is greater then 0, the first character that does not match has a greater
+ * value in s1 than in s2
  */
 int strcmp(const char *str1, const char *str2);
 
@@ -51,4 +52,4 @@ char *strchr(const char *str, int c);
  */
 char *strrchr(const char *str, int c);
 
-#endif // LIBC_INCLUDE_STRING_H_
+#endif  // LIBC_INCLUDE_STRING_H_

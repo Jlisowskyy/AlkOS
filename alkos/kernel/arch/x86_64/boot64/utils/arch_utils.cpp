@@ -9,7 +9,8 @@
  *
  * @return CpuState structure containing current register values
  */
-CpuState DumpCpuState() {
+CpuState DumpCpuState()
+{
     CpuState cpu_state{};
 
     __asm__ volatile("movq %%rax, %0" : "=m"(cpu_state.general_purpose_registers[CpuState::kRax]));
@@ -38,12 +39,11 @@ CpuState DumpCpuState() {
  * @param buff - buffer to write to
  * @param buff_size - size of buffer
  */
-void CpuState::GetStateDesc(char *buff, const size_t buff_size) const {
-    static constexpr const char *kRegNames[]{
-        "rax", "rbx", "rcx", "rdx", "rsi", "rdi",
-        "rbp", "rsp", "r8", "r9", "r10", "r11",
-        "r12", "r13", "r14", "r15"
-    };
+void CpuState::GetStateDesc(char *buff, const size_t buff_size) const
+{
+    static constexpr const char *kRegNames[]{"rax", "rbx", "rcx", "rdx", "rsi", "rdi",
+                                             "rbp", "rsp", "r8",  "r9",  "r10", "r11",
+                                             "r12", "r13", "r14", "r15"};
 
     size_t offset = 0;
 
@@ -64,7 +64,8 @@ void CpuState::GetStateDesc(char *buff, const size_t buff_size) const {
  * Outputs current values of all general-purpose registers
  * to the terminal in a human-readable format.
  */
-void CpuState::DumpStateDesc() const {
+void CpuState::DumpStateDesc() const
+{
     static constexpr size_t kSizeBuff = 2048;
     char buff[kSizeBuff];
 

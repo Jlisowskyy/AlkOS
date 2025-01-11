@@ -1,20 +1,23 @@
-#include <test_module/test.hpp>
-#include <stdio.h>
-#include <string.h>
 #include <limits.h>
 #include <memory.h>
+#include <stdio.h>
+#include <string.h>
+#include <test_module/test.hpp>
 
-class SnprintfTest : public TestGroupBase {
-protected:
+class SnprintfTest : public TestGroupBase
+{
+    protected:
     static constexpr size_t kBufSize = 256;
     char buffer[kBufSize + 1]{};
 
-    void Setup_() override {
+    void Setup_() override
+    {
         memset(buffer, 'X', kBufSize);
         buffer[kBufSize] = '\0';
     }
 
-    [[nodiscard]] bool IsBufferClean(const unsigned long n) const {
+    [[nodiscard]] bool IsBufferClean(const unsigned long n) const
+    {
         for (size_t i = n; i < kBufSize; i++) {
             if (buffer[i] != 'X') {
                 return false;
@@ -23,8 +26,9 @@ protected:
         return true;
     }
 
-    template<typename... Args>
-    void VerifyOutput(const char *format, const char *expected, Args... args) {
+    template <typename... Args>
+    void VerifyOutput(const char *format, const char *expected, Args... args)
+    {
         Setup_();
         const int ret = snprintf(buffer, kBufSize, format, args...);
 
@@ -38,7 +42,8 @@ protected:
 // Basic functionality tests
 // ------------------------------
 
-TEST_F(SnprintfTest, BasicFormatting) {
+TEST_F(SnprintfTest, BasicFormatting)
+{
     // Basic string formatting
     int ret = snprintf(buffer, kBufSize, "Hello, %s!", "world");
     EXPECT_EQ(13, ret);
@@ -64,10 +69,11 @@ TEST_F(SnprintfTest, BasicFormatting) {
 // Buffer size handling tests
 // ------------------------------
 
-TEST_F(SnprintfTest, BufferSizeHandling) {
+TEST_F(SnprintfTest, BufferSizeHandling)
+{
     // Zero-size buffer
     int ret = snprintf(buffer, 0, "Test");
-    EXPECT_EQ(4, ret); // Should return length needed
+    EXPECT_EQ(4, ret);  // Should return length needed
     EXPECT_TRUE(IsBufferClean(0));
 
     // Buffer exactly fits (including null terminator)
@@ -91,7 +97,8 @@ TEST_F(SnprintfTest, BufferSizeHandling) {
 // Edge case tests
 // ------------------------------
 
-TEST_F(SnprintfTest, EdgeCases) {
+TEST_F(SnprintfTest, EdgeCases)
+{
     // Empty format string
     int ret = snprintf(buffer, kBufSize, "");
     EXPECT_EQ(0, ret);
@@ -101,7 +108,7 @@ TEST_F(SnprintfTest, EdgeCases) {
     // Test return value for null buffer (ISO C99)
     Setup_();
     ret = snprintf(nullptr, 0, "Test string %d", 42);
-    EXPECT_EQ(14, ret); // Should return number of chars that would be written
+    EXPECT_EQ(14, ret);  // Should return number of chars that would be written
 
     // Test handling of size_t max (POSIX)
     Setup_();
@@ -134,14 +141,15 @@ TEST_F(SnprintfTest, EdgeCases) {
     // Invalid format specifier (implementation-defined behavior)
     Setup_();
     ret = snprintf(buffer, kBufSize, "%y");
-    EXPECT_LT(0, ret); // Should not crash
+    EXPECT_LT(0, ret);  // Should not crash
 }
 
 // ------------------------------
 // Format Specifier Combinations
 // ------------------------------
 
-TEST_F(SnprintfTest, IntegerFormats) {
+TEST_F(SnprintfTest, IntegerFormats)
+{
     // Basic integer formats
     VerifyOutput("%d", "42", 42);
     VerifyOutput("%i", "42", 42);
@@ -161,7 +169,8 @@ TEST_F(SnprintfTest, IntegerFormats) {
     VerifyOutput("%+d", "-42", -42);
 }
 
-TEST_F(SnprintfTest, FloatFormats) {
+TEST_F(SnprintfTest, FloatFormats)
+{
     // Basic float formats
     VerifyOutput("%f", "3.141590", 3.14159);
     VerifyOutput("%F", "3.141590", 3.14159);
@@ -180,7 +189,8 @@ TEST_F(SnprintfTest, FloatFormats) {
     TODO_BY_THE_END_OF_MILESTONE0
 }
 
-TEST_F(SnprintfTest, StringFormats) {
+TEST_F(SnprintfTest, StringFormats)
+{
     // Basic string formats
     VerifyOutput("%s", "hello", "hello");
     VerifyOutput("%10s", "     hello", "hello");
@@ -192,14 +202,16 @@ TEST_F(SnprintfTest, StringFormats) {
     VerifyOutput("%-10.3s", "hel       ", "hello");
 }
 
-TEST_F(SnprintfTest, CharFormats) {
+TEST_F(SnprintfTest, CharFormats)
+{
     // Basic char formats
     VerifyOutput("%c", "A", 'A');
     VerifyOutput("%3c", "  A", 'A');
     VerifyOutput("%-3c", "A  ", 'A');
 }
 
-TEST_F(SnprintfTest, LengthModifiers) {
+TEST_F(SnprintfTest, LengthModifiers)
+{
     // Long int
     VerifyOutput("%ld", "42", 42L);
     VerifyOutput("%li", "42", 42L);
@@ -223,26 +235,25 @@ TEST_F(SnprintfTest, LengthModifiers) {
     VerifyOutput("%jd", "42", static_cast<intmax_t>(42));
 }
 
-TEST_F(SnprintfTest, ComplexCombinations) {
+TEST_F(SnprintfTest, ComplexCombinations)
+{
     // Multiple mixed specifiers
-    VerifyOutput("Int: %d, Float: %.2f, String: %s",
-                 "Int: 42, Float: 3.14, String: hello",
-                 42, 3.14159, "hello");
+    VerifyOutput(
+        "Int: %d, Float: %.2f, String: %s", "Int: 42, Float: 3.14, String: hello", 42, 3.14159,
+        "hello"
+    );
 
     // Width and precision combinations
-    VerifyOutput("%+8.2f:%04d:%-10s",
-                 "  +33.14:0042:test      ",
-                 33.14159, 42, "test");
+    VerifyOutput("%+8.2f:%04d:%-10s", "  +33.14:0042:test      ", 33.14159, 42, "test");
 
     // Multiple similar types
-    VerifyOutput("%d %i %u %x %X",
-                 "42 42 42 2a 2A",
-                 42, 42, 42u, 42, 42);
+    VerifyOutput("%d %i %u %x %X", "42 42 42 2a 2A", 42, 42, 42u, 42, 42);
 
     // Length modifier combinations
-    VerifyOutput("%ld %lld %hd %zd",
-                 "42 42 42 42",
-                 42L, 42LL, static_cast<short>(42), static_cast<size_t>(42));
+    VerifyOutput(
+        "%ld %lld %hd %zd", "42 42 42 42", 42L, 42LL, static_cast<short>(42),
+        static_cast<size_t>(42)
+    );
 }
 
 TODO_BY_THE_END_OF_MILESTONE0
@@ -259,7 +270,8 @@ TODO_BY_THE_END_OF_MILESTONE0
 //                  42);
 // }
 
-TEST_F(SnprintfTest, FlagCombinations) {
+TEST_F(SnprintfTest, FlagCombinations)
+{
     // Combining multiple flags
     VerifyOutput("%+05d", "+0042", 42);
     VerifyOutput("% 05d", " 0042", 42);
@@ -272,7 +284,8 @@ TEST_F(SnprintfTest, FlagCombinations) {
     VerifyOutput("%08.2f", "00003.14", 3.14159);
 }
 
-TEST_F(SnprintfTest, AlternateForm) {
+TEST_F(SnprintfTest, AlternateForm)
+{
     // # flag with different formats
     VerifyOutput("%#x", "0x2a", 42);
     VerifyOutput("%#X", "0X2A", 42);

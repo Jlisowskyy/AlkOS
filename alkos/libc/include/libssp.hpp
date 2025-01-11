@@ -3,4 +3,4 @@
 
 void __stack_chk_init();
 
-#endif // LIBC_LIBSSP_LIBSSP_HPP_
+#endif  // LIBC_LIBSSP_LIBSSP_HPP_

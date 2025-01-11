@@ -1,9 +1,10 @@
-#include <test_module/test.hpp>
-#include <string.h>
 #include <memory.h>
+#include <string.h>
+#include <test_module/test.hpp>
 
-class StringTest : public TestGroupBase {
-protected:
+class StringTest : public TestGroupBase
+{
+    protected:
     static constexpr size_t kBufferSize = 256;
     char buffer[kBufferSize]{};
 };
@@ -12,7 +13,8 @@ protected:
 // strlen tests
 // ------------------------------
 
-TEST_F(StringTest, Strlen) {
+TEST_F(StringTest, Strlen)
+{
     R_ASSERT_EQ(13, strlen("Hello, World!"));
     R_ASSERT_ZERO(strlen(""));
 }
@@ -21,7 +23,8 @@ TEST_F(StringTest, Strlen) {
 // strcmp tests
 // ------------------------------
 
-TEST_F(StringTest, Strcmp) {
+TEST_F(StringTest, Strcmp)
+{
     R_ASSERT_ZERO(strcmp("hello", "hello"));
     R_ASSERT_LT(strcmp("hello", "world"), 0);
     R_ASSERT_GT(strcmp("world", "hello"), 0);
@@ -32,7 +35,8 @@ TEST_F(StringTest, Strcmp) {
 // strncmp tests
 // ------------------------------
 
-TEST_F(StringTest, Strncmp) {
+TEST_F(StringTest, Strncmp)
+{
     R_ASSERT_ZERO(strncmp("hello", "hello", 5));
     R_ASSERT_ZERO(strncmp("hello", "help", 3));
     R_ASSERT_LT(strncmp("hello", "help", 4), 0);
@@ -43,7 +47,8 @@ TEST_F(StringTest, Strncmp) {
 // strcpy tests
 // ------------------------------
 
-TEST_F(StringTest, Strcpy) {
+TEST_F(StringTest, Strcpy)
+{
     const char *src = "Hello";
     R_ASSERT_EQ(buffer, strcpy(buffer, src));
     R_ASSERT_ZERO(strcmp(buffer, src));
@@ -56,19 +61,22 @@ TEST_F(StringTest, Strcpy) {
 // strncpy tests
 // ------------------------------
 
-TEST_F(StringTest, StrncpyFull) {
+TEST_F(StringTest, StrncpyFull)
+{
     const char *src = "Hello";
     R_ASSERT_EQ(buffer, strncpy(buffer, src, 6));
     R_ASSERT_ZERO(strcmp(buffer, src));
 }
 
-TEST_F(StringTest, StrncpyPartial) {
+TEST_F(StringTest, StrncpyPartial)
+{
     const char *src = "Hello, World!";
     R_ASSERT_EQ(buffer, strncpy(buffer, src, 5));
     R_ASSERT_ZERO(strncmp(buffer, src, 5));
 }
 
-TEST_F(StringTest, StrncpyPadding) {
+TEST_F(StringTest, StrncpyPadding)
+{
     const char *src = "Hi";
     memset(buffer, 'X', kBufferSize);
     R_ASSERT_EQ(buffer, strncpy(buffer, src, 5));
@@ -87,13 +95,15 @@ TEST_F(StringTest, StrncpyPadding) {
 // strcat tests
 // ------------------------------
 
-TEST_F(StringTest, StrcarBasic) {
+TEST_F(StringTest, StrcarBasic)
+{
     strcpy(buffer, "Hello");
     R_ASSERT_EQ(buffer, strcat(buffer, " World"));
     R_ASSERT_ZERO(strcmp(buffer, "Hello World"));
 }
 
-TEST_F(StringTest, StrcatEmpty) {
+TEST_F(StringTest, StrcatEmpty)
+{
     strcpy(buffer, "Hello");
     R_ASSERT_EQ(buffer, strcat(buffer, ""));
     R_ASSERT_ZERO(strcmp(buffer, "Hello"));
@@ -103,13 +113,15 @@ TEST_F(StringTest, StrcatEmpty) {
 // strncat tests
 // ------------------------------
 
-TEST_F(StringTest, StrncatFull) {
+TEST_F(StringTest, StrncatFull)
+{
     strcpy(buffer, "Hello");
     R_ASSERT_EQ(buffer, strncat(buffer, " World", 6));
     R_ASSERT_ZERO(strcmp(buffer, "Hello World"));
 }
 
-TEST_F(StringTest, StrncatPartial) {
+TEST_F(StringTest, StrncatPartial)
+{
     strcpy(buffer, "Hello");
     R_ASSERT_EQ(buffer, strncat(buffer, " World", 3));
     R_ASSERT_ZERO(strcmp(buffer, "Hello Wo"));
@@ -119,7 +131,8 @@ TEST_F(StringTest, StrncatPartial) {
 // strchr tests
 // ------------------------------
 
-TEST_F(StringTest, Strchr) {
+TEST_F(StringTest, Strchr)
+{
     const char *str = "Hello, World!";
     R_ASSERT_EQ(str + 7, strchr(str, 'W'));
 
@@ -133,7 +146,8 @@ TEST_F(StringTest, Strchr) {
 // strrchr tests
 // ------------------------------
 
-TEST_F(StringTest, Strrchr) {
+TEST_F(StringTest, Strrchr)
+{
     const char *str = "Hello, World!";
     R_ASSERT_EQ(str + 12, strrchr(str, '!'));
 

@@ -1,11 +1,11 @@
-#include <arch_utils.hpp>
-#include <terminal.hpp>
-#include <tags.hpp>
-#include <elf.hpp>
 #include <multiboot2.h>
-#include <loader_data.hpp>
-#include <defines.hpp>
+#include <arch_utils.hpp>
 #include <debug.hpp>
+#include <defines.hpp>
+#include <elf.hpp>
+#include <loader_data.hpp>
+#include <tags.hpp>
+#include <terminal.hpp>
 
 // External functions defined in assembly or C
 extern "C" int check_cpuid();
@@ -95,7 +95,8 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
 
     /////////////////////////// Loading Kernel Module ////////////////////////////
     TRACE_INFO("Loading kernel module...");
-    void* kernel_entry = LoadElf64Module((uint8_t*)kernel_module->mod_start, (uint8_t*)kernel_module->mod_end);
+    void* kernel_entry =
+        LoadElf64Module((uint8_t*)kernel_module->mod_start, (uint8_t*)kernel_module->mod_end);
     if (kernel_entry == nullptr) {
         TRACE_ERROR("Failed to load kernel module!");
         OsHangNoInterrupts();
@@ -103,17 +104,19 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
     TRACE_SUCCESS("Kernel module loaded!");
 
     ///////////////////// Initializing LoaderData Structure //////////////////////
-    loader_data.multiboot_info_addr = (u32)multiboot_info_addr;
+    loader_data.multiboot_info_addr         = (u32)multiboot_info_addr;
     loader_data.multiboot_header_start_addr = (u32)multiboot_header_start;
-    loader_data.multiboot_header_end_addr = (u32)multiboot_header_end;
-    loader_data.loader_start_addr = (u32)loader_start;
-    loader_data.loader_end_addr = (u32)loader_end;
+    loader_data.multiboot_header_end_addr   = (u32)multiboot_header_end;
+    loader_data.loader_start_addr           = (u32)loader_start;
+    loader_data.loader_end_addr             = (u32)loader_end;
 
     //////////////////////////// Printing LoaderData Info /////////////////////////
     // Convert addresses to hexadecimal strings
     TRACE_INFO("LoaderData Address: 0x%X", (u32)&loader_data);
     TRACE_INFO("LoaderData multiboot_info_addr: 0x%X", loader_data.multiboot_info_addr);
-    TRACE_INFO("LoaderData multiboot_header_start_addr: 0x%X", loader_data.multiboot_header_start_addr);
+    TRACE_INFO(
+        "LoaderData multiboot_header_start_addr: 0x%X", loader_data.multiboot_header_start_addr
+    );
     TRACE_INFO("LoaderData multiboot_header_end_addr: 0x%X", loader_data.multiboot_header_end_addr);
     TRACE_INFO("LoaderData loader_start_addr: 0x%X", loader_data.loader_start_addr);
     TRACE_INFO("LoaderData loader_end_addr: 0x%X", loader_data.loader_end_addr);
