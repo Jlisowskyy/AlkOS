@@ -171,7 +171,7 @@ NO_RET void OnKernelPanic()
     }
 
     if (g_expectFail) {
-        /* fail was expected we are goood af */
+        /* fail was expected we are good */
         TerminalWriteString("[TEST] [SUCCESS] Test failed successfully...\n");
         QemuShutdown();
     }
