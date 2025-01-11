@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - dev
+      - Jlisowskyy/automation
   pull_request:
     branches:
       - main
       - dev
+      - Jlisowskyy/automation
 jobs:
   build:
     runs-on: ubuntu-latest
