@@ -16,3 +16,4 @@ AlignOperands: true
 AllowShortLambdasOnASingleLine: None
 AllowShortLoopsOnASingleLine: true
 EmptyLineBeforeAccessModifier: Always
+InsertNewlineAtEOF: true
