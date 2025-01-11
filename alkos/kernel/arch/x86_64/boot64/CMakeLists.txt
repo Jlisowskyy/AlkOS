@@ -46,13 +46,13 @@ add_library(alkos.kernel.crts OBJECT
 
 # Retrieve GCC provided CRT
 execute_process(
-        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=crtbegin.o
+        COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} -print-file-name=crtbegin.o
         OUTPUT_VARIABLE CRTBEGIN_OBJ
         OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 execute_process(
-        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -print-file-name=crtend.o
+        COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} -print-file-name=crtend.o
         OUTPUT_VARIABLE CRTEND_OBJ
         OUTPUT_STRIP_TRAILING_WHITESPACE
 )
