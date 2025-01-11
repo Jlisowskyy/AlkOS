@@ -3,7 +3,7 @@
 BUILD_AND_RUN_TESTS_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # Step 1: Get requirements
-"${BUILD_AND_RUN_TESTS_DIR}/../env/install_deps_ubuntu.bash" --install -v
+sudo "${BUILD_AND_RUN_TESTS_DIR}/../env/install_deps_ubuntu.bash" --install -v
 
 # Step 2: Configure the environment
 "${BUILD_AND_RUN_TESTS_DIR}/../configure.bash" "${1}" debug_qemu_tests -v
