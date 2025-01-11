@@ -144,7 +144,6 @@ void QemuTerminalInit()
     outb(kModemControlReg, kModemConfFlags);
 
     TRACE_SUCCESS("QemuTerminalInit() returned with success");
-
 }
 
 /**

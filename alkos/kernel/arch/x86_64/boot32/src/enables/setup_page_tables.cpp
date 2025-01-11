@@ -17,8 +17,9 @@ static constexpr u32 CACHE_DISABLE_BIT = (1 << 4);  // The page is not cached
 static constexpr u32 ACCESSED_BIT      = (1 << 5);  // CPU sets this bit when the page is accessed
 static constexpr u32 DIRTY_BIT         = (1 << 6);  // CPU sets this bit when the page is written to
 static constexpr u32 HUGE_PAGE_BIT     = (1 << 7);  // Creates a 2 MiB page in PD table
-static constexpr u32 GLOBAL_BIT        = (1 << 8);  // The page isn't flushed from the TLB on address space switch
-static constexpr u32 TWO_MIB           = 0x200000;
+static constexpr u32 GLOBAL_BIT =
+    (1 << 8);  // The page isn't flushed from the TLB on address space switch
+static constexpr u32 TWO_MIB = 0x200000;
 // NO_EXECUTE_BIT is not used in 32-bit PAE
 
 /**

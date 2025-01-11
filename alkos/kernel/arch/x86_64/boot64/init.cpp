@@ -11,9 +11,9 @@
 #include <debug.hpp>
 #include <idt.hpp>
 #include <init.hpp>
+#include <loader_data.hpp>
 #include <pic8259/pic8259.hpp>
 #include <terminal.hpp>
-#include <loader_data.hpp>
 
 /* external init procedures */
 extern "C" void enable_osxsave();
@@ -34,8 +34,12 @@ extern "C" void PreKernelInit(LoaderData* loader_data)
         OsHangNoInterrupts();
     }
     TRACE_INFO("LoaderData multiboot_info_addr: 0x%X", loader_data->multiboot_info_addr);
-    TRACE_INFO("LoaderData multiboot_header_start_addr: 0x%X", loader_data->multiboot_header_start_addr);
-    TRACE_INFO("LoaderData multiboot_header_end_addr: 0x%X", loader_data->multiboot_header_end_addr);
+    TRACE_INFO(
+        "LoaderData multiboot_header_start_addr: 0x%X", loader_data->multiboot_header_start_addr
+    );
+    TRACE_INFO(
+        "LoaderData multiboot_header_end_addr: 0x%X", loader_data->multiboot_header_end_addr
+    );
     TRACE_INFO("LoaderData loader_start_addr: 0x%X", loader_data->loader_start_addr);
     TRACE_INFO("LoaderData loader_end_addr: 0x%X", loader_data->loader_end_addr);
 

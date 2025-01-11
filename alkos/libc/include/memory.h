@@ -20,7 +20,8 @@
 void *memcpy(void *dest, const void *src, size_t n);
 
 /**
- * @brief Copy memory area as if it was first copied to a temporary area and then copied back to dest
+ * @brief Copy memory area as if it was first copied to a temporary area and then copied back to
+ * dest
  *
  * @param dest Destination memory area
  * @param src Source memory area
@@ -54,4 +55,4 @@ void *memset(void *dest, int c, size_t n);
  */
 int memcmp(const void *s1, const void *s2, size_t n);
 
-#endif // ALKOS_MALLOC_H_
+#endif  // ALKOS_MALLOC_H_
