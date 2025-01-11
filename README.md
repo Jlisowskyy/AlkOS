@@ -36,7 +36,6 @@ AlkOS is an open-source operating system project targeting the x86_64 architectu
         *   [Running Tests](#-running-tests)
         *   [Debugging with GDB](#-debugging-with-gdb)
         *   [Applying clang-format for Code Style](#-applying-clang-format-for-code-style)
-    *   [Roadmap](#roadmap)
     *   [License](#-license)
 
 ## Project Goals
@@ -72,24 +71,29 @@ The primary goals of AlkOS are:
         *   **string/** - String manipulation functions.
     *   **toolchains/** - CMake toolchain files for cross-compilation.
 *   **scripts/**
-    *   **actions/** - Scripts for performing useful operations on the repository (e.g., formatting, cleaning).
+    *   **actions/** - Wrappers for other scripts, that perform useful operations on the repository (e.g., formatting, cleaning, building, running).
     *   **env/** - Scripts for preparing, updating, and modifying the development and user environments.
     *   **install/** - Scripts for performing user operations like preparing ISO, compiling user versions, or installing the OS.
     *   **tests/** - Scripts and framework used to automatically test the project.
     *   **utils/** - Utility scripts to be sourced and used by other scripts.
+    *   **git-hooks/** - Git hooks for the project.
     *   `alkos_cli.bash` - Main CLI script for managing the project.
-    *   `conf.bash` - Configuration file (currently under development).
+    *   `conf.bash` - Configuration file.
+    *   `configure.bash` - Configuration script.
 
 ## 🛠️ Key Scripts
 
 *   `scripts/alkos_cli.bash` - Main CLI script that orchestrates the project. It can install dependencies, build the project, run it in QEMU, and more.
-*   `scripts/actions/prepare_env.bash` - Installs the development environment, including dependencies and the cross-compilation toolchain.
-*   `scripts/install/build_alkos.bash` - Builds the AlkOS kernel and creates an ISO image.
-*   `scripts/install/run_alkos.bash` - Runs AlkOS in QEMU.
-*   `scripts/install/make_iso.bash`- Creates an ISO image from the built kernel and modules.
+*   `scripts/configure.bash` - Used to configure the project for a specific architecture and build type.
+*   `scripts/actions/build_alkos.bash` - Builds the AlkOS kernel and creates an ISO image.
+*   `scripts/actions/make_iso.bash` - Creates an ISO image from the built kernel and modules.
+*   `scripts/actions/run_alkos.bash` - Runs AlkOS in QEMU.
 *   `scripts/actions/attach_to_qemu_gdb.bash` - Attaches GDB to a running QEMU instance for debugging the kernel.
-*   `scripts/actions/apply_clang_format.bash`- Applies clang-format to the source code to maintain consistent code style.
-*   `scripts/tests/test_framework/main.py` - Entry point for the test framework.
+*   `scripts/actions/apply_clang_format.bash` - Applies clang-format to the source code to maintain consistent code style.
+*   `scripts/tests/runner.py` - Entry point for the test framework.
+*   `scripts/env/build_cross_compile.bash` - Script for building the cross-compiler.
+*   `scripts/git-hooks/setup-hooks.bash` - Script for setting up git hooks.
+*   `scripts/git-hooks/pre-commit` - Pre-commit hook for clang-format.
 
 ## Getting Started
 
@@ -102,7 +106,6 @@ The primary goals of AlkOS are:
 *   **grub-mkrescue:** Used for creating bootable ISO images.
 *   **wget:** Used by the installation scripts for downloading necessary source files.
 *   A cross-compilation toolchain for x86_64-elf (installed by `alkos_cli.bash`).
-*   An AUR helper like `paru` or `yay` (if you want to use one).
 *   **make**: Used for building the project.
 *   **ld** (the GNU linker): Used for linking the project.
 
@@ -131,7 +134,8 @@ The primary goals of AlkOS are:
     ```
 
     This step will install all necessary dependencies, set up the toolchain, and configure your environment.
-    Note: it assumes you are running on Arch Linux. If not, you will need to manually install the packages listed in `scripts/env/arch_packages.txt` and install a cross-compiler for `x86_64-elf` and `i386-elf`.
+    Note: it assumes you are running on Arch Linux. If not, you will need to manually install the packages listed in `scripts/env/arch_packages.txt` and install a cross- 
+    compiler for `x86_64-elf` and `i386-elf` (`./alkos_cli.bash --i toolchain -v` should work for non-arch unix-like distributions)
 
 ## 💻 Development Workflow
 
@@ -143,20 +147,40 @@ The primary goals of AlkOS are:
     cd AlkOS/scripts
     ```
 
-2.  **Build the project:**
-    The build system uses CMake. When you run `alkos_cli.bash` with `-r`, it first invokes the `build_alkos.bash` script. This script creates a build directory, generates Makefiles using CMake with the specified cross-compilation toolchain, and then builds the project using `make`.
+2.  **Configure the build:**
 
-    ```bash
+    You need to configure the build using the `configure.bash` script. This script sets up the build environment for a specific architecture and build type.
+
+    For example, to configure a debug build for QEMU with tests enabled, run:
+
+    ```
+    ./configure.bash x86_64 debug_qemu_tests -v
+    ```
+
+    This will create a `conf.bash` file in the `scripts` directory. This file is sourced by other scripts to get configuration information. The configuration script will 
+    also create a build directory at `../build`.
+
+    To see all available configuration options, run:
+
+    ```
+    ./configure.bash -h
+    ```
+3.  **Build the project:**
+    The build system uses CMake. When you run `alkos_cli.bash` with `-r`, it first invokes the `build_alkos.bash` script. This script creates a build directory, 
+    generates Makefiles using CMake with the specified cross-compilation toolchain, and then builds the project using `make`.
+
+    ```
     ./alkos_cli.bash --verbose --run
     ```
 
     or:
 
-    ```bash
+    ```
     ./alkos_cli.bash -v -r
     ```
 
-### ️️️Running AlkOS in QEMU
+
+### ▶️ Running AlkOS in QEMU
 
 The `-r` flag of `alkos_cli.bash` also handles running AlkOS in QEMU after building it. It invokes `run_alkos.bash` script. This script will start QEMU with the correct parameters, including booting from the generated ISO image.
 
@@ -177,38 +201,36 @@ AlkOS includes a custom testing framework inspired by Google Test. Tests are def
 
 1.  **Navigate to the scripts directory:**
 
-    ```bash
+    ```
     cd AlkOS/scripts
     ```
 
 2.  **Run the test framework:**
 
-    ```bash
-    ./tests/test_framework/main.py --path ./install/run_alkos.bash --filter "*"
+    ```
+    ./actions/run_tests.bash
     ```
 
-    The build process must have been run at least once before running the tests.
-    You can change the `--filter` argument to run specific tests, for example: `--filter "StackSmash*"`.
-    Use `--block` to exclude tests, for example: `--block "StackSmash*"`.
-    Use `--display` to display all tests that will be run according to flags specified without running them.
+    The build process must have been run at least once before running the tests, also the test configuration must have been set.
+    Changing the configuration to one which supports tests requires a rebuild before running this script.
 
 ### 🐛 Debugging with GDB
 
-1.  **Build the project in debug mode (default).**
+1.  **Build the project in debug mode (default when using `debug_qemu` or `debug_qemu_tests`).**
 2.  **Run AlkOS in QEMU with GDB debugging enabled:**
 
-    ```bash
-    ./install/run_alkos.bash -v -r -g <path_to_iso>
+    ```
+    ./actions/run_alkos.bash -v -g
     ```
 
-    Replace `<path_to_iso>` with the actual path to your AlkOS ISO image (e.g., `../build/bin/alkos.iso`).
+    This will start QEMU with the `-s` and `-S` flags, which will make QEMU wait for a GDB connection on port 1234.
 3.  **In a separate terminal, attach GDB to the running QEMU instance:**
 
-    ```bash
+    ```
     ./actions/attach_to_qemu_gdb.bash <path_to_kernel_binary> -g <path_to_gdb>
     ```
 
-    Replace `<path_to_kernel_binary>` with the path to your compiled kernel binary (e.g. `../build/sysroot/boot/alkos.kernel`).
+    Replace `<path_to_kernel_binary>` with the path to your compiled kernel binary (e.g. `../build/alkos/sysroot/boot/alkos.kernel`).
     Replace `<path_to_gdb>` with the path to your GDB executable, if it's not the default one provided by the cross-compiler.
 
 ### 🎨 Applying clang-format for Code Style
