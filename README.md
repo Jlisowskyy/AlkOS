@@ -149,24 +149,31 @@ The primary goals of AlkOS are:
     ```bash
     ./alkos_cli.bash --verbose --run
     ```
-    
+
     or:
-    
+
     ```bash
     ./alkos_cli.bash -v -r
     ```
 
 ### ️️️Running AlkOS in QEMU
 
-   The `-r` flag of `alkos_cli.bash` also handles running AlkOS in QEMU after building it. It invokes `run_alkos.bash` script. This script will start QEMU with the correct parameters, including booting from the generated ISO image.
+The `-r` flag of `alkos_cli.bash` also handles running AlkOS in QEMU after building it. It invokes `run_alkos.bash` script. This script will start QEMU with the correct parameters, including booting from the generated ISO image.
 
    ```bash
    ./alkos_cli.bash -v -r
    ```
-    
+
+### Setting up pre-commit hooks
+
+The `-g` flag of `alkos_cli.bash` sets up default git hook dir of this repository to `scripts/git-hooks`
+   ```bash
+   ./alkos_cli.bash -g
+   ```
+
 ### 🧪 Running Tests
 
-   AlkOS includes a custom testing framework inspired by Google Test. Tests are defined within the kernel code and are executed in the QEMU environment.
+AlkOS includes a custom testing framework inspired by Google Test. Tests are defined within the kernel code and are executed in the QEMU environment.
 
 1.  **Navigate to the scripts directory:**
 
