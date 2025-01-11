@@ -80,8 +80,8 @@ endif()
 #                                Various config                                #
 ################################################################################
 
-set(MAKE_ISO_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/install/make_iso.bash)
-set(RUN_ALKOS_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/install/run_alkos.bash)
+set(MAKE_ISO_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/actions/make_iso.bash)
+set(RUN_ALKOS_SCRIPT_PATH ${CMAKE_SOURCE_DIR}/../scripts/actions/run_alkos.bash)
 set(ALKOS_ISO_PATH ${CMAKE_BINARY_DIR}/alkos.iso)
 set(ALKOS_KERNEL_PATH ${CMAKE_BINARY_DIR}/sysroot/boot/alkos.kernel)
 
@@ -125,26 +125,21 @@ file(APPEND "${BASH_CONF_FILE}" "")
 ################################################################################
 
 add_custom_target(iso
-        COMMAND ${MAKE_ISO_SCRIPT_PATH}
-        ${ALKOS_ISO_PATH}
-        ${CMAKE_SYSROOT}
-        -v
-        -e ${BOOTABLE_KERNEL_EXECUTABLE}
-        -m "${KERNEL_MODULES_FORMATTED}"
+        COMMAND ${MAKE_ISO_SCRIPT_PATH} -v
         DEPENDS ${BOOTABLE_KERNEL_EXECUTABLE} ${KERNEL_MODULES} libk
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
 # Custom target to run QEMU
 add_custom_target(run
-        COMMAND ${RUN_ALKOS_SCRIPT_PATH} ${ALKOS_ISO_PATH} -v
+        COMMAND ${RUN_ALKOS_SCRIPT_PATH} -v
         DEPENDS iso
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
 # -s -S flags are used to start QEMU with GDB support, listening on port 1234 - tcp
 add_custom_target(run-with-gdb
-        COMMAND ${RUN_ALKOS_SCRIPT_PATH} ${ALKOS_ISO_PATH} -v -g
+        COMMAND ${RUN_ALKOS_SCRIPT_PATH} -v -g
         DEPENDS iso
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )

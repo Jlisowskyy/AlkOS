@@ -172,8 +172,8 @@ run() {
 
   # let the cmake generate bash.conf and build files
   pretty_info "Running cmake..."
-  base_runner "Failed to run cmake" "${CONFIGURE_VERBOSE}" cmake "${CONFIGURE_CMAKE_PATH}" -B "${CONFIGURE_BUILD_DIR} \
-        -G \"Unix Makefiles\""
+  base_runner "Failed to run cmake" "${CONFIGURE_VERBOSE}" cmake "${CONFIGURE_CMAKE_PATH}" -B "${CONFIGURE_BUILD_DIR}" \
+        -G "Unix Makefiles"
 }
 
 main() {

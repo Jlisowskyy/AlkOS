@@ -58,11 +58,17 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SYSROOT}/boot)
 file(GLOB KERNEL_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-
-        # TODO: compile only when debug build
-        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"
 )
+
+if (ENABLE_TESTS)
+    file(GLOB KERNEL_TEST_SOURCES
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"
+    )
+
+    # Append test sources to the kernel sources
+    list(APPEND KERNEL_SOURCES ${KERNEL_TEST_SOURCES})
+endif ()
 
 #################################### Exec ####################################
 

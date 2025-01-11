@@ -10,7 +10,15 @@ file(GLOB_RECURSE ARCH_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/*.asm"
         "${CMAKE_CURRENT_SOURCE_DIR}/*.nasm"
 )
+
+# Exclude specific files like crti.nasm and crtn.nasm
 list(FILTER ARCH_SOURCES EXCLUDE REGEX ".*/(crti\\.nasm|crtn\\.nasm)$")
+
+# If ENABLE_TESTS is NOT defined, exclude files from the 'tests/' directory
+if (NOT DEFINED ENABLE_TESTS)
+    list(FILTER ARCH_SOURCES EXCLUDE REGEX ".*/tests/.*")
+endif ()
+
 
 ############################### Adding Sources ###############################
 

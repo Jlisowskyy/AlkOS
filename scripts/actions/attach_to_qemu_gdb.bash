@@ -1,3 +1,5 @@
+# TODO: refactor or whatever
+
 ATTACH_GDB_SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 ATTACH_GDB_SCRIPT_PATH="${ATTACH_GDB_SCRIPT_DIR}/$(basename "$0")"
 ATTACH_GDB_SCRIPT_SOURCE_DIR="${ATTACH_GDB_SCRIPT_DIR}/../.."
