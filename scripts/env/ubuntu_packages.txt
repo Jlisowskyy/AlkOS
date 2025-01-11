@@ -1,0 +1,10 @@
+qemu-system
+nasm
+libisoburn-dev
+libisoburn1t64
+mtools
+build-essential
+libgmp-dev
+libmpc-dev
+libmpfr-dev
+wget
