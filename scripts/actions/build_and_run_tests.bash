@@ -7,7 +7,7 @@ BUILD_AND_RUN_TESTS_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/
 
 # Step 2: Configure the environment
 # TODO: temporarly x86_64 is hardcoded
-"${BUILD_AND_RUN_TESTS_DIR}/../install/configure.bash" x86_64 debug_qemu_tests -v
+"${BUILD_AND_RUN_TESTS_DIR}/../configure.bash" x86_64 debug_qemu_tests -v
 
 # Step 3: Build toolchain
 "${BUILD_AND_RUN_TESTS_DIR}/../actions/install_toolchain.bash" -v
