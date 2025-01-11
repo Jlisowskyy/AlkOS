@@ -19,18 +19,17 @@
  * Base I/O port addresses and command/data port offsets for both PICs
  * @{
  */
-static constexpr u16 kPic1Addr    = 0x20;  ///< Base address for master PIC
-static constexpr u16 kPic2Addr    = 0xA0;  ///< Base address for slave PIC
-static constexpr u16 kPic1Command = kPic1Addr;     ///< Command port for master PIC
-static constexpr u16 kPic1Data    = kPic1Addr + 1; ///< Data port for master PIC
-static constexpr u16 kPic2Command = kPic2Addr;     ///< Command port for slave PIC
-static constexpr u16 kPic2Data    = kPic2Addr + 1; ///< Data port for slave PIC
+static constexpr u16 kPic1Addr    = 0x20;           ///< Base address for master PIC
+static constexpr u16 kPic2Addr    = 0xA0;           ///< Base address for slave PIC
+static constexpr u16 kPic1Command = kPic1Addr;      ///< Command port for master PIC
+static constexpr u16 kPic1Data    = kPic1Addr + 1;  ///< Data port for master PIC
+static constexpr u16 kPic2Command = kPic2Addr;      ///< Command port for slave PIC
+static constexpr u16 kPic2Data    = kPic2Addr + 1;  ///< Data port for slave PIC
 /** @} */
 
 // ------------------------------
 // Functions
 // ------------------------------
-
 
 void InitPic8259(byte pic1_offset, byte pic2_offset);
 
@@ -54,7 +53,6 @@ FAST_CALL void Pic8259SendEOI(const u8 irq)
 
     outb(kPic1Command, kPicEOI);
 }
-
 
 /**
  * @brief Set or clear a specific IRQ bit for pic mask

@@ -1,15 +1,17 @@
-#include <test_module/test.hpp>
 #include <bit.hpp>
+#include <test_module/test.hpp>
 
-class BitManipTest : public TestGroupBase {
-protected:
+class BitManipTest : public TestGroupBase
+{
+    protected:
     u8 val8{};
     u16 val16{};
     u32 val32{};
     u64 val64{};
 };
 
-TEST_F(BitManipTest, Constants) {
+TEST_F(BitManipTest, Constants)
+{
     EXPECT_EQ(kBitMask4, static_cast<u64>(0xF));
     EXPECT_EQ(kBitMask8, static_cast<u64>(0xFF));
     EXPECT_EQ(kBitMask16, static_cast<u64>(0xFFFF));
@@ -22,7 +24,8 @@ TEST_F(BitManipTest, Constants) {
     EXPECT_EQ(kMsb<u64>, static_cast<u64>(0x8000000000000000));
 }
 
-TEST_F(BitManipTest, SetBit) {
+TEST_F(BitManipTest, SetBit)
+{
     // Test u8
     SetBit(val8, 0);
     EXPECT_EQ(val8, 1);
@@ -36,7 +39,8 @@ TEST_F(BitManipTest, SetBit) {
     EXPECT_EQ(val16, kMsb<u16> | kLsb<u16>);
 }
 
-TEST_F(BitManipTest, ClearBit) {
+TEST_F(BitManipTest, ClearBit)
+{
     // Test u8
     val8 = kFullMask<u8>;
     ClearBit(val8, 0);
@@ -52,7 +56,8 @@ TEST_F(BitManipTest, ClearBit) {
     EXPECT_EQ(val16, 0x7FFE);
 }
 
-TEST_F(BitManipTest, SwitchBit) {
+TEST_F(BitManipTest, SwitchBit)
+{
     // Test u8
     SwitchBit(val8, 0);
     EXPECT_EQ(val8, 1);
@@ -74,7 +79,8 @@ TEST_F(BitManipTest, SwitchBit) {
     EXPECT_EQ(val16, 0);
 }
 
-TEST_F(BitManipTest, SetBitValue) {
+TEST_F(BitManipTest, SetBitValue)
+{
     // Test u8
     SetBitValue(val8, 0, true);
     EXPECT_EQ(val8, 1);

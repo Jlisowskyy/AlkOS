@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+set -e
+
+# ==========================
+# Configuration Constants
+# ==========================
+
+# Number of logical CPU cores for parallel processing
+NUM_CORES=$(nproc || echo 1)
+
+# Supported C++ file extensions (space-separated)
+CPP_EXTENSIONS="cpp cc c h hpp cuh"
+
+# Regular expression pattern to match C++ files
+CPP_PATTERN='\.('"$(echo $CPP_EXTENSIONS | tr ' ' '|')"')$'
+
+# Clang-Format style configuration file
+CLANG_FORMAT_STYLE="file"
+
+# ==========================
+# Helper Functions
+# ==========================
+
+log() {
+  echo "[pre-commit hook] $1"
+}
+
+# ==========================
+# Main Script Execution
+# ==========================
+
+if ! command -v clang-format &> /dev/null; then
+  log "clang-format is not installed. Please install it before committing"
+  exit 1
+fi
+
+
+# Retrieve the list of staged C++ files based on the defined pattern
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "$CPP_PATTERN" || true)
+
+# Exit early if no C++ files are staged
+if [ -z "$STAGED_FILES" ]; then
+  log "No staged C++ files to format"
+  exit 0
+fi
+
+# Display the files that will be formatted
+log "Running clang-format on the following files:"
+echo "$STAGED_FILES"
+
+# Run clang-format
+echo "$STAGED_FILES" | xargs -P "$NUM_CORES" -n 1 clang-format -style="$CLANG_FORMAT_STYLE" -i || {
+  log "clang-format failed"
+  exit 1
+}
+
+
+# Re-add the formatted files to the staging area
+echo "$STAGED_FILES" | xargs git add || {
+  log "Failed to read formatted files to staging area"
+  exit 1
+}
+
+log "Completed successfully"
