@@ -10,3 +10,5 @@ base-devel
 wget
 cmake
 bash
+python
+clang-format

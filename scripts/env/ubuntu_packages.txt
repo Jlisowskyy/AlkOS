@@ -10,3 +10,7 @@ libmpfr-dev
 wget
 cmake
 bash
+python3
+clang-format
+xorriso
+grub2

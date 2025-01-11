@@ -1,23 +1,26 @@
 name: Automated Tests
 
-on:
-  push:
-    branches:
-      - main
-      - dev
-      - Jlisowskyy/automation
-  pull_request:
-    branches:
-      - main
-      - dev
-      - Jlisowskyy/automation
+on: [push, pull_request]
+
 jobs:
-  build:
+  Tests:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Run tests for x86_64
         run: sudo scripts/cicd/build_and_run_tests.bash x86_64
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: last build log
+          path: /tmp/alkOS_build.log
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: logs
+          path: scripts/tests/test_framework/logs
