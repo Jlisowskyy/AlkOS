@@ -12,6 +12,7 @@ readonly ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/env/insta
 readonly ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/actions/run_alkos.bash"
 readonly ALK_OS_CLI_CONFIGURE_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/configure.bash"
 readonly ALK_OS_CLI_CONF_PATH="${ALK_OS_CLI_SCRIPT_DIR}/conf.bash"
+readonly ALK_OS_CLI_SETUP_HOOKS_SCRIPT_PATH="${ALK_OS_CLI_SCRIPT_DIR}/git-hooks/setup-hooks.bash"
 
 # Import utilities
 source "${ALK_OS_CLI_SCRIPT_DIR}/utils/pretty_print.bash"
@@ -24,6 +25,7 @@ declare -A CONFIG=(
     [install_deps]=false
     [verbose]=false
     [configure]=false
+    [setup_hooks]=false
 )
 
 print_banner() {
@@ -52,6 +54,7 @@ Options:
                                 - all: Both toolchain and dependencies
     -v, --verbose               Enable verbose output
     -h, --help                  Display this help message
+    -g, --git-hooks             Setup git hooks
 
 Examples:
     ${0##*/} --configure --install all              # Configure and install all dependencies
@@ -97,6 +100,10 @@ parse_args() {
                 CONFIG[configure]=true
                 shift
                 ;;
+            -g|--git-hooks)
+                CONFIG[setup_hooks]=true
+                shift
+                ;;
             *)
                 dump_error "Unknown argument: $1"
                 exit 1
@@ -109,7 +116,8 @@ validate_args() {
     if [[ ${CONFIG[run]} == false ]] &&
        [[ ${CONFIG[install_toolchain]} == false ]] &&
        [[ ${CONFIG[install_deps]} == false ]] &&
-       [[ ${CONFIG[configure]} == false ]]; then
+       [[ ${CONFIG[configure]} == false ]] &&
+       [[ ${CONFIG[setup_hooks]} == false ]]; then
         dump_error "No action specified. Use --run, --install or --configure"
         exit 1
     fi
@@ -166,6 +174,12 @@ build_and_run() {
     fi
 }
 
+setup_git_hooks() {
+  if [ ${CONFIG[setup_hooks]} == true ]; then
+    base_runner "Failed to setup git-hooks" true "${ALK_OS_CLI_SETUP_HOOKS_SCRIPT_PATH}"
+  fi
+}
+
 main() {
     print_banner
     parse_args "$@"
@@ -174,6 +188,7 @@ main() {
     run_default_configuration
     install_toolchain
     build_and_run
+    setup_git_hooks
 }
 
 main "$@"
