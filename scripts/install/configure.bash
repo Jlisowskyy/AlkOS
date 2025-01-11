@@ -160,6 +160,7 @@ run() {
   echo "set(CMAKE_FLAGS_FILE \"${CONFIGURE_FLAGS[$CONFIGURE_ARCH]}\")" >> "$conf_cmake"
   echo "set(CMAKE_BUILD_TYPE \"${CONFIGURE_CMAKE_BUILD_TYPES[$CONFIGURE_BUILD_TYPE]}\")" >> "$conf_cmake"
   echo "set(TOOL_BINARIES_DIR \"${CONFIGURE_TOOL_BINARIES_DIR}\")" >> "$conf_cmake"
+  echo "set(CMAKE_BUILD_DIR \"${CONFIGURE_BUILD_DIR}\")" >> "$conf_cmake"
 
   local cmake_arg
   for cmake_arg in ${CONFIGURE_BUILD_TYPES_DEFINES[$CONFIGURE_BUILD_TYPE]}; do

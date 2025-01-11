@@ -115,8 +115,10 @@ file(APPEND "${BASH_CONF_FILE}" "export CONF_SYSROOT=\"${CMAKE_SYSROOT}\"\n")
 file(APPEND "${BASH_CONF_FILE}" "export CONF_BOOTABLE_KERNEL_EXEC=\"${BOOTABLE_KERNEL_EXECUTABLE}\"\n")
 file(APPEND "${BASH_CONF_FILE}" "export CONF_ISO_PATH=\"${ALKOS_ISO_PATH}\"\n")
 file(APPEND "${BASH_CONF_FILE}" "export CONF_BIN_PATH=\"${ALKOS_KERNEL_PATH}\"\n")
-file(APPEND "${BASH_CONF_FILE}" "export KERNEL_MODULES=\"${KERNEL_MODULES_FORMATTED}\"\n")
+file(APPEND "${BASH_CONF_FILE}" "export CONF_KERNEL_MODULES=\"${KERNEL_MODULES_FORMATTED}\"\n")
+file(APPEND "${BASH_CONF_FILE}" "export CONF_BUILD_DIR=\"${CMAKE_BUILD_DIR}\"\n")
 file(APPEND "${BASH_CONF_FILE}" "")
+
 
 ################################################################################
 #                                    Targets                                   #
