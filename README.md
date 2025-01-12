@@ -99,7 +99,8 @@ The primary goals of AlkOS are:
 
 ### 📋 Prerequisites
 
-*   A system running **Arch Linux** (for installing dependencies and running the scripts).
+*   A system running **Arch Linux** or **Ubuntu** for installing dependencies. Otherwise you will need to install the dependencies in `scripts/env/arch_packages.txt` manually.
+*   A **Unix-like environment** for running the scripts (bash shell)
 *   **CMake** >= 3.30: Used as the build system.
 *   **QEMU:** Used for emulating the x86_64 architecture and running AlkOS.
 *   **NASM:** Used as the assembler for assembly code.
@@ -123,32 +124,7 @@ The primary goals of AlkOS are:
     cd AlkOS/scripts
     ```
 
-3.  **Install dependencies and the cross-compilation toolchain:**
-
-    ```bash
-    ./alkos_cli.bash --install all --verbose
-    ```
-    or:
-    ```bash
-    ./alkos_cli.bash -i all -v
-    ```
-
-    This step will install all necessary dependencies, set up the toolchain, and configure your environment.
-    Note: it assumes you are running on Arch Linux. If not, you will need to manually install the packages listed in `scripts/env/arch_packages.txt` and install a cross- 
-    compiler for `x86_64-elf` and `i386-elf` (`./alkos_cli.bash --i toolchain -v` should work for non-arch unix-like distributions)
-
-## 💻 Development Workflow
-
-### 🏗️ Building AlkOS
-
-1.  **Navigate to the scripts directory:**
-
-    ```bash
-    cd AlkOS/scripts
-    ```
-
-2.  **Configure the build:**
-
+3.  **Configure the build:**
     You need to configure the build using the `configure.bash` script. This script sets up the build environment for a specific architecture and build type.
 
     For example, to configure a debug build for QEMU with tests enabled, run:
@@ -165,7 +141,32 @@ The primary goals of AlkOS are:
     ```
     ./configure.bash -h
     ```
-3.  **Build the project:**
+
+4.  **Install dependencies and the cross-compilation toolchain:**
+
+    ```bash
+    ./alkos_cli.bash --install all --verbose
+    ```
+    or:
+    ```bash
+    ./alkos_cli.bash -i all -v
+    ```
+
+    This step will install all necessary dependencies and set up the toolchain for the architecture set with `configure.bash`.
+    Note: it assumes you are running on Arch Linux. If not, you will need to manually install the packages listed in `scripts/env/arch_packages.txt` and install cross-compiler for the chosen architecture (`./alkos_cli.bash --i toolchain -v` should work for non-arch unix-like distributions)
+    Note 2: There exists an installer for Ubuntu: `./scripts/env/install_deps_ubuntu.bash`
+
+## 💻 Development Workflow
+
+### 🏗️ Building AlkOS
+
+1.  **Navigate to the scripts directory:**
+
+    ```bash
+    cd AlkOS/scripts
+    ```
+
+2.  **Build the project:**
     The build system uses CMake. When you run `alkos_cli.bash` with `-r`, it first invokes the `build_alkos.bash` script. This script creates a build directory, 
     generates Makefiles using CMake with the specified cross-compilation toolchain, and then builds the project using `make`.
 
@@ -178,6 +179,8 @@ The primary goals of AlkOS are:
     ```
     ./alkos_cli.bash -v -r
     ```
+
+    Note: This assumes you have the necessary dependencies, generated a config using `configure.bash` and have a cross-compiler toolchain for the chosen architecture.
 
 
 ### ▶️ Running AlkOS in QEMU
@@ -252,3 +255,5 @@ AlkOS includes a custom testing framework inspired by Google Test. Tests are def
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+

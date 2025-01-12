@@ -23,7 +23,7 @@ declare -A CONFIG=(
     [run]=false
     [install_toolchain]=false
     [install_deps]=false
-    [verbose]=""
+    [verbose]=false
     [configure]=false
     [setup_hooks]=false
 )
@@ -93,7 +93,7 @@ parse_args() {
                 shift 2
                 ;;
             -v|--verbose)
-                CONFIG[verbose]="-v"
+                CONFIG[verbose]=true
                 shift
                 ;;
             -c|--configure)
@@ -118,7 +118,7 @@ validate_args() {
        [[ ${CONFIG[install_deps]} == false ]] &&
        [[ ${CONFIG[configure]} == false ]] &&
        [[ ${CONFIG[setup_hooks]} == false ]]; then
-        dump_error "No action specified. Use --run, --install, --configure or --git-hooks."
+        dump_error "No action specified. Use --run, --install or --configure"
         exit 1
     fi
 }
@@ -127,7 +127,7 @@ run_default_configuration() {
     if [[ ${CONFIG[configure]} == true ]]; then
         pretty_info "Running default configuration"
         base_runner "Failed to run default configuration" true \
-            "${ALK_OS_CLI_CONFIGURE_SCRIPT_PATH}" x86_64 debug_qemu ${CONFIG[verbose]}
+            "${ALK_OS_CLI_CONFIGURE_SCRIPT_PATH}" x86_64 debug_qemu ${ALK_OS_CLI_VERBOSE_FLAG}
     fi
 }
 
@@ -140,14 +140,15 @@ install_dependencies() {
             exit 1
         fi
 
+        pretty_info "Verbose flag: ${ALK_OS_CLI_VERBOSE_FLAG}"
         base_runner "Failed to install dependencies" true \
-            "${ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH}" --install ${CONFIG[verbose]}
+            "${ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH}" --install ${ALK_OS_CLI_VERBOSE_FLAG}
     fi
 }
 
 validate_configuration_exists() {
   if [ ! -f "${ALK_OS_CLI_CONF_PATH}" ] ; then
-     dump_error "Configuration must be ran before proceeding to the build. Use configure.bash script to configure the environment"
+    dump_error "Coudn't find a configuration for the environment (toolchain, build type, etc). Use configure.bash script to configure the environment"
     exit 1
   fi
 }
@@ -158,7 +159,7 @@ install_toolchain() {
 
         pretty_info "Installing cross-compile toolchain for ${CONFIG[arch]}"
         base_runner "Failed to install cross-compile toolchain" true \
-            "${ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH}" ${CONFIG[verbose]}
+            "${ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH}" ${ALK_OS_CLI_VERBOSE_FLAG}
     fi
 }
 
@@ -167,10 +168,10 @@ build_and_run() {
         validate_configuration_exists
 
         pretty_info "Building AlkOS..."
-        base_runner "Failed to build AlkOS" true "${ALK_OS_CLI_BUILD_SCRIPT_PATH}" ${CONFIG[verbose]}
+        base_runner "Failed to build AlkOS" true "${ALK_OS_CLI_BUILD_SCRIPT_PATH}" ${ALK_OS_CLI_VERBOSE_FLAG}
 
         pretty_info "Running AlkOS in QEMU"
-        base_runner "Failed to run AlkOS in QEMU" true "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" ${CONFIG[verbose]}
+        base_runner "Failed to run AlkOS in QEMU" true "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" ${ALK_OS_CLI_VERBOSE_FLAG}
     fi
 }
 
@@ -192,3 +193,4 @@ main() {
 }
 
 main "$@"
+
