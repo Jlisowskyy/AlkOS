@@ -145,7 +145,8 @@ The primary goals of AlkOS are:
 4.  **Install dependencies and the cross-compilation toolchain:**
 
     ```bash
-    ./alkos_cli.bash --install all --verbose
+    ./alkos_cli.bash --install deps -v
+    ./alkos_cli.bash --install toolchain -v
     ```
     or:
     ```bash
@@ -153,8 +154,10 @@ The primary goals of AlkOS are:
     ```
 
     This step will install all necessary dependencies and set up the toolchain for the architecture set with `configure.bash`.
-    Note: it assumes you are running on Arch Linux. If not, you will need to manually install the packages listed in `scripts/env/arch_packages.txt` and install cross-compiler for the chosen architecture (`./alkos_cli.bash --i toolchain -v` should work for non-arch unix-like distributions)
-    Note 2: There exists an installer for Ubuntu: `./scripts/env/install_deps_ubuntu.bash`
+
+    Note: Installing the dependencies assumes you are running on Arch Linux. If not, you will need to manually install the packages listed in `scripts/env/arch_packages.txt`.
+
+    Note 2: There exists a dependencies installer for Ubuntu: `./scripts/env/install_deps_ubuntu.bash`
 
 ## 💻 Development Workflow
 
