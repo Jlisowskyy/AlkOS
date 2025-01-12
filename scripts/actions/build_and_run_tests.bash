@@ -1,19 +1,19 @@
 #!/bin/bash
 
+set -euo pipefail  # Exit on error, unset variables, and pipeline failures
+
 BUILD_AND_RUN_TESTS_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+BUILD_AND_RUN_TESTS_ARCH="x86_64"
 
-# Step 1: Get requirements
-"${BUILD_AND_RUN_TESTS_DIR}/../env/install_deps_arch.bash" --install -v
+if [ -n "${1-}" ]; then
+    BUILD_AND_RUN_TESTS_ARCH="$1"
+fi
 
-# Step 2: Configure the environment
-# TODO: temporarly x86_64 is hardcoded
-"${BUILD_AND_RUN_TESTS_DIR}/../configure.bash" x86_64 debug_qemu_tests -v
+# Step 1: Configure the environment for tests
+"${BUILD_AND_RUN_TESTS_DIR}/../configure.bash" "${BUILD_AND_RUN_TESTS_ARCH}" debug_qemu_tests -v
 
-# Step 3: Build toolchain
-"${BUILD_AND_RUN_TESTS_DIR}/../actions/install_toolchain.bash" -v
-
-# Step 4: Build the project
+# Step 2: Build the project
 "${BUILD_AND_RUN_TESTS_DIR}/../actions/build_alkos.bash" -v
 
-# Step 5: Run tests
+# Step 3: Run tests
 "${BUILD_AND_RUN_TESTS_DIR}/../actions/run_tests.bash"

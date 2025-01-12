@@ -177,8 +177,8 @@ const char *GetExceptionMsg(const u8 exc_idx)
 
 void IdtInit()
 {
-    ASSERT(kKernelCodeOffset < UINT16_MAX && "Kernel code offset out of range");
-    R_ASSERT_NEQ(0, kKernelCodeOffset);
+    R_ASSERT_LT(kKernelCodeOffset, static_cast<u32>(UINT16_MAX));
+    R_ASSERT_NEQ(static_cast<u32>(0), kKernelCodeOffset);
 
     g_idtr.base  = reinterpret_cast<uintptr_t>(g_idt);
     g_idtr.limit = static_cast<u16>(sizeof(IdtEntry)) * kIdtEntries - 1;
