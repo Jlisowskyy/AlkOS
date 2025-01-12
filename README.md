@@ -233,11 +233,11 @@ AlkOS includes a custom testing framework inspired by Google Test. Tests are def
 3.  **In a separate terminal, attach GDB to the running QEMU instance:**
 
     ```
-    ./actions/attach_to_qemu_gdb.bash <path_to_kernel_binary> -g <path_to_gdb>
+    ./install/attach_to_qemu_gdb.bash <path_to_kernel_binary> -g <path_to_gdb>
     ```
 
     Replace `<path_to_kernel_binary>` with the path to your compiled kernel binary (e.g. `../build/alkos/sysroot/boot/alkos.kernel`).
-    Replace `<path_to_gdb>` with the path to your GDB executable, if it's not the default one provided by the cross-compiler.
+    Replace `<path_to_gdb>` with the path to your GDB executable appropiate for the architecture (in tools).
 
 ### 🎨 Applying clang-format for Code Style
 
