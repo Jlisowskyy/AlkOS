@@ -11,7 +11,8 @@
 class TestFrameworkObj : public TestGroupBase
 {
     public:
-    TestFrameworkObj()           = default;
+    TestFrameworkObj() = default;
+
     ~TestFrameworkObj() override = default;
 
     protected:
@@ -68,7 +69,7 @@ FAIL_TEST(StackSmashTest)
     static constexpr uint64_t kStackSize = 32;
     static constexpr uint64_t kWriteSize = 64;
 
-    char buff[kStackSize];
+    [[maybe_unused]] volatile char buff[kStackSize];
 
     for (size_t i = 0; i < kWriteSize; i++) {
         buff[i] = 'A';
@@ -137,7 +138,13 @@ TEST(FloatOperationsTest) { FloatExtensionTest(); }
 /**
  *  @brief Test should simply drop 0 division exception
  */
-FAIL_TEST(SimpleExceptionTest) { int a = 9 / 0; }
+FAIL_TEST(SimpleExceptionTest)
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdiv-by-zero"
+    [[maybe_unused]] volatile int a = 9 / 0;
+#pragma GCC diagnostic pop
+}
 
 // ------------------------------
 // Preserve CPU test
@@ -148,4 +155,5 @@ FAIL_TEST(SimpleExceptionTest) { int a = 9 / 0; }
  * any ones in the registers after returning from interrupt.
  */
 extern "C" void PreserveCpuStateTest();
+
 TEST(PreserveCpuStateTest) { PreserveCpuStateTest(); }

@@ -36,7 +36,7 @@ volatile uintptr_t __stack_chk_guard = kStackChkGuard;
 
 static void __stack_chk_init_hosted() {}
 
-static void __stack_chk_fail_hosted() {}
+static __attribute__((noreturn)) void __stack_chk_fail_hosted() {}
 
 #endif  // __STDC_HOSTED__
 
@@ -54,7 +54,10 @@ static void __stack_chk_init_kernel() {}
 /**
  * @todo Add some debug message about stack in future
  */
-API_CALL static void __stack_chk_fail_kernel() { KernelPanic("Stack smashing detected"); }
+API_CALL static __attribute__((noreturn)) void __stack_chk_fail_kernel()
+{
+    KernelPanic("Stack smashing detected");
+}
 
 #endif  // __ALKOS_KERNEL__
 

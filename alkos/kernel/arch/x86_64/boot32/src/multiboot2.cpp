@@ -6,38 +6,43 @@
 
 extern char text_buffer[1024];
 
-multiboot_tag_module* FindKernelModule(void* multiboot_info_addr)
+multiboot_tag_module *FindKernelModule(void *multiboot_info_addr)
 {
-    multiboot_tag_module* kernel_module = nullptr;
-    multiboot_tag* tag;
-    for (tag = (multiboot_tag*)(multiboot_info_addr + 8); tag->type != MULTIBOOT_TAG_TYPE_END;
-         tag = (multiboot_tag*)((multiboot_uint8_t*)tag + ((tag->size + 7) & ~7))) {
-        const char* tag_name = GetTagName(tag->type);
+    multiboot_tag_module *kernel_module = nullptr;
+    for (auto *tag =
+             reinterpret_cast<multiboot_tag *>(static_cast<char *>(multiboot_info_addr) + 8);
+         tag->type != MULTIBOOT_TAG_TYPE_END;
+         tag = reinterpret_cast<multiboot_tag *>(
+             reinterpret_cast<multiboot_uint8_t *>(tag) + ((tag->size + 7) & ~7)
+         )) {
+        const char *tag_name = GetTagName(tag->type);
         TRACE_INFO("Found tag: %s", tag_name);
 
         if (tag->type == MULTIBOOT_TAG_TYPE_MODULE) {
-            multiboot_tag_module* module = (multiboot_tag_module*)tag;
-            kernel_module                = module;
+            auto *module  = reinterpret_cast<multiboot_tag_module *>(tag);
+            kernel_module = module;
 
             // TODO: Modules should be loaded with a specific command line
             // so that the loader knows which module is the kernel
             // but for now, we will just take the last module as the kernel
 
             TRACE_INFO(
-                "Module loaded at: 0x%X - 0x%X", (uint32_t)module->mod_start,
-                (uint32_t)module->mod_end
+                "Module loaded at: 0x%X - 0x%X", static_cast<uint32_t>(module->mod_start),
+                static_cast<uint32_t>(module->mod_end)
             );
 
             TRACE_INFO(
-                "With command line: %s", (module->cmdline && *(char*)module->cmdline != '\0')
-                                             ? (char*)module->cmdline
-                                             : "no command line provided"
+                "With command line: %s",
+                (module->cmdline && *static_cast<char *>(module->cmdline) != '\0')
+                    ? static_cast<char *>(module->cmdline)
+                    : "no command line provided"
             );
         }
     }
     return kernel_module;
 }
-const char* GetTagName(unsigned int type)
+
+const char *GetTagName(unsigned int type)
 {
     switch (type) {
         case MULTIBOOT_TAG_TYPE_END:

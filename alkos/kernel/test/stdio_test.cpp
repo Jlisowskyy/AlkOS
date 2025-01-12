@@ -33,7 +33,8 @@ class SnprintfTest : public TestGroupBase
         const int ret = snprintf(buffer, kBufSize, format, args...);
 
         EXPECT_STREQ(expected, buffer);
-        EXPECT_EQ(strlen(expected), ret);
+        EXPECT_NEQ(-1, ret);
+        EXPECT_EQ(strlen(expected), static_cast<size_t>(ret));
         EXPECT_TRUE(IsBufferClean(strlen(expected) + 1));
     }
 };

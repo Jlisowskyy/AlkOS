@@ -2,6 +2,8 @@
 
 BUILD_AND_RUN_TESTS_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
+set -euo pipefail  # Exit on error, unset variables, and pipeline failures
+
 # Step 1: Get requirements
 sudo "${BUILD_AND_RUN_TESTS_DIR}/../env/install_deps_ubuntu.bash" --install -v
 

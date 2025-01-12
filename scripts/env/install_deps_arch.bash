@@ -12,7 +12,7 @@ help() {
   echo "Where:"
   echo "--install | -i - required flag to start installation"
   echo "--verbose | -v - flag to enable verbose output"
-  echo "--aur-helper [yay | paru | ...] | -a - flag to specify AUR helper (default: paru)"
+  echo "--aur-helper [yay | paru | ...] | -a - flag to specify and use an AUR helper (uses pacman by default)"
   echo "Note: this script is intended to be run on Arch-based systems"
 }
 
@@ -22,7 +22,7 @@ run_install() {
 
   while IFS= read -r package || [ -n "$package" ]; do
     pretty_info "Installing ${package}"
-    base_runner "Failed to install ${package}" "${VERBOSE}" "${AUR_HELPER}" -S --noconfirm "${package}"
+    base_runner "Failed to install ${package}" "${VERBOSE}" sudo "${AUR_HELPER}" -S --noconfirm "${package}"
     pretty_success "Correctly installed: ${package}"
   done < "${INSTALL_DEPS_ARCH_SCRIPT_PACKAGES_TXT_FILE}"
 
@@ -83,7 +83,7 @@ enable_kvm() {
 parse_args() {
   INSTALL_FOUND=false
   VERBOSE=false
-  AUR_HELPER=""
+  AUR_HELPER="pacman"
 
   while [[ $# -gt 0 ]]; do
     case $1 in
@@ -117,10 +117,6 @@ process_args() {
     dump_error "--install flag was not provided!"
   fi
 
-  if [ -z "$AUR_HELPER" ]; then
-    AUR_HELPER="paru"
-  fi
-
   if ! command -v "${AUR_HELPER}" &> /dev/null; then
     dump_error "AUR helper ${AUR_HELPER} is not installed"
   fi
@@ -134,3 +130,4 @@ main() {
 }
 
 main "$@"
+

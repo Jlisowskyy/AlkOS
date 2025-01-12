@@ -11,4 +11,4 @@ wget
 cmake
 bash
 python
-clang-format
+clang
