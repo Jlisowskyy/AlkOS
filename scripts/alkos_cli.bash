@@ -23,7 +23,7 @@ declare -A CONFIG=(
     [run]=false
     [install_toolchain]=false
     [install_deps]=false
-    [verbose]=false
+    [verbose]=""
     [configure]=false
     [setup_hooks]=false
 )
@@ -93,7 +93,7 @@ parse_args() {
                 shift 2
                 ;;
             -v|--verbose)
-                CONFIG[verbose]=true
+                CONFIG[verbose]="-v"
                 shift
                 ;;
             -c|--configure)
@@ -118,7 +118,7 @@ validate_args() {
        [[ ${CONFIG[install_deps]} == false ]] &&
        [[ ${CONFIG[configure]} == false ]] &&
        [[ ${CONFIG[setup_hooks]} == false ]]; then
-        dump_error "No action specified. Use --run, --install or --configure"
+        dump_error "No action specified. Use --run, --install, --configure or --git-hooks."
         exit 1
     fi
 }
@@ -127,7 +127,7 @@ run_default_configuration() {
     if [[ ${CONFIG[configure]} == true ]]; then
         pretty_info "Running default configuration"
         base_runner "Failed to run default configuration" true \
-            "${ALK_OS_CLI_CONFIGURE_SCRIPT_PATH}" x86_64 debug_qemu ${ALK_OS_CLI_VERBOSE_FLAG}
+            "${ALK_OS_CLI_CONFIGURE_SCRIPT_PATH}" x86_64 debug_qemu "${CONFIG[verbose]}"
     fi
 }
 
@@ -141,7 +141,7 @@ install_dependencies() {
         fi
 
         base_runner "Failed to install dependencies" true \
-            "${ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH}" --install ${ALK_OS_CLI_VERBOSE_FLAG}
+            "${ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH}" --install "${CONFIG[verbose]}"
     fi
 }
 
@@ -158,7 +158,7 @@ install_toolchain() {
 
         pretty_info "Installing cross-compile toolchain for ${CONFIG[arch]}"
         base_runner "Failed to install cross-compile toolchain" true \
-            "${ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH}" ${ALK_OS_CLI_VERBOSE_FLAG}
+            "${ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH}" "${CONFIG[verbose]}"
     fi
 }
 
@@ -167,10 +167,10 @@ build_and_run() {
         validate_configuration_exists
 
         pretty_info "Building AlkOS..."
-        base_runner "Failed to build AlkOS" true "${ALK_OS_CLI_BUILD_SCRIPT_PATH}" ${ALK_OS_CLI_VERBOSE_FLAG}
+        base_runner "Failed to build AlkOS" true "${ALK_OS_CLI_BUILD_SCRIPT_PATH}" "${CONFIG[verbose]}"
 
         pretty_info "Running AlkOS in QEMU"
-        base_runner "Failed to run AlkOS in QEMU" true "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" ${ALK_OS_CLI_VERBOSE_FLAG}
+        base_runner "Failed to run AlkOS in QEMU" true "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" "${CONFIG[verbose]}"
     fi
 }
 

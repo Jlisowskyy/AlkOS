@@ -1,6 +1,8 @@
 #ifndef ALKOS_KERNEL_TEST_TEST_MODULE_TEST_MODULE_HPP_
 #define ALKOS_KERNEL_TEST_TEST_MODULE_TEST_MODULE_HPP_
 
+/* internal includes */
+#include <defines.hpp>
 #include <test_module/test_group_base.hpp>
 
 namespace test
@@ -60,7 +62,7 @@ void AddTest(const char* name, test_factory_t factory);
 
 void AddManualTest(const char* name, test_factory_t factory);
 
-void OnKernelPanic();
+NO_RET void OnKernelPanic();
 
 // ------------------------------
 // Global objects
