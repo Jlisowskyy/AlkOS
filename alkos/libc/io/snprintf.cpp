@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-#include "defines.hpp"
+#include "defines.h"
 #include "math.h"
 #include "string.h"
 #include "types.h"

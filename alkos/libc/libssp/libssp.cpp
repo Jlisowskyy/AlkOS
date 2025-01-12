@@ -9,7 +9,7 @@
 #include <stdint.h>
 
 /* internal includes */
-#include <defines.hpp>
+#include <defines.h>
 
 #ifdef __ALKOS_KERNEL__
 #include "../../kernel/abi/panic.hpp"
