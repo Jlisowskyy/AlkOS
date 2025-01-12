@@ -127,7 +127,7 @@ run_default_configuration() {
     if [[ ${CONFIG[configure]} == true ]]; then
         pretty_info "Running default configuration"
         base_runner "Failed to run default configuration" true \
-            "${ALK_OS_CLI_CONFIGURE_SCRIPT_PATH}" x86_64 debug_qemu "${CONFIG[verbose]}"
+            "${ALK_OS_CLI_CONFIGURE_SCRIPT_PATH}" x86_64 debug_qemu ${CONFIG[verbose]}
     fi
 }
 
@@ -141,7 +141,7 @@ install_dependencies() {
         fi
 
         base_runner "Failed to install dependencies" true \
-            "${ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH}" --install "${CONFIG[verbose]}"
+            "${ALK_OS_CLI_INSTALL_DEPS_SCRIPT_PATH}" --install ${CONFIG[verbose]}
     fi
 }
 
@@ -158,7 +158,7 @@ install_toolchain() {
 
         pretty_info "Installing cross-compile toolchain for ${CONFIG[arch]}"
         base_runner "Failed to install cross-compile toolchain" true \
-            "${ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH}" "${CONFIG[verbose]}"
+            "${ALK_OS_CLI_INSTALL_TOOLCHAIN_PATH}" ${CONFIG[verbose]}
     fi
 }
 
@@ -167,10 +167,10 @@ build_and_run() {
         validate_configuration_exists
 
         pretty_info "Building AlkOS..."
-        base_runner "Failed to build AlkOS" true "${ALK_OS_CLI_BUILD_SCRIPT_PATH}" "${CONFIG[verbose]}"
+        base_runner "Failed to build AlkOS" true "${ALK_OS_CLI_BUILD_SCRIPT_PATH}" ${CONFIG[verbose]}
 
         pretty_info "Running AlkOS in QEMU"
-        base_runner "Failed to run AlkOS in QEMU" true "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" "${CONFIG[verbose]}"
+        base_runner "Failed to run AlkOS in QEMU" true "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" ${CONFIG[verbose]}
     fi
 }
 
