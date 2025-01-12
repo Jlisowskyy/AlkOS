@@ -170,7 +170,7 @@ build_and_run() {
         base_runner "Failed to build AlkOS" true "${ALK_OS_CLI_BUILD_SCRIPT_PATH}" ${CONFIG[verbose]}
 
         pretty_info "Running AlkOS in QEMU"
-        base_runner "Failed to run AlkOS in QEMU" true "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" ${CONFIG[verbose]}
+        base_runner "Failed to run AlkOS in QEMU" true "${ALK_OS_CLI_QEMU_RUN_SCRIPT_PATH}" --verbose
     fi
 }
 
