@@ -12,7 +12,7 @@
 #include <defines.h>
 
 #ifdef __ALKOS_KERNEL__
-#include "../../kernel/abi/panic.hpp"
+#include "panic.hpp"
 #endif  // __ALKOS_KERNEL__
 
 #if __STDC_HOSTED__

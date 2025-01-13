@@ -1,25 +1,33 @@
 /* internal includes */
 #include <time.h>
+#include <assert.h>
 
-double difftime(time_t time_end, time_t time_beg) {
+double difftime(const time_t time_end, const time_t time_beg) {
+    return static_cast<double>(time_end - time_beg);
 }
 
 time_t time(time_t *arg) {
+    assert(false && "Not implemented!");
+    TODO_CLOCKS
+    return time_t{};
 }
 
 clock_t clock() {
+    assert(false && "Not implemented!");
+    TODO_CLOCKS
+    return clock_t{};
 }
 
 int timespec_get(struct timespec *ts, int base) {
+    assert(false && "Not implemented!");
+    TODO_CLOCKS
+    return int{};
 }
 
 int timespec_getres(struct timespec *ts, int base) {
-}
-
-char *asctime(const tm *time_ptr) {
-}
-
-errno_t asctime_s(char *buf, rsize_t bufsz, const tm *time_ptr) {
+    assert(false && "Not implemented!");
+    TODO_CLOCKS
+    return int{};
 }
 
 char *ctime(const time_t *timer) {
