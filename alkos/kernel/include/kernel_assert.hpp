@@ -72,28 +72,35 @@ FAST_CALL void VerboseAssertDumpObjToHex(const char *obj, char *buffer, const si
 static constexpr size_t kFailMsgBuffSize       = 2048;
 static constexpr size_t kFullAssertMsgBuffSize = 512 + kFailMsgBuffSize;
 
-template <bool kIsExpect>
+// New error handler type definition
+using ErrorHandlerFn = void (*)(const char*);
+
+inline void ExpectHandler(const char* msg) {
+    test::g_testCheckFailed = true;
+    TerminalWriteString(msg);
+}
+
+inline void AssertHandler(const char* msg) {
+    KernelPanic(msg);
+}
+
+template <ErrorHandlerFn Handler>
 FAST_CALL void VerboseAssertDump(const char *msg, const char *file, const char *line)
 {
     char full_msg[kFullAssertMsgBuffSize];
     const int bytes_written = snprintf(
         full_msg, kFullAssertMsgBuffSize, "%s failed at file: %s and line: %s\n%s\n",
-        kIsExpect ? "Check" : "Assert", file, line, msg
+        Handler == ExpectHandler ? "Check" : "Assert", file, line, msg
     );
     ASSERT(
         bytes_written < static_cast<int>(kFullAssertMsgBuffSize) &&
         "VerboseAssertDump buffer fully used!"
     );
 
-    if constexpr (kIsExpect) {
-        test::g_testCheckFailed = true;
-        TerminalWriteString(full_msg);
-    } else {
-        KernelPanic(full_msg);
-    }
+    Handler(full_msg);
 }
 
-template <bool kIsExpect, class ExpectedT, class ValueT, class CheckerT, class MsgGetterT>
+template <ErrorHandlerFn Handler, class ExpectedT, class ValueT, class CheckerT, class MsgGetterT>
 FAST_CALL void VerboseAssertTwoArgBase(
     const ExpectedT &expected, const ValueT &value, CheckerT checker, MsgGetterT msg_getter,
     const char *expected_str, const char *value_str, const char *file, const char *line
@@ -108,11 +115,11 @@ FAST_CALL void VerboseAssertTwoArgBase(
         VerboseAssertDumpObjToHex(value, v_obj, kObjToHexBuffSize);
 
         msg_getter(fail_msg, kFailMsgBuffSize, expected_str, value_str, e_obj, v_obj);
-        VerboseAssertDump<kIsExpect>(fail_msg, file, line);
+        VerboseAssertDump<Handler>(fail_msg, file, line);
     }
 }
 
-template <bool kIsExpect, class ValueT, class CheckerT, class MsgGetterT>
+template <ErrorHandlerFn Handler, class ValueT, class CheckerT, class MsgGetterT>
 FAST_CALL void VerboseAssertOneArgBase(
     const ValueT &value, CheckerT checker, MsgGetterT msg_getter, const char *value_str,
     const char *file, const char *line
@@ -125,7 +132,7 @@ FAST_CALL void VerboseAssertOneArgBase(
         VerboseAssertDumpObjToHex(value, v_obj, kObjToHexBuffSize);
 
         msg_getter(fail_msg, kFailMsgBuffSize, value_str, v_obj);
-        VerboseAssertDump<kIsExpect>(fail_msg, file, line);
+        VerboseAssertDump<Handler>(fail_msg, file, line);
     }
 }
 
@@ -133,13 +140,13 @@ FAST_CALL void VerboseAssertOneArgBase(
 // EQ Assert base
 // ------------------------------
 
-template <bool kIsExpect, class ExpectedT, class ValueT>
+template <ErrorHandlerFn Handler, class ExpectedT, class ValueT>
 FAST_CALL void VerboseAssertEq(
     const ExpectedT &expected, const ValueT &value, const char *expected_str, const char *value_str,
     const char *file, const char *line
 )
 {
-    VerboseAssertTwoArgBase<kIsExpect>(
+    VerboseAssertTwoArgBase<Handler>(
         expected, value,
         [](const ExpectedT &e, const ValueT &v) {
             return e == v;
@@ -166,13 +173,13 @@ FAST_CALL void VerboseAssertEq(
 // NEQ Assert base
 // ------------------------------
 
-template <bool kIsExpect, class ExpectedT, class ValueT>
+template <ErrorHandlerFn Handler, class ExpectedT, class ValueT>
 FAST_CALL void VerboseAssertNeq(
     const ExpectedT &expected, const ValueT &value, const char *expected_str, const char *value_str,
     const char *file, const char *line
 )
 {
-    VerboseAssertTwoArgBase<kIsExpect>(
+    VerboseAssertTwoArgBase<Handler>(
         expected, value,
         [](const ExpectedT &e, const ValueT &v) {
             return e != v;
@@ -199,12 +206,12 @@ FAST_CALL void VerboseAssertNeq(
 // Zero Assert base
 // ------------------------------
 
-template <bool kIsExpect, class ValueT>
+template <ErrorHandlerFn Handler, class ValueT>
 void VerboseAssertZero(
     const ValueT &value, const char *value_str, const char *file, const char *line
 )
 {
-    VerboseAssertOneArgBase<kIsExpect>(
+    VerboseAssertOneArgBase<Handler>(
         value,
         [](const ValueT &v) {
             return v == static_cast<ValueT>(0);
@@ -229,12 +236,12 @@ void VerboseAssertZero(
 // TRUE assert base
 // ------------------------------
 
-template <bool kIsExpect, class ValueT>
+template <ErrorHandlerFn Handler, class ValueT>
 void VerboseAssertTrue(
     const ValueT &value, const char *value_str, const char *file, const char *line
 )
 {
-    VerboseAssertOneArgBase<kIsExpect>(
+    VerboseAssertOneArgBase<Handler>(
         value,
         [](const ValueT &v) {
             return v == true;
@@ -259,12 +266,12 @@ void VerboseAssertTrue(
 // FALSE assert base
 // ------------------------------
 
-template <bool kIsExpect, class ValueT>
+template <ErrorHandlerFn Handler, class ValueT>
 void VerboseAssertFalse(
     const ValueT &value, const char *value_str, const char *file, const char *line
 )
 {
-    VerboseAssertOneArgBase<kIsExpect>(
+    VerboseAssertOneArgBase<Handler>(
         value,
         [](const ValueT &v) {
             return v == false;
@@ -289,12 +296,12 @@ void VerboseAssertFalse(
 // NOT_NULL assert base
 // ------------------------------
 
-template <bool kIsExpect, class ValueT>
+template <ErrorHandlerFn Handler, class ValueT>
 void VerboseAssertNotNull(
     const ValueT &value, const char *value_str, const char *file, const char *line
 )
 {
-    VerboseAssertOneArgBase<kIsExpect>(
+    VerboseAssertOneArgBase<Handler>(
         value,
         [](const ValueT &v) {
             return v != nullptr;
@@ -318,12 +325,12 @@ void VerboseAssertNotNull(
 // NULL assert base
 // ------------------------------
 
-template <bool kIsExpect, class ValueT>
+template <ErrorHandlerFn Handler, class ValueT>
 void VerboseAssertNull(
     const ValueT &value, const char *value_str, const char *file, const char *line
 )
 {
-    VerboseAssertOneArgBase<kIsExpect>(
+    VerboseAssertOneArgBase<Handler>(
         value,
         [](const ValueT &v) {
             return v == nullptr;
@@ -347,13 +354,13 @@ void VerboseAssertNull(
 // LT (Less Than) assert base
 // ------------------------------
 
-template <bool kIsExpect, class Val1T, class Val2T>
+template <ErrorHandlerFn Handler, class Val1T, class Val2T>
 void VerboseAssertLt(
     const Val1T &val1, const Val2T &val2, const char *val1_str, const char *val2_str,
     const char *file, const char *line
 )
 {
-    VerboseAssertTwoArgBase<kIsExpect>(
+    VerboseAssertTwoArgBase<Handler>(
         val1, val2,
         [](const Val1T &v1, const Val2T &v2) {
             return v1 < v2;
@@ -380,13 +387,13 @@ void VerboseAssertLt(
 // LE (Less Than or Equal) assert base
 // ------------------------------
 
-template <bool kIsExpect, class Val1T, class Val2T>
+template <ErrorHandlerFn Handler, class Val1T, class Val2T>
 void VerboseAssertLe(
     const Val1T &val1, const Val2T &val2, const char *val1_str, const char *val2_str,
     const char *file, const char *line
 )
 {
-    VerboseAssertTwoArgBase<kIsExpect>(
+    VerboseAssertTwoArgBase<Handler>(
         val1, val2,
         [](const Val1T &v1, const Val2T &v2) {
             return v1 <= v2;
@@ -413,13 +420,13 @@ void VerboseAssertLe(
 // GT (Greater Than) assert base
 // ------------------------------
 
-template <bool kIsExpect, class Val1T, class Val2T>
+template <ErrorHandlerFn Handler, class Val1T, class Val2T>
 void VerboseAssertGt(
     const Val1T &val1, const Val2T &val2, const char *val1_str, const char *val2_str,
     const char *file, const char *line
 )
 {
-    VerboseAssertTwoArgBase<kIsExpect>(
+    VerboseAssertTwoArgBase<Handler>(
         val1, val2,
         [](const Val1T &v1, const Val2T &v2) {
             return v1 > v2;
@@ -446,13 +453,13 @@ void VerboseAssertGt(
 // GE (Greater Than or Equal) assert base
 // ------------------------------
 
-template <bool kIsExpect, class Val1T, class Val2T>
+template <ErrorHandlerFn Handler, class Val1T, class Val2T>
 void VerboseAssertGe(
     const Val1T &val1, const Val2T &val2, const char *val1_str, const char *val2_str,
     const char *file, const char *line
 )
 {
-    VerboseAssertTwoArgBase<kIsExpect>(
+    VerboseAssertTwoArgBase<Handler>(
         val1, val2,
         [](const Val1T &v1, const Val2T &v2) {
             return v1 >= v2;
@@ -479,13 +486,13 @@ void VerboseAssertGe(
 // String Equal assert base
 // ------------------------------
 
-template <bool kIsExpect>
+template <ErrorHandlerFn Handler>
 void VerboseAssertStrEq(
     const char *val1, const char *val2, const char *val1_str, const char *val2_str,
     const char *file, const char *line
 )
 {
-    VerboseAssertTwoArgBase<kIsExpect>(
+    VerboseAssertTwoArgBase<Handler>(
         val1, val2,
         [](const char *v1, const char *v2) {
             return strcmp(v1, v2) == 0;
@@ -512,13 +519,13 @@ void VerboseAssertStrEq(
 // String Not Equal assert base
 // ------------------------------
 
-template <bool kIsExpect>
+template <ErrorHandlerFn Handler>
 void VerboseAssertStrNeq(
     const char *val1, const char *val2, const char *val1_str, const char *val2_str,
     const char *file, const char *line
 )
 {
-    VerboseAssertTwoArgBase<kIsExpect>(
+    VerboseAssertTwoArgBase<Handler>(
         val1, val2,
         [](const char *v1, const char *v2) {
             return strcmp(v1, v2) != 0;
