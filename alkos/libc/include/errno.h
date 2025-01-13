@@ -2,6 +2,7 @@
 #define LIBC_INCLUDE_ERRNO_H_
 
 #include <todo.h>
+#include <defines.h>
 
 // ------------------------------
 // Error type
@@ -18,7 +19,9 @@ typedef error_t errno_t;
 /* Errno should be thread local */
 TODO_THREADING
 
-extern error_t *__access_errno(void);
+BEGIN_DECL_C
+error_t *__access_errno(void);
+END_DECL_C
 
 #define errno (*__access_errno())
 

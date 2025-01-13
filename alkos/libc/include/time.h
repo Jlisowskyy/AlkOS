@@ -29,7 +29,8 @@ typedef struct tm {
     int tm_year; /* years since 1900 */
     int tm_wday; /* days since sunday [0-6] */
     int tm_yday; /* days since january 1 [0-365] */
-    int tm_isdst; /* Daylight Saving Time flag. The value is positive if DST is in effect, zero if not and negative if no information is available*/
+    int tm_isdst;
+    /* Daylight Saving Time flag. The value is positive if DST is in effect, zero if not and negative if no information is available*/
 } tm;
 
 typedef uint64_t time_t;
@@ -40,6 +41,7 @@ typedef struct timespec {
     long tv_nsec; /* nanoseconds */
 } timespec;
 
+BEGIN_DECL_C
 // ------------------------------
 // Time manipulation
 // ------------------------------
@@ -61,7 +63,7 @@ int timespec_getres(struct timespec *ts, int base);
 // ------------------------------
 
 /* valid until C23 */
-char* asctime(const tm *time_ptr);
+char *asctime(const tm *time_ptr);
 
 /* C11 */
 errno_t asctime_s(char *buf, rsize_t bufsz, const tm *time_ptr);
@@ -72,7 +74,8 @@ char *ctime(const time_t *timer);
 /* C11 */
 errno_t ctime_s(char *buf, rsize_t bufsz, const time_t *timer);
 
-size_t strftime(char * __restrict__ s, size_t max_size, const char * __restrict__ format, const tm * __restrict__ time_ptr);
+size_t strftime(char *__restrict__ s, size_t max_size, const char *__restrict__ format,
+                const tm *__restrict__ time_ptr);
 
 struct tm *gmtime(const time_t *timer);
 
@@ -80,7 +83,7 @@ struct tm *gmtime(const time_t *timer);
 struct tm *gmtime_r(const time_t *timer, struct tm *result);
 
 /* C11 */
-struct tm *gmtime_s(const time_t* __restrict__ timer, struct tm* __restrict__ result);
+struct tm *gmtime_s(const time_t *__restrict__ timer, struct tm *__restrict__ result);
 
 struct tm *localtime(const time_t *timer);
 
@@ -88,8 +91,10 @@ struct tm *localtime(const time_t *timer);
 struct tm *localtime_r(const time_t *timer, struct tm *result);
 
 /* C11 */
-struct tm *localtime_s(const time_t* __restrict__ timer, struct tm* __restrict__ result);
+struct tm *localtime_s(const time_t *__restrict__ timer, struct tm *__restrict__ result);
 
 time_t mktime(struct tm *time_ptr);
+
+END_DECL_C
 
 #endif // LIBC_INCLUDE_TIME_H_
