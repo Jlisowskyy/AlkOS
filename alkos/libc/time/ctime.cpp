@@ -1,12 +1,12 @@
 #include <time.h>
 #include <assert.h>
 
-[[deprecated]] char *asctime(const tm *time_ptr) {
+char *ctime(const time_t *timer) {
     assert(false && "Not implemented!");
     return nullptr;
 }
 
-errno_t asctime_s(char *buf, rsize_t bufsz, const tm *time_ptr) {
+errno_t ctime_s(char *buf, rsize_t bufsz, const time_t *timer) {
     assert(false && "Not implemented!");
     return errno_t{};
 }
