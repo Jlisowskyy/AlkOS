@@ -21,6 +21,7 @@ TODO_THREADING
 
 BEGIN_DECL_C
 error_t *__access_errno(void);
+
 END_DECL_C
 
 #define errno (*__access_errno())
@@ -29,12 +30,14 @@ END_DECL_C
 // Error defines
 // ------------------------------
 
-/* ISO C standard errors */
-
 #define __cast_er(x) ((error_t)(x))
-#define EDOM         __cast_er(1) /* Math argument out of domain of func */
-#define EILSEQ       __cast_er(2) /* Illegal byte sequence */
-#define ERANGE       __cast_er(3) /* Result too large */
+
+#define NO_ERROR __cast_er(0)
+
+/* ISO C standard errors */
+#define EDOM   __cast_er(1) /* Math argument out of domain of func */
+#define EILSEQ __cast_er(2) /* Illegal byte sequence */
+#define ERANGE __cast_er(3) /* Result too large */
 
 /* POSIX errors */
 /* source: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/errno.h.html */
