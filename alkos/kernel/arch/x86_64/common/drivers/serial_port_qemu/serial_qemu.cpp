@@ -6,7 +6,7 @@
 /* internal includes */
 #include <debug.hpp>
 #include <io.hpp>
-#include <kernel_assert.hpp>
+#include <assert.h>
 #include <serial_port_qemu/serial_qemu.hpp>
 
 // ------------------------------

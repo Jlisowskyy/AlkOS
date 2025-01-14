@@ -32,13 +32,4 @@ static constexpr bool kIsDebugBuild = false;
 static constexpr bool kIsDebugBuild = true;
 #endif  // NDEBUG
 
-// ------------------------------
-// Useful macros
-// ------------------------------
-
-/* Convert a token into a string */
-#define STRINGIFY(x) #x
-/* Apply STRINGIFY to expand macros before conversion */
-#define TOSTRING(x) STRINGIFY(x)
-
 #endif  // KERNEL_INCLUDE_DEFINES_HPP_

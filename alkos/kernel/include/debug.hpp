@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <debug_terminal.hpp>
 #include <defines.hpp>
-#include <kernel_assert.hpp>
+#include <assert.h>
 
 // ------------------------------
 // Traces

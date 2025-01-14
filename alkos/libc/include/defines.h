@@ -45,6 +45,15 @@ static constexpr bool kIsKernel = false;
 #define NO_OPT __attribute__((optimize("O0")))
 
 // ------------------------------
+// Useful macros
+// ------------------------------
+
+/* Convert a token into a string */
+#define STRINGIFY(x) #x
+/* Apply STRINGIFY to expand macros before conversion */
+#define TOSTRING(x) STRINGIFY(x)
+
+// ------------------------------
 // Lang specific defines
 // ------------------------------
 

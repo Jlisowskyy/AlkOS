@@ -5,7 +5,7 @@
 #include <debug.hpp>
 #include <defines.hpp>
 #include <idt.hpp>
-#include <kernel_assert.hpp>
+#include <assert.h>
 #include <panic.hpp>
 
 /* crucial defines */

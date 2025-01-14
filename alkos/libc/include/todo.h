@@ -10,4 +10,7 @@
 /* should be changed when threads are implemented */
 #define TODO_THREADING
 
+#define TODO_BY_THE_END_OF_MILESTONE0
+#define TODO_BY_THE_END_OF_MILESTONE1
+
 #endif // LIBC_INCLUDE_TODO_H_

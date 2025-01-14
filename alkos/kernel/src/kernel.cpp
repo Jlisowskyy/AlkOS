@@ -3,7 +3,7 @@
 /* internal includes */
 #include <debug.hpp>
 #include <init.hpp>
-#include <kernel_assert.hpp>
+#include <assert.h>
 #include <terminal.hpp>
 
 static void KernelRun() { TerminalWriteString("Hello from AlkOS!\n"); }
