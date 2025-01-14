@@ -1,5 +1,5 @@
-#include <multiboot2_extensions.hpp>
 #include <multiboot2.h>
+#include <multiboot2_extensions.hpp>
 #include <terminal.hpp>
 #include <types.hpp>
 #include "debug.hpp"
@@ -42,7 +42,8 @@ multiboot_tag_module *FindKernelModule(void *multiboot_info_addr)
     return kernel_module;
 }
 
-multiboot_tag_mmap *FindMemoryMap(void *multiboot_info_addr) {
+multiboot_tag_mmap *FindMemoryMap(void *multiboot_info_addr)
+{
     for (auto *tag =
              reinterpret_cast<multiboot_tag *>(static_cast<char *>(multiboot_info_addr) + 8);
          tag->type != MULTIBOOT_TAG_TYPE_END;

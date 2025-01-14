@@ -19,7 +19,8 @@ class PhysicalMemoryManager
     //------------------------------------------------------------------------------//
     //                            Creation & Destruction                            //
     //------------------------------------------------------------------------------//
-public:
+
+    public:
     /**
      * @brief PhysicalMemoryManager - The default constructor should only ever be used in tests!!!
      * Use GetInstance() to get the singleton instance.
