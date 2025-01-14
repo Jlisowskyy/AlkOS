@@ -7,11 +7,14 @@
 #endif
 
 /* internal includes */
+#include <multiboot2.h>
 #include <arch_utils.hpp>
 #include <debug.hpp>
 #include <idt.hpp>
 #include <init.hpp>
 #include <loader_data.hpp>
+#include <multiboot2_extensions.hpp>
+#include <physical_memory_manager.hpp>
 #include <pic8259/pic8259.hpp>
 #include <terminal.hpp>
 
@@ -22,7 +25,7 @@ extern "C" void enable_sse();
 
 extern "C" void enable_avx();
 
-extern "C" void PreKernelInit(LoaderData* loader_data)
+extern "C" void PreKernelInit(LoaderData *loader_data)
 {
     TerminalInit();
     TRACE_INFO("In 64 bit mode");
@@ -30,8 +33,7 @@ extern "C" void PreKernelInit(LoaderData* loader_data)
     TRACE_INFO("Checking for LoaderData...");
     TRACE_INFO("LoaderData Address: 0x%X", loader_data);
     if (loader_data == nullptr) {
-        TRACE_ERROR("LoaderData check failed!");
-        OsHangNoInterrupts();
+        KernelPanic("LoaderData not found!");
     }
     TRACE_INFO("LoaderData multiboot_info_addr: 0x%X", loader_data->multiboot_info_addr);
     TRACE_INFO(
@@ -71,6 +73,41 @@ extern "C" void PreKernelInit(LoaderData* loader_data)
 
     EnableHardwareInterrupts();
     TRACE_INFO("Finished cpu features setup.");
+
+    TRACE_INFO("Mapping physical memory...");
+    multiboot_tag_mmap *mmap_tag =
+        FindMemoryMap(reinterpret_cast<void *>(loader_data->multiboot_info_addr));
+    if (mmap_tag == nullptr) {
+        KernelPanic("Memory map tag not found!");
+    }
+    TRACE_INFO("Memory map found at: 0x%X", mmap_tag);
+    TRACE_INFO("Memory map size: %d", mmap_tag->size);
+    TRACE_INFO("Memory map entry size: %d", mmap_tag->entry_size);
+    TRACE_INFO("Memory map entry version: %d", mmap_tag->entry_version);
+
+    multiboot_memory_map_t *mmap;
+    u64 total_memory_size = 0;
+    for (mmap = ((struct multiboot_tag_mmap *)mmap_tag)->entries;
+         (multiboot_uint8_t *)mmap < (multiboot_uint8_t *)mmap_tag + mmap_tag->size;
+         mmap = (multiboot_memory_map_t *)((unsigned long)mmap +
+                                           ((struct multiboot_tag_mmap *)mmap_tag)->entry_size)) {
+        TRACE_INFO(
+            "Memory map entry: base_addr = 0x%x%x,"
+            " length = 0x%x%x, type = 0x%x",
+            (unsigned)(mmap->addr >> 32), (unsigned)(mmap->addr & 0xffffffff),
+            (unsigned)(mmap->len >> 32), (unsigned)(mmap->len & 0xffffffff), (unsigned)mmap->type
+        );
+        if (mmap->type == MULTIBOOT_MEMORY_AVAILABLE) {
+            TRACE_INFO(
+                "Adding memory region %x-%x to available memory", mmap->addr, mmap->addr + mmap->len
+            );
+            // TODO: Add memory region to available memory
+            total_memory_size += mmap->len;
+        } else {
+            TRACE_INFO("Memory reserved");
+        }
+    }
+    TRACE_INFO("Total memory size: %d MB", total_memory_size / 1024 / 1024);
 
     TRACE_INFO("Pre-kernel initialization finished.");
 }
