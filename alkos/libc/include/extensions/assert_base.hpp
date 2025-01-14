@@ -18,13 +18,13 @@ static constexpr size_t kObjToHexBuffSize = 512;
 
 template<typename ObjT>
 void VerboseAssertDumpObjToHex(const ObjT &obj, char *buffer, size_t buffer_size) {
-    ASSERT(buffer != nullptr);
-    ASSERT(buffer_size > 0);
+    assert(buffer != nullptr);
+    assert(buffer_size > 0);
 
     const auto obj_bytes = reinterpret_cast<const uint8_t *>(&obj);
     for (size_t i = 0; i < sizeof(ObjT); ++i) {
         const int bytes_written = snprintf(buffer, buffer_size, "%02X ", obj_bytes[i]);
-        ASSERT(
+        assert(
             bytes_written < static_cast<int>(buffer_size) &&
             "VerboseAssertDumpObjToHex buffer fully used!"
         );
@@ -55,7 +55,7 @@ FAST_CALL void VerboseAssertDump(const char *msg, const char *file, const char *
         full_msg, kFullAssertMsgBuffSize, "Check failed at file: %s and line: %s\n%s\n",
         file, line, msg
     );
-    ASSERT(
+    assert(
         bytes_written < static_cast<int>(kFullAssertMsgBuffSize) &&
         "VerboseAssertDump buffer fully used!"
     );
@@ -123,7 +123,7 @@ FAST_CALL void VerboseAssertEq(
                 "Which is: %s\n",
                 e_str, e_dump, v_str, v_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertEq buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertEq buffer fully used!");
         },
         expected_str, value_str, file, line
     );
@@ -155,7 +155,7 @@ FAST_CALL void VerboseAssertNeq(
                 "Which is: %s\n",
                 e_str, e_dump, v_str, v_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertNeq buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertNeq buffer fully used!");
         },
         expected_str, value_str, file, line
     );
@@ -184,7 +184,7 @@ void VerboseAssertZero(
                 "Which is: %s\n",
                 v_str, v_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertTrue buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertTrue buffer fully used!");
         },
         value_str, file, line
     );
@@ -213,7 +213,7 @@ void VerboseAssertTrue(
                 "Which is: %s\n",
                 v_str, v_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertTrue buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertTrue buffer fully used!");
         },
         value_str, file, line
     );
@@ -242,7 +242,7 @@ void VerboseAssertFalse(
                 "Which is: %s\n",
                 v_str, v_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertFalse buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertFalse buffer fully used!");
         },
         value_str, file, line
     );
@@ -270,7 +270,7 @@ void VerboseAssertNotNull(
                 "Which is: %s\n",
                 v_str, v_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertNotNull buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertNotNull buffer fully used!");
         },
         value_str, file, line
     );
@@ -298,7 +298,7 @@ void VerboseAssertNull(
                 "Which is: %s\n",
                 v_str, v_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertNull buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertNull buffer fully used!");
         },
         value_str, file, line
     );
@@ -330,7 +330,7 @@ void VerboseAssertLt(
                 "Which is: %s\n",
                 v1_str, v1_dump, v2_str, v2_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertLt buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertLt buffer fully used!");
         },
         val1_str, val2_str, file, line
     );
@@ -362,7 +362,7 @@ void VerboseAssertLe(
                 "Which is: %s\n",
                 v1_str, v1_dump, v2_str, v2_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertLe buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertLe buffer fully used!");
         },
         val1_str, val2_str, file, line
     );
@@ -394,7 +394,7 @@ void VerboseAssertGt(
                 "Which is: %s\n",
                 v1_str, v1_dump, v2_str, v2_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertGt buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertGt buffer fully used!");
         },
         val1_str, val2_str, file, line
     );
@@ -426,7 +426,7 @@ void VerboseAssertGe(
                 "Which is: %s\n",
                 v1_str, v1_dump, v2_str, v2_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertGe buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertGe buffer fully used!");
         },
         val1_str, val2_str, file, line
     );
@@ -458,7 +458,7 @@ void VerboseAssertStrEq(
                 "Which is: %s\n",
                 v1_str, v1_dump, v2_str, v2_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertStrEq buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertStrEq buffer fully used!");
         },
         val1_str, val2_str, file, line
     );
@@ -490,7 +490,7 @@ void VerboseAssertStrNeq(
                 "Which is: %s\n",
                 v1_str, v1_dump, v2_str, v2_dump
             );
-            ASSERT(bytes_written < size && "VerboseAssertStrNeq buffer fully used!");
+            assert(bytes_written < size && "VerboseAssertStrNeq buffer fully used!");
         },
         val1_str, val2_str, file, line
     );

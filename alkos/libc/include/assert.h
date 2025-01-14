@@ -3,6 +3,10 @@
 
 #include <todo.h>
 
+// ------------------------------
+// Kernel Asserts
+// ------------------------------
+
 #ifdef __ALKOS_KERNEL__
 
 #include <panic.hpp>
@@ -26,6 +30,10 @@
 /* libc default assert macro */
 #define assert(expr) ASSERT(expr)
 
+// ------------------------------
+// Userspace asserts
+// ------------------------------
+
 #else
 
 #define __ASSERT_FAIL_FUNC TODO_USERSPACE
@@ -37,6 +45,10 @@
 #endif // NDEBUG
 
 #endif
+
+// ------------------------------
+// C++ extended asserts
+// ------------------------------
 
 #ifdef __cplusplus
 
