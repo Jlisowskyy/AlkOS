@@ -7,6 +7,7 @@
 
 WRAP_CALL time_t QuerySystemTime()
 {
+    /* TODO: Implement mktime first */
     // tm rtcTime = ReadRtcTime();
     // return mktime(&rtcTime);
     return {};
