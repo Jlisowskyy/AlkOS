@@ -1,9 +1,9 @@
 #include <test_module/test_module.hpp>
 
 /* internal includes */
+#include <assert.h>
 #include <debug.hpp>
 #include <init.hpp>
-#include <assert.h>
 #include <terminal.hpp>
 
 static void KernelRun() { TerminalWriteString("Hello from AlkOS!\n"); }

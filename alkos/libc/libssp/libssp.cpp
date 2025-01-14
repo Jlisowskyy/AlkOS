@@ -54,10 +54,7 @@ static void __stack_chk_init_kernel() {}
 /**
  * @todo Add some debug message about stack in future
  */
-WRAP_CALL NO_RET void __stack_chk_fail_kernel()
-{
-    KernelPanic("Stack smashing detected");
-}
+WRAP_CALL NO_RET void __stack_chk_fail_kernel() { KernelPanic("Stack smashing detected"); }
 
 #endif  // __ALKOS_KERNEL__
 

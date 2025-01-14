@@ -1,7 +1,7 @@
 /* internal includes */
+#include <assert.h>
 #include <stdio.h>
 #include <arch_utils.hpp>
-#include <assert.h>
 #include <terminal.hpp>
 
 /**

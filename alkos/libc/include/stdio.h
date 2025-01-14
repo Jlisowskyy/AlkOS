@@ -1,9 +1,9 @@
 #ifndef LIBC_INCLUDE_STDIO_H_
 #define LIBC_INCLUDE_STDIO_H_
 
+#include <defines.h>
 #include <stdarg.h>
 #include <stddef.h>
-#include <defines.h>
 
 BEGIN_DECL_C
 /**

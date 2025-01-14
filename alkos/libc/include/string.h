@@ -1,8 +1,8 @@
 #ifndef LIBC_INCLUDE_STRING_H_
 #define LIBC_INCLUDE_STRING_H_
 
-#include <stddef.h>
 #include <defines.h>
+#include <stddef.h>
 
 BEGIN_DECL_C
 /**

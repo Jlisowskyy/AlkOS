@@ -1,9 +1,8 @@
 #ifndef ALKOS_MALLOC_H_
 #define ALKOS_MALLOC_H_
 
-#include <stddef.h>
 #include <defines.h>
-
+#include <stddef.h>
 
 BEGIN_DECL_C
 /**

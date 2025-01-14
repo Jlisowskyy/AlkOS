@@ -2,10 +2,11 @@
 #define ALKOS_KERNEL_TEST_TEST_MODULE_EXPECT_HPP_
 
 #include <assert.h>
-#include <test_module/test_module.hpp>
 #include <terminal.hpp>
+#include <test_module/test_module.hpp>
 
-inline void ExpectHandler(const char* msg) {
+inline void ExpectHandler(const char* msg)
+{
     test::g_testCheckFailed = true;
     TerminalWriteString(msg);
 }
@@ -28,4 +29,4 @@ inline void ExpectHandler(const char* msg) {
 #define EXPECT_STREQ(val1, val2)    BASE_ASSERT_STREQ(true, val1, val2, ExpectHandler)
 #define EXPECT_STRNEQ(val1, val2)   BASE_ASSERT_STRNEQ(true, val1, val2, ExpectHandler)
 
-#endif // ALKOS_KERNEL_TEST_TEST_MODULE_EXPECT_HPP_
+#endif  // ALKOS_KERNEL_TEST_TEST_MODULE_EXPECT_HPP_

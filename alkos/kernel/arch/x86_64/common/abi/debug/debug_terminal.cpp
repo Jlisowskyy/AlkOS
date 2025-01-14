@@ -1,6 +1,6 @@
 /* internal includes */
-#include <debug_terminal.hpp>
 #include <assert.h>
+#include <debug_terminal.hpp>
 #include <serial_port_qemu/serial_qemu.hpp>
 
 void DebugTerminalWriteArch_(const char *const buffer)

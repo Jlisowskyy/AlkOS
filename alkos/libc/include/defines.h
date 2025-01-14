@@ -17,7 +17,7 @@ static constexpr bool kIsKernel = true;
 static constexpr bool kIsKernel = false;
 #endif
 
-#endif // __cplusplus
+#endif  // __cplusplus
 
 // ------------------------------
 // Attribute macros
@@ -60,17 +60,17 @@ static constexpr bool kIsKernel = false;
 /* C decl */
 #ifdef __cplusplus
 #define BEGIN_DECL_C extern "C" {
-#define END_DECL_C } // extern "C"
-#else // __cplusplus
+#define END_DECL_C   }  // extern "C"
+#else                   // __cplusplus
 #define BEGIN_DECL_C
 #define END_DECL_C
-#endif // __cplusplus
+#endif  // __cplusplus
 
 /* constexpr */
 #ifdef __cplusplus
 #define CONSTEPXR static constexpr
 #else
 #define CONSTEXPR static inline
-#endif // __cplusplus
+#endif  // __cplusplus
 
 #endif  // LIBC_INCLUDE_DEFINES_HPP_
