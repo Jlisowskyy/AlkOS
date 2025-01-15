@@ -142,6 +142,7 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
 
     //////////////////////////// Jumping to 64-bit Kernel /////////////////////////
     TRACE_INFO("Jumping to 64-bit kernel...");
+    // TODO: Rework this to actually use this signature, this is half finished
     enter_kernel(
         reinterpret_cast<void*>(kHigherHalfOffset >> 32), kernel_entry_relative_to_elf_start,
         &loader_data
