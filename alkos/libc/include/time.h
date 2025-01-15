@@ -93,9 +93,6 @@ struct tm *localtime(const time_t *timer);
 /* C23 */
 struct tm *localtime_r(const time_t *timer, struct tm *result);
 
-/* C11 */
-struct tm *localtime_s(const time_t *__restrict__ timer, struct tm *__restrict__ result);
-
 time_t mktime(struct tm *time_ptr);
 
 END_DECL_C
