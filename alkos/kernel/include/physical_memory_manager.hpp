@@ -94,7 +94,6 @@ class PhysicalMemoryManager
     //                               Private Fields                                 //
     //------------------------------------------------------------------------------//
 
-    static constexpr u64 kPhysicalPageSize = 4096;
     PhysicalMemList *free_pages_;
 };
 

@@ -10,11 +10,13 @@
  */
 static constexpr u64 kHigherHalfOffset = 0xFFFF800000000000;
 
+void ClearPageTables();
 void IdentityMapFirst4GbOfMemory();
 void IndentityMapKernelMemory(u64 kernel_start, u64 kernel_end);
 void MapKernelMemoryToHigherHalf(u64 kernel_start, u64 kernel_end);
 void MapVirtualMemoryToPhysical(
-    u64 virtual_address, u64 physical_address, u32 flags, u64* p3_table, u64* p2_table,
+    u32 virtual_address_lower, u32 virtual_address_upper, u32 physical_address_lower,
+    u32 physical_address_upper, u32 flags, u64* p4_table, u64* p3_table, u64* p2_table,
     u64* p1_table
 );
 

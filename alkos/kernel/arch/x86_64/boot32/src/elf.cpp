@@ -55,22 +55,49 @@ void* LoadElf64Module(uint8_t* elf_start, uint8_t* elf_end)
         if (phdr->p_type == PT_LOAD) {
             TRACE_INFO("Loading segment %d...", i + 1);
 
-            uint64_t segment_dest        = phdr->p_vaddr;
-            uint64_t segment_dest_size   = phdr->p_memsz;
-            uint64_t segment_source      = reinterpret_cast<uint64_t>(elf_start) + phdr->p_offset;
-            uint64_t segment_source_size = phdr->p_filesz;
+            u32 segment_dest      = static_cast<u32>(phdr->p_vaddr);
+            u32 segment_dest_size = static_cast<u32>(phdr->p_memsz);
+            u32 segment_source =
+                static_cast<u32>(reinterpret_cast<u32>(elf_start) + phdr->p_offset);
+            u32 segment_source_size = static_cast<u32>(phdr->p_filesz);
 
+            TRACE_INFO(
+                "Segment %d: dest=0x%X, dest_size=0x%X, source=0x%X, source_size=0x%X", i + 1,
+                static_cast<u32>(segment_dest), static_cast<u32>(segment_dest_size),
+                static_cast<u32>(segment_source), static_cast<u32>(segment_source_size)
+            );
+
+            // Test if the source is readable
+            //            TRACE_INFO("Source Readbility Test:");
+            for (u32 j = segment_source; j < segment_source + segment_source_size; j++) {
+                volatile u8 value = *reinterpret_cast<u8*>(j);
+                //                TRACE_INFO("0x%X ", *(reinterpret_cast<u8*>(segment_source + j)));
+            }
+
+            //            TRACE_INFO("Destination Writability Test:");
+            for (u32 j = segment_dest; j < segment_dest + segment_dest_size; j++) {
+                *reinterpret_cast<u8*>(j) = 0;
+                //                TRACE_INFO("0x%X, 0x%X", j, *reinterpret_cast<u8*>(j));
+            }
+
+            TRACE_INFO("Copying segment data...");
+
+            TRACE_INFO(
+                "Copying segment data from 0x%X to 0x%X, size 0x%X", segment_source, segment_dest,
+                segment_source_size
+            );
             // Copy segment data from ELF to destination
+
             memcpy(
                 reinterpret_cast<void*>(segment_dest), reinterpret_cast<void*>(segment_source),
-                static_cast<size_t>(segment_source_size)
+                segment_source_size
             );
 
             // Zero out the remaining memory if p_memsz > p_filesz
             if (segment_dest_size > segment_source_size) {
                 memset(
                     reinterpret_cast<void*>(segment_dest + segment_source_size), 0,
-                    static_cast<size_t>(segment_dest_size - segment_source_size)
+                    segment_dest_size - segment_source_size
                 );
             }
 
@@ -87,5 +114,6 @@ void* LoadElf64Module(uint8_t* elf_start, uint8_t* elf_end)
     TRACE_SUCCESS(
         "ELF-64 module loaded successfully. Entry point: 0x%X", static_cast<uint32_t>(ehdr->e_entry)
     );
-    return reinterpret_cast<void*>(ehdr->e_entry - reinterpret_cast<u32>(elf_start));
+    return reinterpret_cast<void*>(ehdr->e_entry);
+    //    return reinterpret_cast<void*>(ehdr->e_entry - reinterpret_cast<u32>(elf_start)); // TODO
 }

@@ -2,6 +2,7 @@
 #define ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_MULTIBOOT2_EXTENSIONS_HPP_
 
 #include <multiboot2.h>
+#include <types.hpp>
 
 /**
  * @brief Get the tag name from the tag type.
@@ -12,19 +13,29 @@
 const char* GetTagName(unsigned int type);
 
 /**
- * @brief Find the kernel module in the multiboot tags.
+ * @brief Find a tag in the multiboot info.
  *
- * @param multiboot_info_addr The address of the multiboot info structure.
- * @return multiboot_tag_module* The multiboot tag of the kernel module.
+ * @param multiboot_info_addr The address of the multiboot info.
+ * @param type The type of the tag.
+ *
+ * @return multiboot_tag* The tag if found, nullptr otherwise.
  */
-multiboot_tag_module* FindKernelModule(void* multiboot_info_addr);
+multiboot_tag* FindTagInMultibootInfo(void* multiboot_info_addr, u32 type);
+
+template <typename Callback>
+concept MemoryMapCallback = requires(Callback cb, multiboot_memory_map_t* entry) {
+    { cb(entry) };
+};
 
 /**
- * @brief Find the memory map tag in the multiboot tags.
+ * @brief Walk the memory map.
  *
- * @param multiboot_info_addr The address of the multiboot info structure.
- * @return multiboot_memory_map_t* The multiboot memory map tag.
+ * @param mmap_tag The memory map tag pointer.
+ * @param callback The callback function that accepts a memory map entry.
  */
-multiboot_tag_mmap* FindMemoryMap(void* multiboot_info_addr);
+template <MemoryMapCallback Callback>
+void WalkMemoryMap(multiboot_tag_mmap* mmap_tag, Callback callback);
+
+#include <multiboot2_extensions.tpp>
 
 #endif  // ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_MULTIBOOT2_EXTENSIONS_HPP_

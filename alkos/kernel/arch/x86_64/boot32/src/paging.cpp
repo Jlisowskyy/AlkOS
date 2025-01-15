@@ -1,22 +1,24 @@
+#include <assert.h>
 #include <stdint.h>
-#include <kernel_assert.hpp>
 #include <paging.hpp>
 #include <types.hpp>
+#include "debug.hpp"
+#include "memory.h"
 
 // Extern Declarations for Page Tables defined in Assembly
 
-u64 p4_table_loader[512];
-u64 p3_table_loader[512];
-u64 p2_table_loader[512];
-u64 p1_table_loader[512];
+u64 p4_table_loader[512] __attribute__((aligned(4096)));
+u64 p3_table_loader[512] __attribute__((aligned(4096)));
+u64 p2_table_loader[512] __attribute__((aligned(4096)));
+u64 p1_table_loader[512] __attribute__((aligned(4096)));
 
-u64 p3_table_kernel_identity[512];
-u64 p2_table_kernel_identity[512];
-u64 p1_table_kernel_identity[512];
+u64 p3_table_kernel_identity[512] __attribute__((aligned(4096)));
+u64 p2_table_kernel_identity[512] __attribute__((aligned(4096)));
+u64 p1_table_kernel_identity[512] __attribute__((aligned(4096)));
 
-u64 p3_table_kernel_higher_half[512];
-u64 p2_table_kernel_higher_half[512];
-u64 p1_table_kernel_higher_half[512];
+u64 p3_table_kernel_higher_half[512] __attribute__((aligned(4096)));
+u64 p2_table_kernel_higher_half[512] __attribute__((aligned(4096)));
+u64 p1_table_kernel_higher_half[512] __attribute__((aligned(4096)));
 
 // Page Table Entry Flags
 static constexpr u32 PRESENT_BIT       = (1 << 0);  // The page is present in memory
@@ -32,6 +34,22 @@ static constexpr u32 GLOBAL_BIT =
 static constexpr u32 TWO_MIB = 0x200000;
 // NO_EXECUTE_BIT is not used in 32-bit PAE
 
+void ClearPageTables()
+{
+    memset(p4_table_loader, 0, sizeof(p4_table_loader));
+    memset(p3_table_loader, 0, sizeof(p3_table_loader));
+    memset(p2_table_loader, 0, sizeof(p2_table_loader));
+    memset(p1_table_loader, 0, sizeof(p1_table_loader));
+
+    memset(p3_table_kernel_identity, 0, sizeof(p3_table_kernel_identity));
+    memset(p2_table_kernel_identity, 0, sizeof(p2_table_kernel_identity));
+    memset(p1_table_kernel_identity, 0, sizeof(p1_table_kernel_identity));
+
+    memset(p3_table_kernel_higher_half, 0, sizeof(p3_table_kernel_higher_half));
+    memset(p2_table_kernel_higher_half, 0, sizeof(p2_table_kernel_higher_half));
+    memset(p1_table_kernel_higher_half, 0, sizeof(p1_table_kernel_higher_half));
+}
+
 /**
  * @brief Initializes the page tables for PAE paging.
  *
@@ -42,10 +60,9 @@ static constexpr u32 TWO_MIB = 0x200000;
 void IdentityMapFirst4GbOfMemory()
 {
     for (int i = 0; i < 512; i++) {
-        // Each PD entry maps a 2 MiB page
         MapVirtualMemoryToPhysical(
-            TWO_MIB * i, TWO_MIB * i, PRESENT_BIT | WRITE_BIT | HUGE_PAGE_BIT, p3_table_loader,
-            p2_table_loader, p1_table_loader
+            TWO_MIB * i, 0, TWO_MIB * i, 0, PRESENT_BIT | WRITE_BIT | HUGE_PAGE_BIT,
+            p4_table_loader, p3_table_loader, p2_table_loader, nullptr
         );
     }
 }
@@ -56,12 +73,14 @@ void IdentityMapFirst4GbOfMemory()
  */
 void IndentityMapKernelMemory(u64 kernel_start, u64 kernel_end)
 {
-    for (u64 i = kernel_start; i < kernel_end; i += TWO_MIB) {
-        MapVirtualMemoryToPhysical(
-            i, i, PRESENT_BIT | WRITE_BIT | HUGE_PAGE_BIT, p3_table_kernel_identity,
-            p2_table_kernel_identity, p1_table_kernel_identity
-        );
-    }
+    //    for (u64 i = kernel_start; i < kernel_end; i += TWO_MIB) {
+    //        MapVirtualMemoryToPhysical(
+    //            i, i, PRESENT_BIT | WRITE_BIT | HUGE_PAGE_BIT,
+    //            p4_table_loader,
+    //            p3_table_kernel_identity,
+    //            p2_table_kernel_identity, nullptr
+    //        );
+    //    }
 }
 
 /**
@@ -76,14 +95,15 @@ void MapKernelMemoryToHigherHalf(u64 kernel_start, u64 kernel_end)
 {
     R_ASSERT((kernel_start & 0xFFF) == 0);  // Virtual address must be page aligned
 
-    for (u64 i = kernel_start; i < kernel_end; i += TWO_MIB) {
-        u64 KernelVirtualAddress  = i - kernel_start + kHigherHalfOffset;
-        u64 KernelPhysicalAddress = i;
-        MapVirtualMemoryToPhysical(
-            KernelVirtualAddress, KernelPhysicalAddress, PRESENT_BIT | WRITE_BIT | HUGE_PAGE_BIT,
-            p3_table_kernel_higher_half, p2_table_kernel_higher_half, p1_table_kernel_higher_half
-        );
-    }
+    //    for (u64 i = kernel_start; i < kernel_end; i += TWO_MIB) {
+    //        u64 KernelVirtualAddress  = i - kernel_start + kHigherHalfOffset;
+    //        u64 KernelPhysicalAddress = i;
+    //        MapVirtualMemoryToPhysical(
+    //            KernelVirtualAddress, KernelPhysicalAddress, PRESENT_BIT | WRITE_BIT |
+    //            HUGE_PAGE_BIT, p4_table_loader, p3_table_kernel_higher_half,
+    //            p2_table_kernel_higher_half, nullptr
+    //        );
+    //    }
 }
 
 /**
@@ -104,22 +124,29 @@ void MapKernelMemoryToHigherHalf(u64 kernel_start, u64 kernel_end)
  * @param p1_table The Page Table to use.
  */
 void MapVirtualMemoryToPhysical(
-    u64 virtual_address, u64 physical_address, u64 flags, u64* p3_table, u64* p2_table,
+    u32 virtual_address_lower, u32 virtual_address_upper, u32 physical_address_lower,
+    u32 physical_address_upper, u32 flags, u64* p4_table, u64* p3_table, u64* p2_table,
     u64* p1_table
 )
 {
-    R_ASSERT((virtual_address & 0xFFF) == 0);   // Virtual address must be page aligned
-    R_ASSERT((physical_address & 0xFFF) == 0);  // Physical address must be page aligned
+    R_ASSERT((virtual_address_lower & 0xFFF) == 0);   // Virtual address must be page aligned
+    R_ASSERT((physical_address_lower & 0xFFF) == 0);  // Physical address must be page aligned
+
+    //    TRACE_INFO(
+    //        "Mapping virtual address upper: 0x%X lower: 0x%X to physical address upper: 0x%X
+    //        lower: 0x%X with flags 0x%X", virtual_address_upper, virtual_address_lower,
+    //        physical_address_upper, physical_address_lower, flags
+    //    );
 
     // Calculate the indexes for each level of the page table
-    u64 p4_index = (virtual_address >> 39) & 0x1FF;
-    u64 p3_index = (virtual_address >> 30) & 0x1FF;
-    u64 p2_index = (virtual_address >> 21) & 0x1FF;
-    u64 p1_index = (virtual_address >> 12) & 0x1FF;
+    u32 p4_index = (virtual_address_upper >> (39 - 32)) & 0x1FF;
+    u32 p3_index = (virtual_address_lower >> 30) & 0x1FF;
+    u32 p2_index = (virtual_address_lower >> 21) & 0x1FF;
+    u32 p1_index = (virtual_address_lower >> 12) & 0x1FF;
 
     // Ensure PML4 entry points to the correct PDPT
-    if (!(p4_table_loader[p4_index] & PRESENT_BIT)) {
-        p4_table_loader[p4_index] = ((u64)p3_table) | PRESENT_BIT | WRITE_BIT;
+    if (!(p4_table[p4_index] & PRESENT_BIT)) {
+        p4_table[p4_index] = ((u64)p3_table) | PRESENT_BIT | WRITE_BIT;
     }
 
     // Ensure PDPT entry points to the correct PD
@@ -128,7 +155,8 @@ void MapVirtualMemoryToPhysical(
     }
 
     if (flags & HUGE_PAGE_BIT) {
-        p2_table[p2_index] = physical_address | flags;
+        p2_table[p2_index] = (u64)(physical_address_lower | ((u64)physical_address_upper << 32)) |
+                             PRESENT_BIT | WRITE_BIT | flags;
         return;
     }
 
@@ -137,6 +165,6 @@ void MapVirtualMemoryToPhysical(
         p2_table[p2_index] = ((u64)p1_table) | PRESENT_BIT | WRITE_BIT;
     }
 
-    // Set the PT entry to the physical address with the provided flags
-    p1_table[p1_index] = physical_address | flags;
+    p1_table[p1_index] = (u64)(physical_address_lower | ((u64)physical_address_upper << 32)) |
+                         PRESENT_BIT | WRITE_BIT | flags;
 }

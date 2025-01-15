@@ -14,10 +14,11 @@ extern "C" int check_long_mode();
 
 extern "C" void enable_paging();
 extern "C" void enable_long_mode();
-extern "C" void enter_kernel(
-    void* higher_32_bits_of_kernel_entry_address, void* lower_32_bits_of_kernel_entry_address,
-    void* loader_data_address
-);
+// extern "C" void enter_kernel(
+//     void* higher_32_bits_of_kernel_entry_address, void* lower_32_bits_of_kernel_entry_address,
+//     void* loader_data_address
+//);
+extern "C" void enter_kernel(void* kernel_entry, void* loader_data_address);
 
 // Buffer for text output
 char text_buffer[1024];
@@ -68,6 +69,10 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
     TRACE_INFO("Enabling hardware features...");
 
     //////////////////////// Setting up Paging Structures ////////////////////////
+    TRACE_INFO("Clearing page tables...");
+    ClearPageTables();
+    TRACE_SUCCESS("Page tables cleared!");
+
     TRACE_INFO("Identity mapping first 4 GiB of memory...");
     IdentityMapFirst4GbOfMemory();
     TRACE_SUCCESS("Identity mapping complete!");
@@ -89,24 +94,28 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
     TRACE_INFO("Parsing Multiboot2 tags...");
 
     ///////////////// Finding Kernel Module in Multiboot Struct //////////////////
-    multiboot_tag_module* kernel_module = FindKernelModule(multiboot_info_addr);
+    auto* kernel_module = reinterpret_cast<multiboot_tag_module*>(
+        FindTagInMultibootInfo(multiboot_info_addr, MULTIBOOT_TAG_TYPE_MODULE)
+    );
     if (kernel_module == nullptr) {
         KernelPanic("Kernel module not found in multiboot tags!");
     }
     TRACE_SUCCESS("Found kernel module in multiboot tags!");
 
+    TRACE_INFO("Kernel module type: %d", kernel_module->type);
+    TRACE_INFO("Kernel module size: %d", kernel_module->size);
     byte* kernel_module_start = reinterpret_cast<byte*>(kernel_module->mod_start);
     byte* kernel_module_end   = reinterpret_cast<byte*>(kernel_module->mod_end);
 
     TRACE_INFO("Kernel module start: 0x%X", kernel_module_start);
     TRACE_INFO("Kernel module end: 0x%X", kernel_module_end);
-    TRACE_INFO("Identity mapping %x-%x", kernel_module_start, kernel_module_end);
-    // Cast to u64 with first 32 bits zeroed
-    u64 kernel_module_start_u64 = reinterpret_cast<u64>(kernel_module_start) & k32BitMask;
-    u64 kernel_module_end_u64   = reinterpret_cast<u64>(kernel_module_end) & k32BitMask;
+    //    TRACE_INFO("Identity mapping %x-%x", kernel_module_start, kernel_module_end);
+    //     Cast to u64 with first 32 bits zeroed
+    //    u64 kernel_module_start_u64 = reinterpret_cast<u64>(kernel_module_start) & k32BitMask;
+    //    u64 kernel_module_end_u64   = reinterpret_cast<u64>(kernel_module_end) & k32BitMask;
     // TODO: Just name it temp identity map since it doesn't and won't map kernel binary code
     // This usage her maps kernel elf file, not the kernel itself
-    IndentityMapKernelMemory(kernel_module_start_u64, kernel_module_end_u64);
+    //    IndentityMapKernelMemory(kernel_module_start_u64, kernel_module_end_u64);
 
     /////////////////////////// Loading Kernel Module ////////////////////////////
     TRACE_INFO("Loading kernel module...");
@@ -120,7 +129,7 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
 
     // TODO: Map the higher half of virtual memory to the cool physical address of kernel executable
     // This maps the elf file, which is not the exec, this is my mistake
-    MapKernelMemoryToHigherHalf(kernel_module_start_u64, kernel_module_end_u64);
+    //    MapKernelMemoryToHigherHalf(kernel_module_start_u64, kernel_module_end_u64);
 
     ///////////////////// Initializing LoaderData Structure //////////////////////
     loader_data.multiboot_info_addr         = (u32)multiboot_info_addr;
@@ -143,8 +152,9 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
     //////////////////////////// Jumping to 64-bit Kernel /////////////////////////
     TRACE_INFO("Jumping to 64-bit kernel...");
     // TODO: Rework this to actually use this signature, this is half finished
-    enter_kernel(
-        reinterpret_cast<void*>(kHigherHalfOffset >> 32), kernel_entry_relative_to_elf_start,
-        &loader_data
-    );
+    enter_kernel(reinterpret_cast<void*>(kernel_entry_relative_to_elf_start), &loader_data);
+    //    enter_kernel(
+    //        reinterpret_cast<void*>(kHigherHalfOffset >> 32), kernel_entry_relative_to_elf_start,
+    //        &loader_data
+    //    );
 }

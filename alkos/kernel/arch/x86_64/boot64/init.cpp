@@ -75,38 +75,21 @@ extern "C" void PreKernelInit(LoaderData *loader_data)
     TRACE_INFO("Finished cpu features setup.");
 
     TRACE_INFO("Mapping physical memory...");
-    multiboot_tag_mmap *mmap_tag =
-        FindMemoryMap(reinterpret_cast<void *>(loader_data->multiboot_info_addr));
+    auto *mmap_tag = reinterpret_cast<multiboot_tag_mmap *>(FindTagInMultibootInfo(
+        reinterpret_cast<void *>(loader_data->multiboot_info_addr), MULTIBOOT_TAG_TYPE_MMAP
+    ));
     if (mmap_tag == nullptr) {
         KernelPanic("Memory map tag not found!");
     }
-    TRACE_INFO("Memory map found at: 0x%X", mmap_tag);
-    TRACE_INFO("Memory map size: %d", mmap_tag->size);
-    TRACE_INFO("Memory map entry size: %d", mmap_tag->entry_size);
-    TRACE_INFO("Memory map entry version: %d", mmap_tag->entry_version);
+    TRACE_INFO("Memory map tag found!");
 
-    multiboot_memory_map_t *mmap;
-    u64 total_memory_size = 0;
-    for (mmap = ((struct multiboot_tag_mmap *)mmap_tag)->entries;
-         (multiboot_uint8_t *)mmap < (multiboot_uint8_t *)mmap_tag + mmap_tag->size;
-         mmap = (multiboot_memory_map_t *)((unsigned long)mmap +
-                                           ((struct multiboot_tag_mmap *)mmap_tag)->entry_size)) {
-        TRACE_INFO(
-            "Memory map entry: base_addr = 0x%x%x,"
-            " length = 0x%x%x, type = 0x%x",
-            (unsigned)(mmap->addr >> 32), (unsigned)(mmap->addr & 0xffffffff),
-            (unsigned)(mmap->len >> 32), (unsigned)(mmap->len & 0xffffffff), (unsigned)mmap->type
-        );
-        if (mmap->type == MULTIBOOT_MEMORY_AVAILABLE) {
-            TRACE_INFO(
-                "Adding memory region %x-%x to available memory", mmap->addr, mmap->addr + mmap->len
-            );
-            // TODO: Add memory region to available memory
-            total_memory_size += mmap->len;
-        } else {
-            TRACE_INFO("Memory reserved");
+    uint64_t total_memory_size = 0;
+    WalkMemoryMap(mmap_tag, [&total_memory_size](multiboot_memory_map_t *mmap_entry) {
+        if (mmap_entry->type == MULTIBOOT_MEMORY_AVAILABLE) {
+            total_memory_size += mmap_entry->len;
         }
-    }
+    });
+
     TRACE_INFO("Total memory size: %d MB", total_memory_size / 1024 / 1024);
 
     TRACE_INFO("Pre-kernel initialization finished.");
