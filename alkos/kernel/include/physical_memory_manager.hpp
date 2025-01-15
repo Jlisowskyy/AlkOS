@@ -78,6 +78,8 @@ class PhysicalMemoryManager
     //                                Public Fields                                 //
     //------------------------------------------------------------------------------//
 
+    static constexpr u64 kPhysicalPageSize = 4096;
+
     private:
     //------------------------------------------------------------------------------//
     //                               Private Methods                                //
