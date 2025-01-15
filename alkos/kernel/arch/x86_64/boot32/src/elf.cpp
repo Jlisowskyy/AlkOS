@@ -87,5 +87,5 @@ void* LoadElf64Module(uint8_t* elf_start, uint8_t* elf_end)
     TRACE_SUCCESS(
         "ELF-64 module loaded successfully. Entry point: 0x%X", static_cast<uint32_t>(ehdr->e_entry)
     );
-    return reinterpret_cast<void*>(ehdr->e_entry);
+    return reinterpret_cast<void*>(ehdr->e_entry - reinterpret_cast<u32>(elf_start));
 }

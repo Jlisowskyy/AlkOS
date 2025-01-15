@@ -12,6 +12,7 @@ class PhysicalMemoryManager
     //------------------------------------------------------------------------------//
     //                                Internal Types                                //
     //------------------------------------------------------------------------------//
+
     struct PhysicalMemList {
         PhysicalMemList *next;
     };
@@ -81,6 +82,7 @@ class PhysicalMemoryManager
     //------------------------------------------------------------------------------//
     //                               Private Methods                                //
     //------------------------------------------------------------------------------//
+
     static constexpr u64 AlignAddressToPhysicalPageSize(u64 address)
     {
         return (address + kPhysicalPageSize - 1) & ~(kPhysicalPageSize - 1);
@@ -89,6 +91,7 @@ class PhysicalMemoryManager
     //------------------------------------------------------------------------------//
     //                               Private Fields                                 //
     //------------------------------------------------------------------------------//
+
     static constexpr u64 kPhysicalPageSize = 4096;
     PhysicalMemList *free_pages_;
 };
