@@ -5,16 +5,20 @@
 #include <elf.hpp>
 #include <loader_data.hpp>
 #include <multiboot2_extensions.hpp>
+#include <paging.hpp>
 #include <terminal.hpp>
 
 // External functions defined in assembly or C
 extern "C" int check_cpuid();
 extern "C" int check_long_mode();
 
-extern void SetupPageTables();
 extern "C" void enable_paging();
 extern "C" void enable_long_mode();
-extern "C" void enter_kernel(void* kernel_entry, void* multiboot_info_addr);
+// extern "C" void enter_kernel(
+//     void* higher_32_bits_of_kernel_entry_address, void* lower_32_bits_of_kernel_entry_address,
+//     void* loader_data_address
+//);
+extern "C" void enter_kernel(void* kernel_entry, void* loader_data_address);
 
 // Buffer for text output
 char text_buffer[1024];
@@ -29,6 +33,9 @@ extern const char loader_end[];
 // Data structure that holds information passed from the 32-bit loader to the 64-bit kernel
 LoaderData loader_data;
 
+// Helper
+static constexpr u64 k32BitMask = 0x00000000FFFFFFFF;
+
 extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_addr)
 {
     TerminalInit();
@@ -37,8 +44,7 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
     ////////////////////////////// Multiboot Check ///////////////////////////////
     TRACE_INFO("Checking for Multiboot2...");
     if (boot_loader_magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
-        TRACE_ERROR("Multiboot2 check failed!");
-        OsHangNoInterrupts();
+        KernelPanic("Multiboot2 check failed!");
     }
     TRACE_SUCCESS("Multiboot2 check passed!");
 
@@ -50,24 +56,26 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
 
     TRACE_INFO("Checking for CPUID...");
     if (check_cpuid()) {
-        TRACE_ERROR("CPUID check failed!");
-        OsHangNoInterrupts();
+        KernelPanic("CPUID check failed!");
     }
     TRACE_SUCCESS("CPUID check passed!");
 
     TRACE_INFO("Checking for long mode...");
     if (check_long_mode()) {
-        TRACE_ERROR("Long mode check failed!");
-        OsHangNoInterrupts();
+        KernelPanic("Long mode check failed!");
     }
     TRACE_SUCCESS("Long mode check passed!");
 
     TRACE_INFO("Enabling hardware features...");
 
     //////////////////////// Setting up Paging Structures ////////////////////////
-    TRACE_INFO("Setting up page tables...");
-    SetupPageTables();
-    TRACE_SUCCESS("Page tables setup complete!");
+    TRACE_INFO("Clearing page tables...");
+    ClearPageTables();
+    TRACE_SUCCESS("Page tables cleared!");
+
+    TRACE_INFO("Identity mapping first 4 GiB of memory...");
+    IdentityMapFirst4GbOfMemory();
+    TRACE_SUCCESS("Identity mapping complete!");
 
     ///////////////////////////// Enabling Hardware //////////////////////////////
     TRACE_INFO("Enabling long mode...");
@@ -86,22 +94,42 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
     TRACE_INFO("Parsing Multiboot2 tags...");
 
     ///////////////// Finding Kernel Module in Multiboot Struct //////////////////
-    multiboot_tag_module* kernel_module = FindKernelModule(multiboot_info_addr);
+    auto* kernel_module = reinterpret_cast<multiboot_tag_module*>(
+        FindTagInMultibootInfo(multiboot_info_addr, MULTIBOOT_TAG_TYPE_MODULE)
+    );
     if (kernel_module == nullptr) {
-        TRACE_ERROR("Failed to find kernel module!");
-        OsHangNoInterrupts();
+        KernelPanic("Kernel module not found in multiboot tags!");
     }
     TRACE_SUCCESS("Found kernel module in multiboot tags!");
 
+    TRACE_INFO("Kernel module type: %d", kernel_module->type);
+    TRACE_INFO("Kernel module size: %d", kernel_module->size);
+    byte* kernel_module_start = reinterpret_cast<byte*>(kernel_module->mod_start);
+    byte* kernel_module_end   = reinterpret_cast<byte*>(kernel_module->mod_end);
+
+    TRACE_INFO("Kernel module start: 0x%X", kernel_module_start);
+    TRACE_INFO("Kernel module end: 0x%X", kernel_module_end);
+    //    TRACE_INFO("Identity mapping %x-%x", kernel_module_start, kernel_module_end);
+    //     Cast to u64 with first 32 bits zeroed
+    //    u64 kernel_module_start_u64 = reinterpret_cast<u64>(kernel_module_start) & k32BitMask;
+    //    u64 kernel_module_end_u64   = reinterpret_cast<u64>(kernel_module_end) & k32BitMask;
+    // TODO: Just name it temp identity map since it doesn't and won't map kernel binary code
+    // This usage her maps kernel elf file, not the kernel itself
+    //    IndentityMapKernelMemory(kernel_module_start_u64, kernel_module_end_u64);
+
     /////////////////////////// Loading Kernel Module ////////////////////////////
     TRACE_INFO("Loading kernel module...");
-    void* kernel_entry =
-        LoadElf64Module((uint8_t*)kernel_module->mod_start, (uint8_t*)kernel_module->mod_end);
-    if (kernel_entry == nullptr) {
-        TRACE_ERROR("Failed to load kernel module!");
-        OsHangNoInterrupts();
+    void* kernel_entry_relative_to_elf_start =
+        // TODO rework the loading to load the kernel to some cool physical address
+        LoadElf64Module(kernel_module_start, kernel_module_end);
+    if (kernel_entry_relative_to_elf_start == nullptr) {
+        KernelPanic("Failed to load kernel module!");
     }
     TRACE_SUCCESS("Kernel module loaded!");
+
+    // TODO: Map the higher half of virtual memory to the cool physical address of kernel executable
+    // This maps the elf file, which is not the exec, this is my mistake
+    //    MapKernelMemoryToHigherHalf(kernel_module_start_u64, kernel_module_end_u64);
 
     ///////////////////// Initializing LoaderData Structure //////////////////////
     loader_data.multiboot_info_addr         = (u32)multiboot_info_addr;
@@ -123,5 +151,10 @@ extern "C" void PreKernelInit(uint32_t boot_loader_magic, void* multiboot_info_a
 
     //////////////////////////// Jumping to 64-bit Kernel /////////////////////////
     TRACE_INFO("Jumping to 64-bit kernel...");
-    enter_kernel(kernel_entry, &loader_data);
+    // TODO: Rework this to actually use this signature, this is half finished
+    enter_kernel(reinterpret_cast<void*>(kernel_entry_relative_to_elf_start), &loader_data);
+    //    enter_kernel(
+    //        reinterpret_cast<void*>(kHigherHalfOffset >> 32), kernel_entry_relative_to_elf_start,
+    //        &loader_data
+    //    );
 }

@@ -6,55 +6,21 @@
 
 extern char text_buffer[1024];
 
-multiboot_tag_module *FindKernelModule(void *multiboot_info_addr)
+multiboot_tag *FindTagInMultibootInfo(void *multiboot_info_addr, uint32_t type)
 {
-    multiboot_tag_module *kernel_module = nullptr;
+    TRACE_INFO("Searching for tag type: %s", GetTagName(type));
     for (auto *tag =
              reinterpret_cast<multiboot_tag *>(static_cast<char *>(multiboot_info_addr) + 8);
          tag->type != MULTIBOOT_TAG_TYPE_END;
          tag = reinterpret_cast<multiboot_tag *>(
              reinterpret_cast<multiboot_uint8_t *>(tag) + ((tag->size + 7) & ~7)
          )) {
-        const char *tag_name = GetTagName(tag->type);
-        TRACE_INFO("Found tag: %s", tag_name);
-
-        if (tag->type == MULTIBOOT_TAG_TYPE_MODULE) {
-            auto *module  = reinterpret_cast<multiboot_tag_module *>(tag);
-            kernel_module = module;
-
-            // TODO: Modules should be loaded with a specific command line
-            // so that the loader knows which module is the kernel
-            // but for now, we will just take the last module as the kernel
-
-            TRACE_INFO(
-                "Module loaded at: 0x%X - 0x%X", static_cast<uint32_t>(module->mod_start),
-                static_cast<uint32_t>(module->mod_end)
-            );
-
-            TRACE_INFO(
-                "With command line: %s",
-                (module->cmdline && *static_cast<char *>(module->cmdline) != '\0')
-                    ? static_cast<char *>(module->cmdline)
-                    : "no command line provided"
-            );
+        if (tag->type == type) {
+            TRACE_SUCCESS("Found tag type: %s", GetTagName(type));
+            return tag;
         }
     }
-    return kernel_module;
-}
-
-multiboot_tag_mmap *FindMemoryMap(void *multiboot_info_addr)
-{
-    for (auto *tag =
-             reinterpret_cast<multiboot_tag *>(static_cast<char *>(multiboot_info_addr) + 8);
-         tag->type != MULTIBOOT_TAG_TYPE_END;
-         tag = reinterpret_cast<multiboot_tag *>(
-             reinterpret_cast<multiboot_uint8_t *>(tag) + ((tag->size + 7) & ~7)
-         )) {
-        if (tag->type == MULTIBOOT_TAG_TYPE_MMAP) {
-            auto *mmap = reinterpret_cast<multiboot_tag_mmap *>(tag);
-            return mmap;
-        }
-    }
+    TRACE_ERROR("Tag type: %s not found!", GetTagName(type));
     return nullptr;
 }
 

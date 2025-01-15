@@ -9,7 +9,7 @@ set -e
 NUM_CORES=$(nproc || echo 1)
 
 # Supported C++ file extensions (space-separated)
-CPP_EXTENSIONS="cpp cc c h hpp cuh"
+CPP_EXTENSIONS="cpp cc c h hpp cuh tpp"
 
 # Regular expression pattern to match C++ files
 CPP_PATTERN='\.('"$(echo $CPP_EXTENSIONS | tr ' ' '|')"')$'

@@ -8,7 +8,7 @@ RUN_ALKOS_SCRIPT_SOURCE_DIR="${RUN_ALKOS_SCRIPT_DIR}/../.."
 # qemu command
 RUN_ALKOS_SCRIPT_QEMU_COMMAND="qemu-system-x86_64"
 RUN_ALKOS_SCRIPT_GDB_ARGS="-s -S"
-RUN_ALKOS_SCRIPT_QEMU_ARGS="-serial stdio -enable-kvm -cpu host -display default,show-cursor=on"
+RUN_ALKOS_SCRIPT_QEMU_ARGS="-serial stdio -enable-kvm -cpu host -display default,show-cursor=on -m 4G"
 
 # Flags
 RUN_ALKOS_SCRIPT_VERBOSE=false
