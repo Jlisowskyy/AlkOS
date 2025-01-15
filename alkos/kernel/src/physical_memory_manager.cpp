@@ -1,6 +1,6 @@
+#include <assert.h>
 #include <memory.h>
 #include <debug.hpp>
-#include <kernel_assert.hpp>
 #include <physical_memory_manager.hpp>
 
 PhysicalMemoryManager instance{};

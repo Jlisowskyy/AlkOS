@@ -10,12 +10,12 @@
 #include <multiboot2.h>
 #include <arch_utils.hpp>
 #include <debug.hpp>
-#include <idt.hpp>
+#include <drivers/pic8259/pic8259.hpp>
 #include <init.hpp>
+#include <interrupts/idt.hpp>
 #include <loader_data.hpp>
 #include <multiboot2_extensions.hpp>
 #include <physical_memory_manager.hpp>
-#include <pic8259/pic8259.hpp>
 #include <terminal.hpp>
 
 /* external init procedures */
