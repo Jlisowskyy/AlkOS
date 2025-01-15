@@ -1,7 +1,7 @@
+#include <memory.h>
+#include <debug.hpp>
 #include <kernel_assert.hpp>
 #include <physical_memory_manager.hpp>
-#include "debug.hpp"
-#include "memory.h"
 
 PhysicalMemoryManager instance{};
 
@@ -39,12 +39,15 @@ byte *PhysicalMemoryManager::AllocatePage()
 
 void PhysicalMemoryManager::FreePage(byte *virtual_page_address)
 {
+    R_ASSERT(
+        virtual_page_address != nullptr
+    );  // We keep 0x0 as a null pointer and don't want to allow freeing it
     R_ASSERT(reinterpret_cast<u64>(virtual_page_address) % kPhysicalPageSize == 0);
     TRACE_INFO("Freeing page: 0x%X", virtual_page_address);
 
-    memset(
-        virtual_page_address, 1, kPhysicalPageSize
-    );  // Fill with 1s to catch use-after-free bugs
+    //    memset(
+    //        virtual_page_address, 1, kPhysicalPageSize
+    //    );  // Fill with 1s to catch use-after-free bugs
 
     auto *new_page = reinterpret_cast<PhysicalMemList *>(virtual_page_address);
     new_page->next = free_pages_;
