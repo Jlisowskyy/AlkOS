@@ -7,7 +7,7 @@
 BEGIN_DECL_C
 double modf(double num, double *integralPart);
 
-CONSTEPXR double fabs(double num)
+CONSTEXPR double fabs(double num)
 {
     uint64_t *intdbl = (uint64_t *)(&num);
     *intdbl &= ~(1ULL << 63);
