@@ -40,6 +40,7 @@ boot64:
 
           sub rsp, 32 ; shadow space
 
+
           ; There all basic initialization should be done
           mov rdi, 0
           mov edi, r10d

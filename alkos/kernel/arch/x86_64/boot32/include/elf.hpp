@@ -2,7 +2,6 @@
 #define ALK_OS_KERNEL_ARCH_X86_64_BOOT32_INCLUDE_ELF_HPP_
 
 #include <stdint.h>
-#include <tags.hpp>
 
 // ELF-64 Structures
 

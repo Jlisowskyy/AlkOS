@@ -378,22 +378,6 @@ struct multiboot_tag_load_base_addr {
     multiboot_uint32_t load_base_addr;
 };
 
-/**
- * @brief Get the tag name from the tag type.
- *
- * @param type The tag type.
- * @return const char* The tag name.
- */
-const char* GetTagName(unsigned int type);
-
-/**
- * @brief Find the kernel module in the multiboot tags.
- *
- * @param multiboot_info_addr The address of the multiboot info structure.
- * @return multiboot_tag_module* The multiboot tag of the kernel module.
- */
-multiboot_tag_module* FindKernelModule(void* multiboot_info_addr);
-
 #endif /*  ! ASM_FILE */
 
 #endif /*  ! MULTIBOOT_HEADER */

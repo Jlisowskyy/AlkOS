@@ -4,7 +4,7 @@
 #include <defines.hpp>
 #include <elf.hpp>
 #include <loader_data.hpp>
-#include <tags.hpp>
+#include <multiboot2_extensions.hpp>
 #include <terminal.hpp>
 
 // External functions defined in assembly or C
