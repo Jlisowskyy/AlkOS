@@ -17,6 +17,8 @@ static constexpr int64_t kSecondsInHour      = kSecondsInMinute * 60;
 static constexpr int64_t kSecondsInDay       = kSecondsInHour * 24;
 static constexpr int64_t kSecondsInUsualYear = kSecondsInDay * 365;
 
+static constexpr uint64_t kNanosInSecond = 1'000'000'000;
+
 /* posix epoch */
 static constexpr int64_t kPosixEpoch = 1970;
 

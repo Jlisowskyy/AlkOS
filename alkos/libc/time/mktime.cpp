@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <extensions/time.hpp>
+#include <time_internal.hpp>
 
 // ------------------------------
 // Constants
@@ -47,6 +48,19 @@ static uint64_t ConvertDateTime(const tm &date_time)
 
     /* adjust to fit in posix */
     time -= kPosixEpochTmSecondDiff;
+
+    /* adjust by timezone */
+    time -= static_cast<int64_t>(__GetLocalTimezoneOffsetNs() / kNanosInSecond);
+
+    if (date_time.tm_isdst > 0) {
+        time -= static_cast<int64_t>(__GetDstTimezoneOffsetNs() / kNanosInSecond);
+    }
+
+    if (date_time.tm_isdst < 0) {
+        /* TODO: here we should try to determine if DST is in effect */
+        TODO_BY_THE_END_OF_MILESTONE1
+        assert(false && "DST guess is not supported yet");
+    }
 
     if (time < 0) {
         return kConversionFailed;
