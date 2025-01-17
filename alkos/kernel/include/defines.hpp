@@ -3,6 +3,7 @@
 
 /* defines from libc */
 #include <defines.h>
+#include <extensions/defines.hpp>
 
 // ------------------------------------
 // Macro to constexpr conversions

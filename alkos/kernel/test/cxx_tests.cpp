@@ -1,3 +1,4 @@
+#include <extensions/tuple.hpp>
 #include <test_module/test.hpp>
 
 class TestClass
@@ -47,4 +48,20 @@ class AlignedTestClass : public TestGroupBase
 TEST_F(AlignedTestClass, TestAlignas)
 {
     R_ASSERT_EQ(static_cast<size_t>(0), reinterpret_cast<size_t>(m_mem) % 256);
+}
+
+TEST(TupleTest)
+{
+    const auto tuple = std::make_tuple(1, 2, 3);
+    EXPECT_EQ(1, tuple.get<0>());
+    EXPECT_EQ(2, tuple.get<1>());
+    EXPECT_EQ(3, tuple.get<2>());
+
+    const auto [a, b, c] = tuple;
+
+    const auto tuple1 = std::make_tuple(static_cast<int>(1), 1.0, 2.0f, "abcd");
+    EXPECT_EQ(static_cast<int>(1), tuple1.get<0>());
+    EXPECT_EQ(1.0, tuple1.get<1>());
+    EXPECT_EQ(2.0f, tuple1.get<2>());
+    EXPECT_STREQ("abcd", tuple1.get<3>());
 }
