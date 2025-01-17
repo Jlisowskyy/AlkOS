@@ -4,6 +4,8 @@
 #include <extensions/defines.hpp>
 #include <extensions/type_traits.hpp>
 
+namespace std
+{
 /* STL forward */
 template <typename T>
 NODSCRD constexpr T &&forward(remove_reference_t<T> &t) noexcept
@@ -23,5 +25,5 @@ NODSCRD constexpr remove_reference_t<T> &&move(T &&t) noexcept
 {
     return static_cast<remove_reference_t<T> &&>(t);
 }
-
+}  // namespace std
 #endif  // LIBC_INCLUDE_EXTENSIONS_UTILITY_HPP_
