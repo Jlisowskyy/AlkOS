@@ -16,6 +16,9 @@ NODSCRD FORCE_INLINE_F constexpr T &&forward(remove_reference_t<T> &t) noexcept
 template <typename T>
 NODSCRD FORCE_INLINE_F constexpr T &&forward(remove_reference_t<T> &&t) noexcept
 {
+    static_assert(
+        !is_lvalue_reference_v<T>, "std::forward must not be used to convert an rvalue to an lvalue"
+    );
     return static_cast<T &&>(t);
 }
 

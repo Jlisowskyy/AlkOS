@@ -279,6 +279,7 @@ constexpr bool is_array_v = is_array<T>::value;
 // std::decay
 // ------------------------------
 
+// clang-format off
 template <class T>
 struct decay {
     private:
@@ -286,12 +287,49 @@ struct decay {
 
     public:
     using type = conditional_t<
-        is_array_v<U>, add_pointer_t<remove_extent_t<U>>,
-        conditional_t<is_function_v<U>, add_pointer_t<U>, remove_cv_t<U>>>;
+        is_array_v<U>,
+        add_pointer_t<remove_extent_t<U>>,
+        conditional_t<
+            is_function_v<U>,
+            add_pointer_t<U>,
+            remove_cv_t<U>
+        >
+    >;
 };
+// clang-format on
 
 template <class T>
 using decay_t = typename decay<T>::type;
+
+// ------------------------------
+// std::is_lvalue_reference
+// ------------------------------
+
+template <typename>
+struct is_lvalue_reference : false_type {
+};
+
+template <typename _Tp>
+struct is_lvalue_reference<_Tp &> : true_type {
+};
+
+template <class T>
+constexpr bool is_lvalue_reference_v = is_lvalue_reference<T>::value;
+
+// ------------------------------
+// std::is_rvalue_reference
+// ------------------------------
+
+template <typename>
+struct is_rvalue_reference : false_type {
+};
+
+template <typename _Tp>
+struct is_rvalue_reference<_Tp &&> : true_type {
+};
+
+template <class T>
+constexpr bool is_rvalue_reference_v = is_rvalue_reference<T>::value;
 }  // namespace std
 
 #endif  // LIBC_INCLUDE_EXTENSIONS_TYPE_TRAITS_HPP_

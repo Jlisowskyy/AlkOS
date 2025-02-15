@@ -44,6 +44,7 @@ struct __BaseTuple {
         }
     }
 
+    protected:
     T m_value;
     __BaseTuple<Args...> m_next;
 };
@@ -66,6 +67,7 @@ struct __BaseTuple<T> {
         return m_value;
     }
 
+    protected:
     T m_value;
 };
 
@@ -81,11 +83,10 @@ struct tuple : __BaseTuple<Args...> {
 // make_tuple
 // ------------------------------
 
-/* TODO: decay? */
 template <typename... Args>
-NODSCRD FORCE_INLINE_F constexpr tuple<Args...> make_tuple(Args &&...args)
+NODSCRD FORCE_INLINE_F constexpr tuple<decay_t<Args>...> make_tuple(Args &&...args)
 {
-    return tuple<Args...>(std::forward<Args>(args)...);
+    return tuple<decay_t<Args>...>(std::forward<Args>(args)...);
 }
 
 // ------------------------------
@@ -142,7 +143,7 @@ struct tuple_element<Index, tuple<Args...>> {
 template <size_t Index, typename... Args>
 struct tuple_element<Index, const tuple<Args...>> {
     static_assert(Index < sizeof...(Args), "Index out of range");
-    using type = typename __TupleElement<Index, Args...>::type;
+    using type = typename __TupleElement<Index, const Args...>::type;
 };
 
 // ------------------------------
