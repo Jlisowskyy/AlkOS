@@ -18,9 +18,43 @@ namespace std {
     struct __BaseTuple {
         static constexpr size_t Size = 1 + sizeof...(Args);
 
-        FORCE_INLINE_F explicit constexpr __BaseTuple(T &&value, Args &&... args)
-            : m_value(std::forward<T>(value)), m_next(std::forward<Args>(args)...) {
+        /* 1. Default constructor */
+        FORCE_INLINE_F constexpr __BaseTuple() = default;
+
+        /* 2. Usual types */
+        FORCE_INLINE_F constexpr __BaseTuple(const T &value, const Args &... args)
+            : m_value(value), m_next(args...) {
         }
+
+        /* 3. Copy/move constructor */
+        FORCE_INLINE_F constexpr __BaseTuple(const __BaseTuple &other) = default;
+
+        FORCE_INLINE_F constexpr __BaseTuple(__BaseTuple &&other) = default;
+
+        /* 4. R-Value construction */
+        template<typename U, typename... UArgs>
+        FORCE_INLINE_F constexpr __BaseTuple(U &&value, UArgs &&... args)
+            : m_value(std::forward<U>(value)), m_next(std::forward<UArgs>(args)...) {
+            static_assert(sizeof...(UArgs) + 1 == Size, "Invalid number of arguments");
+        }
+
+        /* 5. Other tuple construction */
+        template<typename... UArgs>
+        FORCE_INLINE_F constexpr __BaseTuple(const __BaseTuple<UArgs...> &other)
+            : m_value(other.template get<0>()), m_next(other.m_next) {
+            static_assert(sizeof...(UArgs) + 1 == Size, "Invalid number of arguments");
+        }
+
+        template<typename U, typename... UArgs>
+        FORCE_INLINE_F constexpr __BaseTuple(__BaseTuple<U, UArgs...> &&other)
+            : m_value(std::forward<U>(other.template get<0>())),
+              m_next(std::forward<__BaseTuple<UArgs...> >(other.m_next)) {
+            static_assert(sizeof...(UArgs) + 1 == Size, "Invalid number of arguments");
+        }
+
+        // ------------------------------
+        // Methods
+        // ------------------------------
 
         template<size_t Index>
         NODSCRD FORCE_INLINE_F constexpr const auto &get() const {
@@ -43,14 +77,45 @@ namespace std {
         }
 
     protected:
-        T m_value;
-        __BaseTuple<Args...> m_next;
+        T m_value{};
+        __BaseTuple<Args...> m_next{};
     };
 
     template<typename T>
     struct __BaseTuple<T> {
-        explicit constexpr __BaseTuple(T &&value) : m_value(std::forward<T>(value)) {
+        /* 1. Default constructor */
+        FORCE_INLINE_F constexpr __BaseTuple() = default;
+
+        /* 2. Usual types */
+        FORCE_INLINE_F constexpr __BaseTuple(const T &value)
+            : m_value(value) {
         }
+
+        /*3. Copy/move constructor */
+        FORCE_INLINE_F constexpr __BaseTuple(const __BaseTuple &other) = default;
+
+        FORCE_INLINE_F constexpr __BaseTuple(__BaseTuple &&other) = default;
+
+        /* 4. R-Value construction */
+        template<typename U>
+        FORCE_INLINE_F constexpr __BaseTuple(U &&value)
+            : m_value(std::forward<U>(value)) {
+        }
+
+        /* 5. Other tuple construction */
+        template<typename U>
+        FORCE_INLINE_F constexpr __BaseTuple(const __BaseTuple<U> &other)
+            : m_value(other.template get<0>()) {
+        }
+
+        template<typename U>
+        FORCE_INLINE_F constexpr __BaseTuple(__BaseTuple<U> &&other)
+            : m_value(std::move(other.template get<0>())) {
+        }
+
+        // ------------------------------
+        // Methods
+        // ------------------------------
 
         template<size_t Index>
         NODSCRD FORCE_INLINE_F constexpr const T &get() const {
@@ -70,8 +135,34 @@ namespace std {
 
     template<typename... Args>
     struct tuple : __BaseTuple<Args...> {
-        FORCE_INLINE_F explicit constexpr tuple(Args &&... args)
-            : __BaseTuple<Args...>(std::forward<Args>(args)...) {
+        /* 1. Default constructor */
+        FORCE_INLINE_F constexpr tuple(): __BaseTuple<Args...>() {
+        };
+
+        /* 2. Usual types */
+        FORCE_INLINE_F constexpr tuple(const Args &... args): __BaseTuple<Args...>(args...) {
+        }
+
+        /* 3. Copy/move constructor */
+        FORCE_INLINE_F constexpr tuple(const tuple &other) = default;
+
+        FORCE_INLINE_F constexpr tuple(tuple &&other) = default;
+
+        /* 4. R-Value construction */
+        template<typename... UArgs>
+        FORCE_INLINE_F constexpr tuple(UArgs &&... args) : __BaseTuple<Args...>(std::forward<UArgs>(args)...) {
+            static_assert(sizeof...(UArgs) == sizeof...(Args), "Invalid number of arguments");
+        }
+
+        /* 5. Other tuple construction */
+        template<typename... UArgs>
+        FORCE_INLINE_F constexpr tuple(const tuple<UArgs...> &other): __BaseTuple<Args...>(other) {
+            static_assert(sizeof...(UArgs) == sizeof...(Args), "Invalid number of arguments");
+        }
+
+        template<typename... UArgs>
+        FORCE_INLINE_F constexpr tuple(tuple<UArgs...> &&other): __BaseTuple<Args...>(std::forward<Args...>(other)) {
+            static_assert(sizeof...(UArgs) == sizeof...(Args), "Invalid number of arguments");
         }
     };
 
@@ -80,8 +171,10 @@ namespace std {
     // ------------------------------
 
     template<typename... Args>
-    NODSCRD FORCE_INLINE_F constexpr tuple<decay_t<Args>...> make_tuple(Args &&... args) {
-        return tuple<decay_t<Args>...>(std::forward<Args>(args)...);
+    NODSCRD FORCE_INLINE_F constexpr tuple<remove_reference_t<decay_t<Args> >...> make_tuple(Args &&... args) {
+        using return_tuple_t = tuple<remove_reference_t<decay_t<Args> >...>;
+
+        return return_tuple_t(std::forward<Args>(args)...);
     }
 
     // ------------------------------
