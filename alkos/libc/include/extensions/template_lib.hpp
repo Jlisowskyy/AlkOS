@@ -122,20 +122,33 @@ struct TypeList<0, T, Ts...> {
     using type = T;
 };
 
-template<size_t N, template <size_t> class TypeIter>
+template<size_t N, template <size_t> class TypeList>
 struct IterateTypeList {
     template<class Callable>
     FORCE_INLINE_F static constexpr void Apply(Callable &&func) {
-        func.template operator()<N, typename TypeIter<N>::type>();
-        IterateTypeList<N - 1, TypeIter>::Apply(std::forward<Callable>(func));
+        func.template operator()<N, typename TypeList<N>::type>();
+        IterateTypeList<N - 1, TypeList>::Apply(std::forward<Callable>(func));
     }
 };
 
-template<template <size_t> class TypeIter>
-struct IterateTypeList<0, TypeIter> {
+template<template <size_t> class TypeList>
+struct IterateTypeList<0, TypeList> {
     template<class Callable>
     FORCE_INLINE_F static constexpr void Apply(Callable &&func) {
-        func.template operator()<0, typename TypeIter<0>::type>();
+        func.template operator()<0, typename TypeList<0>::type>();
+    }
+};
+
+template<class... Args>
+struct IterateTypes {
+    static_assert(sizeof...(Args) > 0, "Type list must not be empty");
+
+    template<size_t N>
+    using TypeList = TypeList<N, Args...>;
+
+    template<class Callable>
+    FORCE_INLINE_F static constexpr void Apply(Callable &&func) {
+        IterateTypeList<sizeof...(Args) - 1, TypeList>::Apply(std::forward<Callable>(func));
     }
 };
 

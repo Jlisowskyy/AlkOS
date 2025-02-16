@@ -181,28 +181,15 @@ namespace std {
     // ------------------------------
 
     template<class T, class... Args>
-    struct TupleGetIndexByType_ {
-        template<size_t N>
-        using iter = TypeList<N, Args...>;
+    NODSCRD FORCE_INLINE_F constexpr size_t __GetTypeIndex {
+        static_assert(HasTypeOnce<T, Args...>(), "Type must occur exactly once in the tuple");
+        size_t idx{};
 
-        constexpr size_t TupleGetIndexByTypeFunc_() {
-            for (size_t idx = 0; idx < sizeof...(Args); idx++) {
-                constexpr bool result = RolledSwitchReturnable<size_t, sizeof...(Args), 1>(
-                    [&]<size_t idx>() constexpr {
-                        if constexpr (is_same_v<typename iter<sizeof...(Args)>::type, T>) {
-                            return true;
-                        }
-                        return false;
-                    }
-                );
-
-                if constexpr (result) {
-                    return idx;
-                }
+        IterateTypes<Args...>::Apply([&]<size_t Index, class U>() {
+            if constexpr (std::is_same_v<T, U>) {
+                idx = Index;
             }
-
-            return SIZE_MAX;
-        }
+        });
     };
 
     template<class T, class... Args>

@@ -134,3 +134,20 @@ struct TestFunctor {
 TEST_F(TemplateLibTest, IterateTypeListTest) {
     IterateTypeList<2, TypeIterator>::Apply(TestFunctor{});
 }
+
+struct TestFunctorTypes {
+    template<size_t Index, typename T>
+    void operator()() const {
+        if constexpr (Index == 0) {
+            EXPECT_TRUE((std::is_same_v<T, int>));
+        } else if constexpr (Index == 1) {
+            EXPECT_TRUE((std::is_same_v<T, double>));
+        } else if constexpr (Index == 2) {
+            EXPECT_TRUE((std::is_same_v<T, float>));
+        }
+    }
+};
+
+TEST_F(TemplateLibTest, IterateTypesTest) {
+    IterateTypes<int, double, float>::Apply(TestFunctor{});
+}
