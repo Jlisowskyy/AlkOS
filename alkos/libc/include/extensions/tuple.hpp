@@ -181,21 +181,35 @@ namespace std {
     // ------------------------------
 
     template<class T, class... Args>
-    NODSCRD FORCE_INLINE_F constexpr size_t __GetTypeIndex {
-        static_assert(HasTypeOnce<T, Args...>(), "Type must occur exactly once in the tuple");
-        size_t idx{};
-
-        IterateTypes<Args...>::Apply([&]<size_t Index, class U>() {
-            if constexpr (std::is_same_v<T, U>) {
-                idx = Index;
-            }
-        });
-    };
+    NODSCRD FORCE_INLINE_F constexpr
+    T &get(tuple<Args...> &tuple) noexcept {
+        static_assert(TemplateLib::HasTypeOnce<T, Args...>(), "Type must occur exactly once in the tuple");
+        constexpr size_t index = TemplateLib::GetTypeIndexInTypes<T, Args...>();
+        return get<index>(tuple);
+    }
 
     template<class T, class... Args>
     NODSCRD FORCE_INLINE_F constexpr
-    T &get(tuple<Args...> &tuple) noexcept {
-        static_assert(HasTypeOnce<T, Args...>(), "Type must occur exactly once in the tuple");
+    const T &get(const tuple<Args...> &tuple) noexcept {
+        static_assert(TemplateLib::HasTypeOnce<T, Args...>(), "Type must occur exactly once in the tuple");
+        constexpr size_t index = TemplateLib::GetTypeIndexInTypes<T, Args...>();
+        return get<index>(tuple);
+    }
+
+    template<class T, class... Args>
+    NODSCRD FORCE_INLINE_F constexpr
+    T &&get(tuple<Args...> &&tuple) noexcept {
+        static_assert(TemplateLib::HasTypeOnce<T, Args...>(), "Type must occur exactly once in the tuple");
+        constexpr size_t index = TemplateLib::GetTypeIndexInTypes<T, Args...>();
+        return get<index>(tuple);
+    }
+
+    template<class T, class... Args>
+    NODSCRD FORCE_INLINE_F constexpr
+    const T &&get(const tuple<Args...> &&tuple) noexcept {
+        static_assert(TemplateLib::HasTypeOnce<T, Args...>(), "Type must occur exactly once in the tuple");
+        constexpr size_t index = TemplateLib::GetTypeIndexInTypes<T, Args...>();
+        return get<index>(tuple);
     }
 } // namespace std
 

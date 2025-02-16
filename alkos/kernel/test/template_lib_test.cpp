@@ -1,6 +1,8 @@
 #include <test_module/test.hpp>
 #include <extensions/template_lib.hpp>
 
+using namespace TemplateLib;
+
 class TemplateLibTest : public TestGroupBase {
 };
 
@@ -46,6 +48,10 @@ TEST_F(TemplateLibTest, RolledSwitchTest) {
     // Test case where value is bigger than kMaxValue
     RolledSwitch<int, kMaxValue, kStep>(DefaultFunc, TestFunc{}, 11, result);
     EXPECT_EQ(result, -1);
+
+    // Test case where value is zero
+    RolledSwitch<int, kMaxValue, kStep>(DefaultFunc, TestFunc{}, 0, result);
+    EXPECT_EQ(result, 0);
 }
 
 TEST_F(TemplateLibTest, RolledSwitchReturnable) {
@@ -63,12 +69,18 @@ TEST_F(TemplateLibTest, RolledSwitchReturnable) {
     // Test case for RolledSwitchReturnable with a value bigger than kMaxValue
     returnResult = RolledSwitchReturnable<int, kMaxValue, kStep>(DefaultFuncReturn, TestFuncReturn{}, 11);
     EXPECT_EQ(returnResult, -1);
+
+    // Test case where value is zero
+    returnResult = RolledSwitchReturnable<int, kMaxValue, kStep>(DefaultFuncReturn, TestFuncReturn{}, 0);
+    EXPECT_EQ(returnResult, 0);
 }
 
 TEST_F(TemplateLibTest, CountTypeTest) {
     EXPECT_EQ((CountType<int, int, float, double>()), static_cast<size_t>(1));
     EXPECT_EQ((CountType<int, float, double>()), static_cast<size_t>(0));
     EXPECT_EQ((CountType<int, int, int, int>()), static_cast<size_t>(3));
+    EXPECT_EQ((CountType<char, char, int, char, double, char>()), static_cast<size_t>(3));
+    EXPECT_EQ((CountType<float, int, double, float, float, float>()), static_cast<size_t>(3));
 }
 
 TEST_F(TemplateLibTest, HasTypeTest) {
@@ -150,4 +162,20 @@ struct TestFunctorTypes {
 
 TEST_F(TemplateLibTest, IterateTypesTest) {
     IterateTypes<int, double, float>::Apply(TestFunctor{});
+}
+
+TEST_F(TemplateLibTest, GetTypeIndexTest) {
+    constexpr size_t index1 = GetTypeIndexInTypes<int, int, float, double>();
+    EXPECT_EQ(index1, static_cast<size_t>(0));
+
+    constexpr size_t index2 = GetTypeIndexInTypes<float, int, float, double>();
+    EXPECT_EQ(index2, static_cast<size_t>(1));
+
+    constexpr size_t index3 = GetTypeIndexInTypes<double, int, float, double>();
+    EXPECT_EQ(index3, static_cast<size_t>(2));
+}
+
+TEST_F(TemplateLibTest, GetTypeIndexFailsOnDuplicates) {
+    // This should fail to compile due to static_assert
+    // constexpr size_t index = GetTypeIndexInTypes<int, int, int, float>();
 }
