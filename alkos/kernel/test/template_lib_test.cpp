@@ -1,8 +1,7 @@
 #include <test_module/test.hpp>
 #include <extensions/template_lib.hpp>
 
-class TemplateLibTest : public TestGroupBase
-{
+class TemplateLibTest : public TestGroupBase {
 };
 
 struct TestFunc {
@@ -64,4 +63,74 @@ TEST_F(TemplateLibTest, RolledSwitchReturnable) {
     // Test case for RolledSwitchReturnable with a value bigger than kMaxValue
     returnResult = RolledSwitchReturnable<int, kMaxValue, kStep>(DefaultFuncReturn, TestFuncReturn{}, 11);
     EXPECT_EQ(returnResult, -1);
+}
+
+TEST_F(TemplateLibTest, CountTypeTest) {
+    EXPECT_EQ((CountType<int, int, float, double>()), static_cast<size_t>(1));
+    EXPECT_EQ((CountType<int, float, double>()), static_cast<size_t>(0));
+    EXPECT_EQ((CountType<int, int, int, int>()), static_cast<size_t>(3));
+}
+
+TEST_F(TemplateLibTest, HasTypeTest) {
+    EXPECT_TRUE((HasType<int, int, float, double>()));
+    EXPECT_FALSE((HasType<int, float, double>()));
+}
+
+TEST_F(TemplateLibTest, HasTypeOnceTest) {
+    EXPECT_TRUE((HasTypeOnce<int, int, float, double>()));
+    EXPECT_FALSE((HasTypeOnce<int, int, int, double>()));
+    EXPECT_FALSE((HasTypeOnce<int, float, double>()));
+}
+
+TEST_F(TemplateLibTest, HasDuplicateTypeTest) {
+    EXPECT_TRUE((HasDuplicateType<int, int, int, double>()));
+    EXPECT_FALSE((HasDuplicateType<int, float, double>()));
+}
+
+TEST_F(TemplateLibTest, HasDuplicateTypesTest) {
+    EXPECT_TRUE((HasDuplicateTypes<int, int, float, double>()));
+    EXPECT_TRUE((HasDuplicateTypes<int, int, double, double>()));
+    EXPECT_TRUE((HasDuplicateTypes<int, float, double, float>()));
+    EXPECT_FALSE((HasDuplicateTypes<int, float, double>()));
+}
+
+TEST_F(TemplateLibTest, TypeListTest) {
+    using TestList1 = TypeList<0, int, double, float>;
+    EXPECT_TRUE((std::is_same_v<TestList1::type, int>));
+
+    using TestList2 = TypeList<1, int, double, float>;
+    EXPECT_TRUE((std::is_same_v<TestList2::type, double>));
+
+    using TestList3 = TypeList<2, int, double, float>;
+    EXPECT_TRUE((std::is_same_v<TestList3::type, float>));
+}
+
+TEST_F(TemplateLibTest, TypeListSizeTest) {
+    using TestList = TypeList<0, int, double, float>;
+    EXPECT_EQ(TestList::size, static_cast<size_t>(3));
+}
+
+template<size_t N>
+using TypeIterator = TypeList<N, int, double, float>;
+
+TEST_F(TemplateLibTest, TypeListOutOfBoundsTest) {
+    // This test should fail to compile if uncommented
+    // using type = TypeList<3, int, double, float>::type;
+}
+
+struct TestFunctor {
+    template<size_t Index, typename T>
+    void operator()() const {
+        if constexpr (Index == 0) {
+            EXPECT_TRUE((std::is_same_v<T, int>));
+        } else if constexpr (Index == 1) {
+            EXPECT_TRUE((std::is_same_v<T, double>));
+        } else if constexpr (Index == 2) {
+            EXPECT_TRUE((std::is_same_v<T, float>));
+        }
+    }
+};
+
+TEST_F(TemplateLibTest, IterateTypeListTest) {
+    IterateTypeList<2, TypeIterator>::Apply(TestFunctor{});
 }
