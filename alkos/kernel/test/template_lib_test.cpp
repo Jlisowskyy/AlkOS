@@ -76,11 +76,11 @@ TEST_F(TemplateLibTest, RolledSwitchReturnable) {
 }
 
 TEST_F(TemplateLibTest, CountTypeTest) {
-    EXPECT_EQ((CountType<int, int, float, double>()), static_cast<size_t>(1));
-    EXPECT_EQ((CountType<int, float, double>()), static_cast<size_t>(0));
-    EXPECT_EQ((CountType<int, int, int, int>()), static_cast<size_t>(3));
-    EXPECT_EQ((CountType<char, char, int, char, double, char>()), static_cast<size_t>(3));
-    EXPECT_EQ((CountType<float, int, double, float, float, float>()), static_cast<size_t>(3));
+    EXPECT_EQ((CountType<int, int, float, double>()), 1_s);
+    EXPECT_EQ((CountType<int, float, double>()), 0_s);
+    EXPECT_EQ((CountType<int, int, int, int>()), 3_s);
+    EXPECT_EQ((CountType<char, char, int, char, double, char>()), 3_s);
+    EXPECT_EQ((CountType<float, int, double, float, float, float>()), 3_s);
 }
 
 TEST_F(TemplateLibTest, HasTypeTest) {
@@ -119,7 +119,7 @@ TEST_F(TemplateLibTest, TypeListTest) {
 
 TEST_F(TemplateLibTest, TypeListSizeTest) {
     using TestList = TypeList<0, int, double, float>;
-    EXPECT_EQ(TestList::size, static_cast<size_t>(3));
+    EXPECT_EQ(TestList::size, 3_s);
 }
 
 template<size_t N>
@@ -166,13 +166,13 @@ TEST_F(TemplateLibTest, IterateTypesTest) {
 
 TEST_F(TemplateLibTest, GetTypeIndexTest) {
     constexpr size_t index1 = GetTypeIndexInTypes<int, int, float, double>();
-    EXPECT_EQ(index1, static_cast<size_t>(0));
+    EXPECT_EQ(index1, 0_s);
 
     constexpr size_t index2 = GetTypeIndexInTypes<float, int, float, double>();
-    EXPECT_EQ(index2, static_cast<size_t>(1));
+    EXPECT_EQ(index2, 1_s);
 
     constexpr size_t index3 = GetTypeIndexInTypes<double, int, float, double>();
-    EXPECT_EQ(index3, static_cast<size_t>(2));
+    EXPECT_EQ(index3, 2_s);
 }
 
 TEST_F(TemplateLibTest, GetTypeIndexFailsOnDuplicates) {

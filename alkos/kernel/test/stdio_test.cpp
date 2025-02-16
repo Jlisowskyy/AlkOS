@@ -226,8 +226,8 @@ TEST_F(SnprintfTest, LengthModifiers)
     VerifyOutput("%hi", "42", static_cast<short>(42));
 
     // Size_t
-    VerifyOutput("%zu", "42", static_cast<size_t>(42));
-    VerifyOutput("%zd", "42", static_cast<size_t>(42));
+    VerifyOutput("%zu", "42", 42_s);
+    VerifyOutput("%zd", "42", 42_s);
 
     // Ptrdiff_t
     VerifyOutput("%td", "42", static_cast<ptrdiff_t>(42));
@@ -253,7 +253,7 @@ TEST_F(SnprintfTest, ComplexCombinations)
     // Length modifier combinations
     VerifyOutput(
         "%ld %lld %hd %zd", "42 42 42 42", 42L, 42LL, static_cast<short>(42),
-        static_cast<size_t>(42)
+        42_s
     );
 }
 

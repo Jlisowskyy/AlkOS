@@ -194,7 +194,7 @@ TEST_F(LibCxxTest, TupleBasics)
     EXPECT_EQ(1, std::get<0>(tuple));
     EXPECT_EQ(2, std::get<1>(tuple));
     EXPECT_EQ(3, std::get<2>(tuple));
-    EXPECT_EQ(static_cast<size_t>(3), std::tuple_size<decltype(tuple)>::value);
+    EXPECT_EQ(3_s, std::tuple_size<decltype(tuple)>::value);
 
     EXPECT_TRUE((std::is_same_v<int, std::tuple_element<0, decltype(tuple)>::type>));
     EXPECT_TRUE((std::is_same_v<int, std::tuple_element<1, decltype(tuple)>::type>));
@@ -221,7 +221,7 @@ TEST_F(LibCxxTest, TupleBasics)
     // EXPECT_TRUE((std::is_same_v<float, std::tuple_element<2, decltype(tuple1)>::type>));
     // EXPECT_TRUE((std::is_same_v<const char *, std::tuple_element<2, decltype(tuple1)>::type>));
     //
-    // EXPECT_EQ(static_cast<size_t>(4), std::tuple_size_v<decltype(tuple1)>);
+    // EXPECT_EQ(4_s, std::tuple_size_v<decltype(tuple1)>);
 
     // const auto [d, e, f, g] = tuple1;
     // EXPECT_EQ(static_cast<int>(1), d);
