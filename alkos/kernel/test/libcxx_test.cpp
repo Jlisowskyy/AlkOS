@@ -188,12 +188,12 @@ TEST_F(LibCxxTest, IsRvalueReference)
     EXPECT_FALSE(std::is_rvalue_reference_v<int>);
 }
 
-TEST_F(LibCxxTest, Tuple)
+TEST_F(LibCxxTest, TupleBasics)
 {
     const auto tuple = std::make_tuple(1, 2, 3);
-    EXPECT_EQ(1, tuple.get<0>());
-    EXPECT_EQ(2, tuple.get<1>());
-    EXPECT_EQ(3, tuple.get<2>());
+    EXPECT_EQ(1, std::get<0>(tuple));
+    EXPECT_EQ(2, std::get<1>(tuple));
+    EXPECT_EQ(3, std::get<2>(tuple));
     EXPECT_EQ(static_cast<size_t>(3), std::tuple_size<decltype(tuple)>::value);
 
     EXPECT_TRUE((std::is_same_v<int, std::tuple_element<0, decltype(tuple)>::type>));
@@ -233,4 +233,16 @@ TEST_F(LibCxxTest, Tuple)
     // EXPECT_TRUE((std::is_same_v<const double, decltype(e)>));
     // EXPECT_TRUE((std::is_same_v<const float, decltype(f)>));
     // EXPECT_TRUE((std::is_same_v<const char* const, decltype(g)>));
+}
+
+TEST_F(LibCxxTest, TupleGet) {
+
+}
+
+TEST_F(LibCxxTest, TupleElement) {
+
+}
+
+TEST_F(LibCxxTest, TupleBindings) {
+
 }
