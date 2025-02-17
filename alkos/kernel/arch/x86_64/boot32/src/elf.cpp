@@ -2,7 +2,6 @@
 #include <arch_utils.hpp>
 #include <debug.hpp>
 #include <elf.hpp>
-#include <tags.hpp>
 #include <terminal.hpp>
 
 void* LoadElf64Module(uint8_t* elf_start, uint8_t* elf_end)
