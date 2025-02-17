@@ -3,6 +3,8 @@
 #include <debug.hpp>
 #include <physical_memory_manager.hpp>
 
+TODO_WHEN_MULTITHREADING
+
 PhysicalMemoryManager instance{};
 
 PhysicalMemoryManager::PhysicalMemoryManager() : free_pages_(nullptr) {}
@@ -20,7 +22,8 @@ void PhysicalMemoryManager::FreeRange(byte *virtual_start_address, const byte *v
     byte *current = virtual_start_address;
     current =
         reinterpret_cast<byte *>(AlignAddressToPhysicalPageSize(reinterpret_cast<u64>(current)));
-    while (current < virtual_end_address) {
+    // Allocate only whole pages, never half a page
+    while (current + kPhysicalPageSize - 1 < virtual_end_address) {
         FreePage(current);
         current += kPhysicalPageSize;
     }
@@ -39,15 +42,13 @@ byte *PhysicalMemoryManager::AllocatePage()
 
 void PhysicalMemoryManager::FreePage(byte *virtual_page_address)
 {
-    R_ASSERT(
-        virtual_page_address != nullptr
-    );  // We keep 0x0 as a null pointer and don't want to allow freeing it
+    R_ASSERT(virtual_page_address != nullptr);
     R_ASSERT(reinterpret_cast<u64>(virtual_page_address) % kPhysicalPageSize == 0);
     TRACE_INFO("Freeing page: 0x%X", virtual_page_address);
 
-    //    memset(
-    //        virtual_page_address, 1, kPhysicalPageSize
-    //    );  // Fill with 1s to catch use-after-free bugs
+    memset(
+        virtual_page_address, 1, kPhysicalPageSize
+    );  // Fill with 1s to catch use-after-free bugs
 
     auto *new_page = reinterpret_cast<PhysicalMemList *>(virtual_page_address);
     new_page->next = free_pages_;

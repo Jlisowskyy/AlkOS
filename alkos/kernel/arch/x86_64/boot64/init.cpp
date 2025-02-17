@@ -85,23 +85,34 @@ extern "C" void PreKernelInit(LoaderData *loader_data)
     TRACE_INFO("Memory map entry size: %d", mmap_tag->entry_size);
     TRACE_INFO("Memory map entry version: %d", mmap_tag->entry_version);
 
-    multiboot_memory_map_t *mmap;
+    // TODO: Run a first pass here, just calculating the lowest and biggest avaliable
+    // physical address, then map all physical memory to some predefined virtual region
+    // of length biggest-lowest. This will allow to operate on physical memory by just adding
+    // an offset to a virtual address. Then mapping and unmapping physical memory
+    // based on the map below will actually work
     u64 total_memory_size = 0;
-    for (mmap = ((struct multiboot_tag_mmap *)mmap_tag)->entries;
-         (multiboot_uint8_t *)mmap < (multiboot_uint8_t *)mmap_tag + mmap_tag->size;
-         mmap = (multiboot_memory_map_t *)((unsigned long)mmap +
-                                           ((struct multiboot_tag_mmap *)mmap_tag)->entry_size)) {
+    for (multiboot_memory_map_t *mmap = mmap_tag->entries;
+         reinterpret_cast<multiboot_uint8_t *>(mmap) <
+         reinterpret_cast<multiboot_uint8_t *>(mmap_tag) + mmap_tag->size;
+         mmap = reinterpret_cast<multiboot_memory_map_t *>(
+             reinterpret_cast<unsigned long>(mmap) + mmap_tag->entry_size
+         )) {
         TRACE_INFO(
             "Memory map entry: base_addr = 0x%x%x,"
             " length = 0x%x%x, type = 0x%x",
-            (unsigned)(mmap->addr >> 32), (unsigned)(mmap->addr & 0xffffffff),
-            (unsigned)(mmap->len >> 32), (unsigned)(mmap->len & 0xffffffff), (unsigned)mmap->type
+            static_cast<u32>(mmap->addr >> 32), static_cast<u32>(mmap->addr & 0xffffffff),
+            static_cast<u32>(mmap->len >> 32), static_cast<u32>(mmap->len & 0xffffffff),
+            static_cast<u64>(mmap->type)
         );
         if (mmap->type == MULTIBOOT_MEMORY_AVAILABLE) {
             TRACE_INFO(
                 "Adding memory region %x-%x to available memory", mmap->addr, mmap->addr + mmap->len
             );
             // TODO: Add memory region to available memory
+            // PhysicalMemoryManager::GetInstance().FreeRange(
+            //     reinterpret_cast<byte *>(mmap->addr),
+            //     reinterpret_cast<byte *>(mmap->addr + mmap->len)
+            // );
             total_memory_size += mmap->len;
         } else {
             TRACE_INFO("Memory reserved");
