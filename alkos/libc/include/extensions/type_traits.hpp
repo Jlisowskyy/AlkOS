@@ -14,32 +14,19 @@
 template<class T>\
 constexpr bool name##_v = name<T>::value;
 
+#define __DEF_CONSTEXPR_ACCESSOR(name) \
+    template<class T> \
+    constexpr bool name##_v = name<T>::value;
+
+#define __DEF_CONSTEXPR_ACCESSOR_T(name) \
+    template<class T> \
+    using name##_t = typename name<T>::type;
+
 namespace std {
-    // ------------------------------
-    // std::remove_reference
-    // ------------------------------
 
-    template<class T>
-    struct remove_reference {
-        using type = T;
-    };
-
-    template<class T>
-    struct remove_reference<T &> {
-        using type = T;
-    };
-
-    template<class T>
-    struct remove_reference<T &&> {
-        using type = T;
-    };
-
-    // ------------------------------
-    // std::remove_reference_t
-    // ------------------------------
-
-    template<class T>
-    using remove_reference_t = typename remove_reference<T>::type;
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Helper Classes
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // ------------------------------
     // std::integral_constant
@@ -63,6 +50,10 @@ namespace std {
 
     using true_type = bool_constant<true>;
     using false_type = bool_constant<false>;
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Miscellaneous transformations
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // ------------------------------
     // std::is_same
@@ -88,20 +79,7 @@ namespace std {
         using type = T;
     };
 
-    template<class T>
-    using type_identity_t = typename type_identity<T>::type;
-
-    // ------------------------------
-    // std::add_pointer
-    // ------------------------------
-
-    template<typename T>
-    struct add_pointer {
-        using type = remove_reference_t<T> *;
-    };
-
-    template<class T>
-    using add_pointer_t = typename add_pointer<T>::type;
+    __DEF_CONSTEXPR_ACCESSOR_T(type_identity)
 
     // ------------------------------
     // std::conditional
@@ -120,37 +98,9 @@ namespace std {
     template<bool B, class X, class Y>
     using conditional_t = typename conditional<B, X, Y>::type;
 
-    // ------------------------------
-    // std::remove_volatile
-    // ------------------------------
-
-    template<class T>
-    struct remove_volatile : type_identity<T> {
-    };
-
-    template<class T>
-    struct remove_volatile<volatile T> {
-        using type = T;
-    };
-
-    template<class T>
-    using remove_volatile_t = typename remove_volatile<T>::type;
-
-    // ------------------------------
-    // std::remove_const
-    // ------------------------------
-
-    template<class T>
-    struct remove_const : type_identity<T> {
-    };
-
-    template<class T>
-    struct remove_const<const T> {
-        using type = T;
-    };
-
-    template<class T>
-    using remove_const_t = typename remove_const<T>::type;
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Const-volatility specifiers
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // ------------------------------
     // std::remove_cv
@@ -172,8 +122,142 @@ namespace std {
     struct remove_cv<const volatile T> : type_identity<T> {
     };
 
+    __DEF_CONSTEXPR_ACCESSOR_T(remove_cv)
+
+    // ------------------------------
+    // std::remove_const
+    // ------------------------------
+
     template<class T>
-    using remove_cv_t = typename remove_cv<T>::type;
+    struct remove_const : type_identity<T> {
+    };
+
+    template<class T>
+    struct remove_const<const T> {
+        using type = T;
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR_T(remove_const)
+
+    // ------------------------------
+    // std::remove_volatile
+    // ------------------------------
+
+    template<class T>
+    struct remove_volatile : type_identity<T> {
+    };
+
+    template<class T>
+    struct remove_volatile<volatile T> {
+        using type = T;
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR_T(remove_volatile)
+
+    // ------------------------------
+    // std::add_cv
+    // ------------------------------
+
+    template<class T>
+    struct add_cv {
+        using type = const volatile T;
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR_T(add_cv)
+
+    // ------------------------------
+    // std::add_const
+    // ------------------------------
+
+    template<class T>
+    struct add_const {
+        using type = const T;
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR_T(add_const)
+
+    // ------------------------------
+    // std::add_volatile
+    // ------------------------------
+
+    template<class T>
+    struct add_volatile {
+        using type = volatile T;
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR_T(add_volatile)
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// References
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    namespace internal {
+        template<class T>
+        auto try_add_lvalue_reference(int) -> type_identity<T &> {
+            return {};
+        }
+
+        template<class T>
+        auto try_add_lvalue_reference(...) -> type_identity<T> {
+            return {};
+        }
+
+        template<class T>
+        auto try_add_rvalue_reference(int) -> type_identity<T &&> {
+            return {};
+        }
+
+        template<class T>
+        auto try_add_rvalue_reference(...) -> type_identity<T> {
+            return {};
+        }
+    }
+
+    // ------------------------------
+    // std::remove_reference
+    // ------------------------------
+
+    template<class T>
+    struct remove_reference {
+        using type = T;
+    };
+
+    template<class T>
+    struct remove_reference<T &> {
+        using type = T;
+    };
+
+    template<class T>
+    struct remove_reference<T &&> {
+        using type = T;
+    };
+
+    template<class T>
+    using remove_reference_t = typename remove_reference<T>::type;
+
+    // -------------------------------
+    // std::add_lvalue_reference
+    // -------------------------------
+
+    template<class T>
+    struct add_lvalue_reference : decltype(internal::try_add_lvalue_reference<T>(0)) {
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR_T(add_lvalue_reference)
+
+    // -------------------------------
+    // std::add_rvalue_reference
+    // -------------------------------
+
+    template<class T>
+    struct add_rvalue_reference : decltype(internal::try_add_rvalue_reference<T>(0)) {
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR_T(add_rvalue_reference)
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Pointers
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // ------------------------------
     // std::remove_pointer
@@ -199,27 +283,18 @@ namespace std {
     struct remove_pointer<T *volatile const> : type_identity<T> {
     };
 
-    template<class T>
-    using remove_pointer_t = typename remove_pointer<T>::type;
+    __DEF_CONSTEXPR_ACCESSOR_T(remove_pointer)
 
     // ------------------------------
-    // std::remove_extent
+    // std::add_pointer
     // ------------------------------
 
-    template<class T>
-    struct remove_extent : type_identity<T> {
+    template<typename T>
+    struct add_pointer {
+        using type = remove_reference_t<T> *;
     };
 
-    template<class T>
-    struct remove_extent<T[]> : type_identity<T> {
-    };
-
-    template<class T, size_t N>
-    struct remove_extent<T[N]> : type_identity<T> {
-    };
-
-    template<class T>
-    using remove_extent_t = typename remove_extent<T>::type;
+    __DEF_CONSTEXPR_ACCESSOR_T(add_pointer)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Primary type categories
@@ -233,8 +308,7 @@ namespace std {
     struct is_void : std::is_same<void, std::remove_cv_t<T> > {
     };
 
-    template<class T>
-    constexpr bool is_void_v = is_void<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_void)
 
     // ------------------------------
     // std::is_null_pointer
@@ -244,57 +318,59 @@ namespace std {
     struct is_null_pointer : std::is_same<std::nullptr_t, std::remove_cv_t<T> > {
     };
 
-    template<class T>
-    constexpr bool is_null_pointer_v = is_null_pointer<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_null_pointer)
 
     // ------------------------------
     // std::is_integral
     // ------------------------------
 
-    template<class T>
-    struct __is_integral_helper : std::bool_constant<
-                std::is_same_v<T, int> ||
-                std::is_same_v<T, bool> ||
-                std::is_same_v<T, char> ||
-                std::is_same_v<T, signed char> ||
-                std::is_same_v<T, short> ||
-                std::is_same_v<T, long> ||
-                std::is_same_v<T, long long> ||
-                std::is_same_v<T, char8_t> ||
-                std::is_same_v<T, char16_t> ||
-                std::is_same_v<T, char32_t> ||
-                std::is_same_v<T, wchar_t> ||
-                std::is_same_v<T, unsigned int> ||
-                std::is_same_v<T, unsigned char> ||
-                std::is_same_v<T, unsigned short> ||
-                std::is_same_v<T, unsigned long> ||
-                std::is_same_v<T, unsigned long long>> {
-    };
+    namespace internal {
+        template<class T>
+        struct is_integral : std::bool_constant<
+                    std::is_same_v<T, int> ||
+                    std::is_same_v<T, bool> ||
+                    std::is_same_v<T, char> ||
+                    std::is_same_v<T, signed char> ||
+                    std::is_same_v<T, short> ||
+                    std::is_same_v<T, long> ||
+                    std::is_same_v<T, long long> ||
+                    std::is_same_v<T, char8_t> ||
+                    std::is_same_v<T, char16_t> ||
+                    std::is_same_v<T, char32_t> ||
+                    std::is_same_v<T, wchar_t> ||
+                    std::is_same_v<T, unsigned int> ||
+                    std::is_same_v<T, unsigned char> ||
+                    std::is_same_v<T, unsigned short> ||
+                    std::is_same_v<T, unsigned long> ||
+                    std::is_same_v<T, unsigned long long>> {
+        };
+    }
+
 
     template<class T>
-    struct is_integral : std::__is_integral_helper<std::remove_cv_t<T> > {
+    struct is_integral : internal::is_integral<std::remove_cv_t<T> > {
     };
 
-    template<class T>
-    constexpr bool is_integral_v = is_integral<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_integral)
 
     // ------------------------------
     // std::is_floating_point
     // ------------------------------
 
-    template<class T>
-    struct __is_floating_point_helper : std::bool_constant<
-                std::is_same_v<T, float> ||
-                std::is_same_v<T, double> ||
-                std::is_same_v<T, long double>> {
-    };
+    namespace internal {
+        template<class T>
+        struct is_floating_point : std::bool_constant<
+                    std::is_same_v<T, float> ||
+                    std::is_same_v<T, double> ||
+                    std::is_same_v<T, long double>> {
+        };
+    }
 
     template<class T>
-    struct is_floating_point : std::__is_floating_point_helper<std::remove_cv_t<T> > {
+    struct is_floating_point : internal::is_floating_point<std::remove_cv_t<T> > {
     };
 
-    template<class T>
-    constexpr bool is_floating_point_v = is_floating_point<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_floating_point)
 
     // ------------------------------
     // std::is_array
@@ -312,8 +388,7 @@ namespace std {
     struct is_array<T[N]> : true_type {
     };
 
-    template<class T>
-    constexpr bool is_array_v = is_array<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_array)
 
     // ------------------------------
     // std::is_enum
@@ -337,20 +412,21 @@ namespace std {
     // std::is_pointer
     // ------------------------------
 
-    template<class T>
-    struct __is_pointer_helper : std::false_type {
-    };
+    namespace internal {
+        template<class T>
+        struct is_pointer : std::false_type {
+        };
+
+        template<class T>
+        struct is_pointer<T *> : std::true_type {
+        };
+    }
 
     template<class T>
-    struct __is_pointer_helper<T *> : std::true_type {
+    struct is_pointer : internal::is_pointer<std::remove_cv_t<T> > {
     };
 
-    template<class T>
-    struct is_pointer : std::__is_pointer_helper<std::remove_cv_t<T> > {
-    };
-
-    template<class T>
-    constexpr bool is_pointer_v = std::is_pointer<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_pointer)
 
     // ------------------------------
     // std::is_lvalue_reference
@@ -364,8 +440,7 @@ namespace std {
     struct is_lvalue_reference<_Tp &> : true_type {
     };
 
-    template<class T>
-    constexpr bool is_lvalue_reference_v = is_lvalue_reference<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_lvalue_reference)
 
     // ------------------------------
     // std::is_rvalue_reference
@@ -379,8 +454,7 @@ namespace std {
     struct is_rvalue_reference<_Tp &&> : true_type {
     };
 
-    template<class T>
-    constexpr bool is_rvalue_reference_v = is_rvalue_reference<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_rvalue_reference)
 
     // ------------------------------
     // std::is_function
@@ -392,17 +466,19 @@ namespace std {
     // std::is_member_function_pointer
     // -------------------------------------
 
-    template<class T>
-    struct __is_member_function_pointer_helper : std::false_type {
-    };
+    namespace internal {
+        template<class T>
+        struct is_member_function_pointer : std::false_type {
+        };
 
-    template<class T, class U>
-    struct __is_member_function_pointer_helper<T U::*> : std::is_function<T> {
-    };
+        template<class T, class U>
+        struct is_member_function_pointer<T U::*> : std::is_function<T> {
+        };
+    }
 
     template<class T>
     struct is_member_function_pointer
-            : __is_member_function_pointer_helper<remove_cv_t<T> > {
+            : internal::is_member_function_pointer<remove_cv_t<T> > {
     };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -415,12 +491,11 @@ namespace std {
 
     template<class T>
     struct is_arithmetic : std::integral_constant<bool,
-                std::is_integral<T>::value ||
-                std::is_floating_point<T>::value> {
+                std::is_integral_v<T> ||
+                std::is_floating_point_v<T>> {
     };
 
-    template<class T>
-    constexpr bool is_arithmetic_v = is_arithmetic<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_arithmetic)
 
     // ------------------------------
     // std::is_fundamental
@@ -435,27 +510,27 @@ namespace std {
             > {
     };
 
-    template<class T>
-    constexpr bool is_fundamental_v = is_fundamental<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_fundamental)
 
     // ------------------------------
     // std::is_member_pointer
     // ------------------------------
 
-    template<class T>
-    struct __is_member_pointer_helper : std::false_type {
-    };
+    namespace internal {
+        template<class T>
+        struct is_member_pointer : std::false_type {
+        };
 
-    template<class T, class U>
-    struct __is_member_pointer_helper<T U::*> : std::true_type {
-    };
-
-    template<class T>
-    struct is_member_pointer : __is_member_pointer_helper<std::remove_cv_t<T> > {
-    };
+        template<class T, class U>
+        struct is_member_pointer<T U::*> : std::true_type {
+        };
+    }
 
     template<class T>
-    constexpr bool is_member_pointer_v = is_member_pointer<T>::value;
+    struct is_member_pointer : internal::is_member_pointer<std::remove_cv_t<T> > {
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR(is_member_pointer)
 
     // ------------------------------
     // std::is_scalar
@@ -469,8 +544,7 @@ namespace std {
                                                     || std::is_null_pointer_v<T>> {
     };
 
-    template<class T>
-    constexpr bool is_scalar_v = is_scalar<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_scalar)
 
     // ------------------------------
     // std::is_object
@@ -484,8 +558,7 @@ namespace std {
                 std::is_class_v<T>> {
     };
 
-    template<class T>
-    constexpr bool is_object_v = is_object<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_object)
 
     // ------------------------------
     // std::is_compound
@@ -495,8 +568,7 @@ namespace std {
     struct is_compound : std::bool_constant<!std::is_fundamental_v<T>> {
     };
 
-    template<class T>
-    constexpr bool is_compound_v = is_compound<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_compound)
 
     // ------------------------------
     // std::is_reference
@@ -514,8 +586,7 @@ namespace std {
     struct is_reference<T &&> : true_type {
     };
 
-    template<class T>
-    constexpr bool is_reference_v = is_reference<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_reference)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Type properties
@@ -533,8 +604,7 @@ namespace std {
     struct is_const<const T> : true_type {
     };
 
-    template<class T>
-    constexpr bool is_const_v = is_const<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_const)
 
     // ------------------------------
     // std::is_volatile
@@ -548,8 +618,7 @@ namespace std {
     struct is_volatile<volatile T> : std::true_type {
     };
 
-    template<class T>
-    constexpr bool is_volatile_v = is_volatile<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_volatile)
 
     // ------------------------------
     // std::is_unbounded_array
@@ -563,8 +632,7 @@ namespace std {
     struct is_unbounded_array<T[]> : std::true_type {
     };
 
-    template<class T>
-    constexpr bool is_unbounded_array_v = is_unbounded_array<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_unbounded_array)
 
     // ------------------------------
     // std::is_bounded_array
@@ -578,8 +646,7 @@ namespace std {
     struct is_bounded_array<T[N]> : std::true_type {
     };
 
-    template<class T>
-    constexpr bool is_bounded_array_v = is_bounded_array<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_bounded_array)
 
     // ------------------------------
     // std::is_unsigned
@@ -592,8 +659,7 @@ namespace std {
             > {
     };
 
-    template<class T>
-    constexpr bool is_unsigned_v = is_unsigned<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_unsigned)
 
     // ------------------------------
     // std::is_unsigned
@@ -606,8 +672,7 @@ namespace std {
             > {
     };
 
-    template<class T>
-    constexpr bool is_signed_v = is_signed<T>::value;
+    __DEF_CONSTEXPR_ACCESSOR(is_signed)
 
     // ------------------------------
     // std::is_final
@@ -670,16 +735,200 @@ namespace std {
     __DEF_COMPILER_DEF_TYPE_TRAIT(is_pod, __is_pod)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Sign modifiers
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    namespace internal {
+        template<class T, bool IsConst, bool IsVolatile>
+        struct preserve_cv_base {
+            using type = T;
+        };
+
+        template<class T>
+        struct preserve_cv_base<T, true, false> {
+            using type = const T;
+        };
+
+        template<class T>
+        struct preserve_cv_base<T, false, true> {
+            using type = volatile T;
+        };
+
+        template<class T>
+        struct preserve_cv_base<T, true, true> {
+            using type = const volatile T;
+        };
+
+        template<class QualifiedT, class UnqualifiedT>
+        struct preserve_cv {
+            using type = typename preserve_cv_base<UnqualifiedT, std::is_const_v<QualifiedT>, std::is_volatile_v<
+                QualifiedT> >::type;
+        };
+    }
+
+    // ------------------------------
+    // std::make_signed
+    // ------------------------------
+
+    namespace internal {
+        template<class T>
+        struct make_signed_base {
+            using type = T;
+        };
+
+        template<>
+        struct make_signed_base<unsigned char> {
+            using type = signed char;
+        };
+
+        template<>
+        struct make_signed_base<unsigned short> {
+            using type = short;
+        };
+
+        template<>
+        struct make_signed_base<unsigned int> {
+            using type = int;
+        };
+
+        template<>
+        struct make_signed_base<unsigned long> {
+            using type = long;
+        };
+
+        template<>
+        struct make_signed_base<unsigned long long> {
+            using type = long long;
+        };
+
+        template<>
+        struct make_signed_base<char> {
+            using type = signed char;
+        };
+
+        template<
+            class T,
+            bool IsIntegral = std::is_integral_v<T>,
+            bool IsEnum = std::is_enum_v<T>
+        >
+        struct make_signed;
+
+        template<class T>
+        struct make_signed<T, true, false> {
+        private:
+            using signed_t = typename make_signed_base<std::remove_cv_t<T> >::type;
+
+        public:
+            using type = typename preserve_cv<T, signed_t>::type;
+        };
+
+        template<class T>
+        struct make_signed<T, false, true> {
+        };
+    }
+
+    // TODO
+
+    // ------------------------------
+    // std::make_unsigned
+    // ------------------------------
+
+    // TODO
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Arrays
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // ------------------------------
+    // std::remove_extent
+    // ------------------------------
+
+    template<class T>
+    struct remove_extent : type_identity<T> {
+    };
+
+    template<class T>
+    struct remove_extent<T[]> : type_identity<T> {
+    };
+
+    template<class T, size_t N>
+    struct remove_extent<T[N]> : type_identity<T> {
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR_T(remove_extent)
+
+    // ------------------------------
+    // std::remove_all_extents
+    // ------------------------------
+
+    template<class T>
+    struct remove_all_extents {
+        using type = T;
+    };
+
+    template<class T>
+    struct remove_all_extents<T[]> {
+        using type = typename remove_all_extents<T>::type;
+    };
+
+    template<class T, std::size_t N>
+    struct remove_all_extents<T[N]> {
+        using type = typename remove_all_extents<T>::type;
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR_T(remove_all_extents)
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Supported operations
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    __DEF_COMPILER_DEF_TYPE_TRAIT(is_constructible, __is_constructible)
-    __DEF_COMPILER_DEF_TYPE_TRAIT(is_trivially_constructible, __is_trivially_constructible)
-    __DEF_COMPILER_DEF_TYPE_TRAIT(is_nothrow_constructible, __is_nothrow_constructible)
+    /**
+     * TODO: Added static assert for complete type
+     */
+
+    // ------------------------------
+    // Type construction
+    // ------------------------------
+
+    #define __DEF_COMPLETE_ARGS_TYPE_TRAIT(name, func) \
+        template<class T, class... Args> \
+        struct name : std::bool_constant<func(T, Args...)> { \
+        }; \
+        \
+        template<class T, class... Args> \
+        constexpr bool name##_v = name<T, Args...>::value;
+
+    __DEF_COMPLETE_ARGS_TYPE_TRAIT(is_constructible, __is_constructible)
+    __DEF_COMPLETE_ARGS_TYPE_TRAIT(is_trivially_constructible, __is_trivially_constructible)
+    __DEF_COMPLETE_ARGS_TYPE_TRAIT(is_nothrow_constructible, __is_nothrow_constructible)
+
+    // -------------------------------
+    // Type default construction
+    // -------------------------------
+
+    template<class T>
+    struct is_default_constructible : std::is_constructible<T> {
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR(is_default_constructible)
+
+    template<class T>
+    struct is_trivially_default_constructible : std::is_trivially_constructible<T> {
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR(is_trivially_default_constructible)
+
+    template<class T>
+    struct is_nothrow_default_constructible : std::is_nothrow_constructible<T> {
+    };
+
+    // ------------------------------
+    // Type copy construction
+    // ------------------------------
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Transformations section 2
+    /// Miscellaneous transformations 2
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // ------------------------------

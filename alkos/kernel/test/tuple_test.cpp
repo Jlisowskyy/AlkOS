@@ -29,7 +29,6 @@ TEST_F(TupleTest, TupleBasics)
 }
 
 TEST_F(TupleTest, TupleMixedTypes) {
-    __has_uni
     const char * str = "abcd";
     const auto tuple1 = std::make_tuple(1, 1.0, 2.0f, str);
     EXPECT_EQ(static_cast<int>(1), tuple1.get<0>());
