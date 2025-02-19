@@ -449,5 +449,4 @@ TEST_F(TypeTraitsTest, IsFinal) {
 
     EXPECT_FALSE(std::is_final_v<Regular>);
     EXPECT_TRUE(std::is_final_v<FinalClass>);
-
 }

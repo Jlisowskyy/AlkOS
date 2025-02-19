@@ -22,7 +22,24 @@ constexpr bool name##_v = name<T>::value;
     template<class T> \
     using name##_t = typename name<T>::type;
 
+/**
+ * TODOS: Missing implementations:
+ * - std::result_of
+ * - std::invoke_result
+ * - std::common_reference
+ * - std::common_type
+ * - std::unwrap_reference
+ * - std::unwrap_ref_decay
+ * - Supported operations Category
+ * - Type relationships Category
+ */
 namespace std {
+    namespace internal {
+        template<class T>
+        constexpr const T &max(const T &a, const T &b) {
+            return a < b ? b : a;
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Helper Classes
@@ -481,6 +498,8 @@ namespace std {
             : internal::is_member_function_pointer<remove_cv_t<T> > {
     };
 
+    __DEF_CONSTEXPR_ACCESSOR(is_member_function_pointer)
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Composite Types
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -587,6 +606,19 @@ namespace std {
     };
 
     __DEF_CONSTEXPR_ACCESSOR(is_reference)
+
+    // -----------------------------------
+    // std::is_member_object_pointer
+    // -----------------------------------
+
+    template<class T>
+    struct is_member_object_pointer : std::bool_constant<
+                std::is_member_pointer_v<T> &&
+                !std::is_member_function_pointer_v<T>
+            > {
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR(is_member_object_pointer)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Type properties
@@ -764,7 +796,104 @@ namespace std {
             using type = typename preserve_cv_base<UnqualifiedT, std::is_const_v<QualifiedT>, std::is_volatile_v<
                 QualifiedT> >::type;
         };
+
+        template<class T>
+        struct lowest_rank_unsigned_selector {
+        private:
+            static_assert(sizeof(T) <= sizeof(unsigned long long),
+                          "Given type is bigger than all possible integer types"
+            );
+
+            template<size_t kSize, class U, class... Types>
+            struct select_ {
+                using type = std::conditional_t<
+                    kSize <= sizeof(U),
+                    U,
+                    typename select_<kSize, Types...>::type
+                >;
+            };
+
+        public:
+            using type = typename select_<sizeof(T),
+                unsigned char,
+                unsigned short,
+                unsigned int,
+                unsigned long,
+                unsigned long long>::type;
+        };
     }
+
+    // ------------------------------
+    // std::make_unsigned
+    // ------------------------------
+
+    namespace internal {
+        template<class T>
+        struct make_unsigned_from_cv_cleaned {
+            using type = T;
+        };
+
+        template<>
+        struct make_unsigned_from_cv_cleaned<signed char> {
+            using type = unsigned char;
+        };
+
+        template<>
+        struct make_unsigned_from_cv_cleaned<short> {
+            using type = unsigned short;
+        };
+
+        template<>
+        struct make_unsigned_from_cv_cleaned<int> {
+            using type = unsigned int;
+        };
+
+        template<>
+        struct make_unsigned_from_cv_cleaned<long> {
+            using type = unsigned long;
+        };
+
+        template<>
+        struct make_unsigned_from_cv_cleaned<long long> {
+            using type = unsigned long long;
+        };
+
+        template<>
+        struct make_unsigned_from_cv_cleaned<char> {
+            using type = unsigned char;
+        };
+
+        template<
+            class T,
+            bool kIsIntegral = std::is_integral_v<T>,
+            bool kIsEnum = std::is_enum_v<T>
+        >
+        struct make_unsigned;
+
+        template<class T>
+        struct make_unsigned<T, true, false> {
+        private:
+            using unsigned_t = typename make_unsigned_from_cv_cleaned<std::remove_cv_t<T> >::type;
+
+        public:
+            using type = typename preserve_cv<T, unsigned_t>::type;
+        };
+
+        template<class T>
+        struct make_unsigned<T, false, true> {
+        protected:
+            using unsigned_type = typename lowest_rank_unsigned_selector<remove_cv_t<T> >::type;
+
+        public:
+            using type = typename preserve_cv<T, unsigned_type>::type;
+        };
+    }
+
+    template<class T>
+    struct make_unsigned : internal::make_unsigned<T> {
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR_T(make_unsigned)
 
     // ------------------------------
     // std::make_signed
@@ -772,51 +901,51 @@ namespace std {
 
     namespace internal {
         template<class T>
-        struct make_signed_base {
+        struct make_signed_from_cv_cleaned {
             using type = T;
         };
 
         template<>
-        struct make_signed_base<unsigned char> {
+        struct make_signed_from_cv_cleaned<unsigned char> {
             using type = signed char;
         };
 
         template<>
-        struct make_signed_base<unsigned short> {
+        struct make_signed_from_cv_cleaned<unsigned short> {
             using type = short;
         };
 
         template<>
-        struct make_signed_base<unsigned int> {
+        struct make_signed_from_cv_cleaned<unsigned int> {
             using type = int;
         };
 
         template<>
-        struct make_signed_base<unsigned long> {
+        struct make_signed_from_cv_cleaned<unsigned long> {
             using type = long;
         };
 
         template<>
-        struct make_signed_base<unsigned long long> {
+        struct make_signed_from_cv_cleaned<unsigned long long> {
             using type = long long;
         };
 
         template<>
-        struct make_signed_base<char> {
+        struct make_signed_from_cv_cleaned<char> {
             using type = signed char;
         };
 
         template<
             class T,
-            bool IsIntegral = std::is_integral_v<T>,
-            bool IsEnum = std::is_enum_v<T>
+            bool kIsIntegral = std::is_integral_v<T>,
+            bool kIsEnum = std::is_enum_v<T>
         >
         struct make_signed;
 
         template<class T>
         struct make_signed<T, true, false> {
         private:
-            using signed_t = typename make_signed_base<std::remove_cv_t<T> >::type;
+            using signed_t = typename make_signed_from_cv_cleaned<std::remove_cv_t<T> >::type;
 
         public:
             using type = typename preserve_cv<T, signed_t>::type;
@@ -824,16 +953,20 @@ namespace std {
 
         template<class T>
         struct make_signed<T, false, true> {
+        protected:
+            using unsigned_type = typename lowest_rank_unsigned_selector<remove_cv_t<T> >::type;
+            using signed_type = typename make_signed<unsigned_type>::type;
+
+        public:
+            using type = typename preserve_cv<T, signed_type>::type;
         };
     }
 
-    // TODO
+    template<class T>
+    struct make_signed : internal::make_signed<T> {
+    };
 
-    // ------------------------------
-    // std::make_unsigned
-    // ------------------------------
-
-    // TODO
+    __DEF_CONSTEXPR_ACCESSOR_T(make_signed)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Arrays
@@ -890,7 +1023,7 @@ namespace std {
     // Type construction
     // ------------------------------
 
-    #define __DEF_COMPLETE_ARGS_TYPE_TRAIT(name, func) \
+#define __DEF_COMPLETE_ARGS_TYPE_TRAIT(name, func) \
         template<class T, class... Args> \
         struct name : std::bool_constant<func(T, Args...)> { \
         }; \
@@ -956,6 +1089,268 @@ namespace std {
 
     template<class T>
     using decay_t = typename decay<T>::type;
+
+    // ------------------------------
+    // std::aligned_storage
+    // ------------------------------
+
+    template<std::size_t kLen, std::size_t kAlign = alignof(std::size_t)>
+    struct aligned_storage {
+        struct type {
+            alignas(kAlign) unsigned char data[kLen];
+        };
+    };
+
+    template<std::size_t kLen, std::size_t kAlign = alignof(std::size_t)>
+    using aligned_storage_t = typename aligned_storage<kLen, kAlign>::type;
+
+    // ------------------------------
+    // std::aligned_union
+    // ------------------------------
+
+    template<std::size_t kLen, class T, class... Types>
+    struct aligned_union {
+        static constexpr std::size_t alignment_value =
+                internal::max(alignof(T), aligned_union<kLen, Types...>::alignment_value);
+
+        static constexpr std::size_t clamped_size =
+                internal::max(sizeof(T), aligned_union<kLen, Types...>::clamped_size);
+
+        struct type {
+            alignas(alignment_value) char _s[internal::max(kLen, clamped_size)];
+        };
+    };
+
+    template<std::size_t kLen, class T>
+    struct aligned_union {
+        static constexpr std::size_t alignment_value = alignof(T);
+        static constexpr std::size_t clamped_size = sizeof(T);
+
+        struct type {
+            alignas(alignment_value) char _s[internal::max(kLen, clamped_size)];
+        };
+    };
+
+    template<std::size_t kSize, class... Types>
+    using aligned_union_t = typename aligned_union<kSize, Types...>::type;
+
+    // ------------------------------
+    // std::enable_if
+    // ------------------------------
+
+    template<bool, class>
+    struct enable_if {
+    };
+
+    template<class T>
+    struct enable_if<true, T> {
+        using type = T;
+    };
+
+    template<bool kEnable, class T>
+    using enable_if_t = typename enable_if<kEnable, T>::type;
+
+    // ------------------------------
+    // std::remove_cvref
+    // ------------------------------
+
+    template<class T>
+    struct remove_cvref {
+        using type = std::remove_cv_t<std::remove_reference_t<T> >;
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR_T(remove_cvref)
+
+    // ------------------------------
+    // std::void_t
+    // ------------------------------
+
+    template<typename...>
+    using void_t = void;
+
+    // ------------------------------
+    // std::unwrap_reference
+    // ------------------------------
+
+    // TODO
+
+    // ------------------------------
+    // std::unwrap_ref_decay
+    // ------------------------------
+
+    // TODO
+
+    // ------------------------------
+    // std::underlying_type
+    // ------------------------------
+
+    namespace internal {
+        template<class T, bool = is_enum_v<T> >
+        struct underlying_type {
+        };
+
+        template<class T>
+        struct underlying_type<T, true> {
+            using type = __underlying_type(T);
+        };
+    }
+
+    template<class T>
+    struct underlying_type : internal::underlying_type<T> {
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR_T(underlying_type)
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Property queries
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // ------------------------------
+    // std::alignment_of
+    // ------------------------------
+
+    template<class T>
+    struct alignment_of : std::integral_constant<std::size_t, alignof(T)> {
+    };
+
+    template<class T>
+    constexpr std::size_t alignment_of_v = alignment_of<T>::value;
+
+    // ------------------------------
+    // std::rank
+    // ------------------------------
+
+    template<class T>
+    struct rank : std::integral_constant<std::size_t, 0> {
+    };
+
+    template<class T>
+    struct rank<T[]> : std::integral_constant<std::size_t, rank<T>::value + 1> {
+    };
+
+    template<class T, std::size_t N>
+    struct rank<T[N]> : std::integral_constant<std::size_t, rank<T>::value + 1> {
+    };
+
+    template<class T>
+    constexpr std::size_t rank_v = rank<T>::value;
+
+    // ------------------------------
+    // std::extent
+    // ------------------------------
+
+    template<class T, unsigned = 0>
+    struct extent : std::integral_constant<std::size_t, 0> {
+    };
+
+    template<class T>
+    struct extent<T[], 0> : std::integral_constant<std::size_t, 0> {
+    };
+
+    template<class T, unsigned N>
+    struct extent<T[], N> : std::extent<T, N - 1> {
+    };
+
+    template<class T, std::size_t I>
+    struct extent<T[I], 0> : std::integral_constant<std::size_t, I> {
+    };
+
+    template<class T, std::size_t I, unsigned N>
+    struct extent<T[I], N> : std::extent<T, N - 1> {
+    };
+
+    template<class T, unsigned N = 0>
+    constexpr std::size_t extent_v = extent<T, N>::value;
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Functions
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // ----------------------------------
+    // std::is_constant_evaluated()
+    // ----------------------------------
+
+    NODSCRD constexpr bool is_constant_evaluated() noexcept {
+        return __builtin_is_constant_evaluated();
+    }
+
+    // ----------------------------------
+    // std::is_corresponding_member
+    // ----------------------------------
+
+    template<typename S1, typename S2, typename M1, typename M2>
+    NODSCRD constexpr bool is_corresponding_member(M1 S1::*m1, M2 S2::*m2) noexcept {
+        return __builtin_is_corresponding_member(m1, m2);
+    }
+
+    // --------------------------------------------
+    // is_pointer_interconvertible_with_class
+    // --------------------------------------------
+
+    template<typename T, typename Mem>
+    NODSCRD constexpr bool is_pointer_interconvertible_with_class(Mem T::*mp) noexcept {
+        return __builtin_is_pointer_interconvertible_with_class(mp);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Operations on traits
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // ------------------------------
+    // std::conjunction
+    // ------------------------------
+
+    template<class T, class... Types>
+    struct conjunction
+            : std::conditional_t<T::value, conjunction<Types...>, T> {
+    };
+
+    template<>
+    struct conjunction : std::true_type {
+    };
+
+    template<class T>
+    struct conjunction<T> : T {
+    };
+
+    template<class... Types>
+    constexpr bool conjunction_v = conjunction<Types>::value;
+
+    // ------------------------------
+    // std::disjunction
+    // ------------------------------
+
+    template<class T, class... Types>
+    struct disjunction<T, Types...>
+            : std::conditional_t<T::value, T, disjunction<T...> > {
+    };
+
+    template<>
+    struct disjunction : std::false_type {
+    };
+
+    template<class T>
+    struct disjunction<T> : T {
+    };
+
+    template<class... Types>
+    constexpr bool disjunction_v = disjunction<Types>::value;
+
+    // ------------------------------
+    // std::negation
+    // ------------------------------
+
+    template<class B>
+    struct negation : std::bool_constant<!B::value> {
+    };
+
+    __DEF_CONSTEXPR_ACCESSOR(negation)
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Type relationships
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 } // namespace std
 
 #endif  // LIBC_INCLUDE_EXTENSIONS_TYPE_TRAITS_HPP_
